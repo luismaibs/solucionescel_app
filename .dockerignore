@@ -1,0 +1,13 @@
+.env
+.env.*
+.git
+.gitignore
+.cursor
+.claude
+.vscode
+vendor/
+node_modules/
+*.bak
+*.log
+debug_*.php
+README.md

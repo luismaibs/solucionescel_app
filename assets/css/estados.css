@@ -1,0 +1,72 @@
+/**
+ * Estilos del módulo de Configuración de Estados
+ */
+
+.color-dot {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    vertical-align: middle;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.estado-sub {
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.estado-sub td:first-child {
+    padding-left: 2.5rem !important;
+}
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.btn-action:hover {
+    transform: scale(1.1);
+}
+
+#modalEstado .form-control-color {
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.1));
+    background: transparent;
+}
+
+#modalEstado .form-control-color::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+
+#modalEstado .form-control-color::-webkit-color-swatch {
+    border-radius: 6px;
+    border: none;
+}
+
+/* Toggle hijos */
+.toggle-hijos i {
+    transition: transform 0.2s ease;
+}
+
+/* Responsive: ocultar slug en móvil */
+@media (max-width: 768px) {
+    #tablaPrimerIngreso th:nth-child(4),
+    #tablaPrimerIngreso td:nth-child(4),
+    #tablaReIngreso th:nth-child(4),
+    #tablaReIngreso td:nth-child(4) {
+        display: none;
+    }
+
+    .estado-sub td:first-child {
+        padding-left: 1.5rem !important;
+    }
+}
+
+/* Toast igual que en panel */
+.toast-container { z-index: 1055; }

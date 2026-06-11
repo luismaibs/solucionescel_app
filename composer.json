@@ -1,0 +1,11 @@
+{
+    "name": "solucionescel/solcel-app",
+    "description": "Sistema de gestión para taller de reparación de celulares",
+    "type": "project",
+    "require": {
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "classmap": ["src/"]
+    }
+}

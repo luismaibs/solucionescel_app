@@ -1,0 +1,17 @@
+{
+  "name": "SOLUCIONESCEL - Sistema de Gestión",
+  "short_name": "SOLUCIONESCEL",
+  "description": "Sistema completo de gestión para taller y usuarios",
+  "start_url": "/index.php",
+  "scope": "/",
+  "display_override": ["standalone", "minimal-ui"],
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src": "/assets/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ],
+  "categories": ["business", "productivity"],
+  "prefer_related_applications": false
+}

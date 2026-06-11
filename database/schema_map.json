@@ -1,0 +1,280 @@
+{
+  "_nota_importante": "NO existe la tabla 'servicios'. Para consultas sobre servicios usar SIEMPRE inv_servicios_generales.",
+  "_nota_catalogos": "Los catálogos son compartidos entre categorías. marcas/modelos/colores/subcategorias son las tablas de referencia para inv_accesorios, inv_baterias e inv_pantallas.",
+  "database": "SOLUCIONESCEL",
+  "description": "Sistema de gestión de taller de reparación de celulares. Incluye módulos de reparaciones, inventario multi-categoría, soporte por WhatsApp, usuarios con roles y logs de actividad.",
+  "engine": "PostgreSQL 16",
+  "encoding": "UTF8",
+  "timezone": "America/Mexico_City (-06:00)",
+  "soft_delete": "La mayoría de tablas usan deleted_at (timestamp NULL). Siempre filtra con WHERE deleted_at IS NULL para excluir registros eliminados.",
+  "tables": {
+    "marcas": {
+      "description": "Catálogo compartido de marcas (Samsung, Apple, Xiaomi...). Usado por inv_accesorios, inv_baterias, inv_pantallas y reparaciones.",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "nombre": "text UNIQUE por tenant",
+        "activo": "boolean DEFAULT true",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz"
+      }
+    },
+    "modelos": {
+      "description": "Catálogo compartido de modelos de dispositivo (iPhone 13, Redmi 12, Samsung A52...). Usado por inv_baterias y inv_pantallas (modelo comercial y técnico).",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "nombre": "text UNIQUE por tenant",
+        "activo": "boolean DEFAULT true",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz"
+      }
+    },
+    "colores": {
+      "description": "Catálogo compartido de colores (negro, blanco, azul...). Usado por inv_accesorios.",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "nombre": "text UNIQUE por tenant",
+        "activo": "boolean DEFAULT true",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz"
+      }
+    },
+    "subcategorias": {
+      "description": "Catálogo de subcategorías de accesorios (Fundas, Cables, Cargadores...). Usado por inv_accesorios.",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "nombre": "text UNIQUE por tenant",
+        "activo": "boolean DEFAULT true",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz"
+      }
+    },
+    "reparaciones": {
+      "description": "Órdenes de reparación de equipos celulares. Tabla principal del negocio.",
+      "columns": {
+        "id": "bigserial PK",
+        "folio_publico": "text UNIQUE - Folio físico de la nota impresa",
+        "cliente_id": "bigint FK → clientes.id",
+        "equipo_marca": "text NULL - Marca del equipo (texto libre, legado)",
+        "equipo_marca_id": "bigint NULL FK → marcas.id",
+        "equipo_modelo": "text - Modelo del equipo",
+        "falla_reportada": "text - Descripción de la falla",
+        "estado": "text - ingresado | diagnostico | en_taller | listo | no_quedo | garantia_fallida | entregado | garantia_entregada | garantia_finalizada | confirmacion_garantia | garantia_activada | inactivo",
+        "fecha_ingreso": "timestamptz DEFAULT now()",
+        "costo_final": "decimal(10,2) NULL",
+        "deleted_at": "timestamptz NULL"
+      },
+      "estados_significado": {
+        "en_taller": "Siendo reparado (incluye ingresados y en diagnóstico)",
+        "listo": "Reparación exitosa, listo para entrega",
+        "no_quedo": "No se pudo reparar (fracaso)",
+        "entregado": "Ya entregado al cliente",
+        "garantia_activada": "Garantía en proceso de revisión técnica",
+        "garantia_finalizada": "Garantía exitosa",
+        "garantia_fallida": "Garantía fallida",
+        "garantia_entregada": "Equipo en garantía ya entregado",
+        "inactivo": "Desactivado"
+      }
+    },
+    "clientes": {
+      "description": "Clientes registrados en el sistema",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "nombre": "text",
+        "apellido": "text",
+        "telefono": "text UNIQUE por tenant",
+        "correo": "text NULL",
+        "created_at": "timestamptz",
+        "deleted_at": "timestamptz NULL"
+      }
+    },
+    "inv_accesorios": {
+      "description": "Inventario de accesorios (fundas, cables, cargadores, etc.)",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "subcategoria_id": "bigint FK → subcategorias.id",
+        "marca_id": "bigint FK → marcas.id",
+        "color_id": "bigint FK → colores.id",
+        "codigo": "text - Código de producto",
+        "nombre_producto": "text",
+        "stock": "int DEFAULT 0",
+        "precio": "decimal(10,2)",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz",
+        "deleted_at": "timestamptz NULL"
+      }
+    },
+    "inv_baterias": {
+      "description": "Inventario de baterías para celulares",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "marca_id": "bigint FK → marcas.id",
+        "modelo_id": "bigint FK → modelos.id",
+        "calidad": "text - CSV: Genérico, Larga duración, Original",
+        "tipo": "text - CSV: Interna, Externa",
+        "tiempo": "text - CSV de tiempos de entrega",
+        "notas": "text NULL",
+        "precio": "decimal(10,2)",
+        "stock": "int DEFAULT 0",
+        "codigo": "text NULL",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz",
+        "deleted_at": "timestamptz NULL"
+      }
+    },
+    "inv_pantallas": {
+      "description": "Inventario de pantallas para celulares",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "marca_id": "bigint FK → marcas.id NULL",
+        "modelo_id": "bigint FK → modelos.id - Modelo comercial",
+        "modelo_tecnico_id": "bigint FK → modelos.id - Modelo técnico (misma tabla modelos)",
+        "calidad": "text - Original | Intermedio | Genérico",
+        "precio": "decimal(10,2)",
+        "tiempo": "text - Tiempo de entrega",
+        "nota": "text NULL",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz",
+        "deleted_at": "timestamptz NULL"
+      }
+    },
+    "inv_servicios_generales": {
+      "description": "Catálogo de servicios generales (desbloqueo, liberaciones, reparaciones de software, etc.)",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "subcategoria": "text - desbloqueo | liberaciones | servicios | reparaciones | software",
+        "gama": "text - baja | media | alta | premium | s.premium | todas las gamas",
+        "sistemas_operativos": "text - CSV de sistemas operativos compatibles",
+        "garantia": "text - SI | NO",
+        "tiempo_entrega": "text NULL",
+        "precio": "decimal(10,2)",
+        "nota": "text NULL",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz",
+        "deleted_at": "timestamptz NULL"
+      }
+    },
+    "inv_servicios_acciones": {
+      "description": "Acciones/pasos vinculados a un servicio general",
+      "columns": {
+        "id": "bigserial PK",
+        "servicio_id": "bigint FK → inv_servicios_generales.id CASCADE",
+        "accion": "text",
+        "orden": "int DEFAULT 0"
+      }
+    },
+    "inv_embeddings": {
+      "description": "Embeddings vectoriales (1536 dims) para búsqueda semántica RAG del inventario. Cada fila = un producto de inv_accesorios/inv_baterias/inv_pantallas/inv_servicios_generales.",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "categoria": "text - accesorios | baterias | pantallas | servicios",
+        "producto_id": "bigint - FK al id en la tabla de categoria",
+        "texto_busqueda": "text - Texto semántico usado para generar el embedding",
+        "embedding": "vector(1536) - Vector de embedding DeepSeek",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz"
+      },
+      "notas_analisis": "Buscar con SELECT * FROM inv_embeddings ORDER BY embedding <=> query_embedding LIMIT N. Usar la función RPC rpc_buscar_inventario(p_tenant_id, p_embedding, p_limit) para búsquedas."
+    },
+    "usuarios": {
+      "description": "Usuarios del sistema (técnicos y administradores)",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "username": "text UNIQUE",
+        "password_hash": "text - NO consultar este campo",
+        "nombre_completo": "text",
+        "rol": "text DEFAULT 'usuario'",
+        "nivel_acceso": "text DEFAULT 'usuario' - admin o usuario",
+        "activo": "boolean DEFAULT true",
+        "auth_user_id": "uuid NULL - FK a Supabase Auth",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz",
+        "deleted_at": "timestamptz NULL"
+      },
+      "notas_analisis": "NUNCA incluir password_hash en consultas."
+    },
+    "roles": {
+      "description": "Definición de roles del sistema",
+      "columns": {
+        "id": "bigserial PK",
+        "nombre": "text",
+        "slug": "text UNIQUE - admin = acceso total",
+        "created_at": "timestamptz"
+      }
+    },
+    "bot_conversaciones": {
+      "description": "Conversaciones del bot de WhatsApp que requirieron intervención humana",
+      "columns": {
+        "id": "bigserial PK",
+        "tenant_id": "bigint FK → tenants.id",
+        "remote_jid": "text - ID de WhatsApp",
+        "nombre_cliente": "text",
+        "telefono": "text",
+        "mensaje": "text NULL",
+        "estado": "text - pausado | activo",
+        "fecha_pausa": "timestamptz",
+        "fecha_reactivacion": "timestamptz NULL",
+        "deleted_at": "timestamptz NULL",
+        "created_at": "timestamptz",
+        "updated_at": "timestamptz"
+      }
+    },
+    "historial_mensajes": {
+      "description": "Historial de mensajes/notificaciones enviados a clientes (via WhatsApp/n8n)",
+      "columns": {
+        "id": "bigserial PK",
+        "reparacion_id": "bigint FK → reparaciones.id",
+        "tipo_mensaje": "text",
+        "contenido_mensaje": "text NULL",
+        "enviado_por": "text NULL",
+        "estado_envio": "text - enviado | fallido | pendiente",
+        "respuesta_api": "text NULL",
+        "fecha_envio": "timestamptz"
+      }
+    },
+    "actividad_logs": {
+      "description": "Registro de auditoría de acciones de usuarios",
+      "columns": {
+        "id": "bigserial PK",
+        "username": "text",
+        "accion": "text - crear, editar, eliminar, cambiar_estado, etc.",
+        "detalle": "text NULL",
+        "entidad_id": "bigint NULL",
+        "entidad_tipo": "text NULL - reparacion, inventario, usuario, etc.",
+        "fecha": "timestamptz"
+      }
+    }
+  },
+  "relationships": [
+    {"from": "inv_accesorios.subcategoria_id", "to": "subcategorias.id", "type": "many_to_one"},
+    {"from": "inv_accesorios.marca_id",        "to": "marcas.id",        "type": "many_to_one"},
+    {"from": "inv_accesorios.color_id",         "to": "colores.id",       "type": "many_to_one"},
+    {"from": "inv_baterias.marca_id",           "to": "marcas.id",        "type": "many_to_one"},
+    {"from": "inv_baterias.modelo_id",          "to": "modelos.id",       "type": "many_to_one"},
+    {"from": "inv_pantallas.modelo_id",         "to": "modelos.id",       "type": "many_to_one"},
+    {"from": "inv_pantallas.modelo_tecnico_id", "to": "modelos.id",       "type": "many_to_one"},
+    {"from": "inv_servicios_acciones.servicio_id", "to": "inv_servicios_generales.id", "type": "many_to_one", "on_delete": "CASCADE"},
+    {"from": "reparaciones.equipo_marca_id",     "to": "marcas.id",        "type": "many_to_one"},
+    {"from": "historial_mensajes.reparacion_id", "to": "reparaciones.id", "type": "many_to_one"},
+    {"from": "reparaciones.cliente_id",          "to": "clientes.id",     "type": "many_to_one"}
+  ],
+  "common_queries_hints": [
+    "Reparaciones activas: WHERE estado NOT IN ('entregado','inactivo') AND deleted_at IS NULL",
+    "Tasa de éxito: COUNT(estado IN ('listo','entregado')) / COUNT(estado IN ('listo','entregado','no_quedo')) * 100",
+    "Para JOINs de accesorios: inv_accesorios JOIN subcategorias ON subcategoria_id JOIN marcas ON marca_id JOIN colores ON color_id",
+    "Para JOINs de baterías: inv_baterias JOIN marcas ON marca_id JOIN modelos ON modelo_id",
+    "Para JOINs de pantallas: inv_pantallas JOIN modelos m1 ON modelo_id JOIN modelos m2 ON modelo_tecnico_id",
+    "Para consultas sobre SERVICIOS usar la tabla inv_servicios_generales (NO existe tabla 'servicios')",
+    "Catálogos disponibles via GET /api/catalogos.php?tipo=marcas|modelos|colores|subcategorias"
+  ]
+}

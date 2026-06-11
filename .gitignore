@@ -1,0 +1,47 @@
+# Variables de entorno (credenciales sensibles)
+.env
+.env.local
+.env.production
+
+# Archivos de debug y logs
+debug_*.log
+debug-*.log
+debug_log.txt
+debug_pausa.log
+*.log
+error_log
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+*~
+
+# Carpetas de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+.cursor/
+.claude/
+*.sublime-*
+
+# Composer
+/vendor/
+
+# Node modules (si se usa)
+node_modules/
+package-lock.json
+
+# Archivos de base de datos locales
+*.db
+*.sqlite
+*.sqlite3
+
+# Backups
+backup/
+*.sql.gz
+*.sql.zip

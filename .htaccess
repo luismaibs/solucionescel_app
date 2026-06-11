@@ -1,0 +1,67 @@
+# ═══════════════════════════════════════════════════════
+#  COMPRESIÓN GZIP — reduce ~75% del tamaño de assets
+# ═══════════════════════════════════════════════════════
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE application/xml text/xml
+    AddOutputFilterByType DEFLATE application/x-font-ttf application/x-font-opentype
+    AddOutputFilterByType DEFLATE font/opentype font/ttf font/otf
+</IfModule>
+
+# ═══════════════════════════════════════════════════════
+#  CACHE HEADERS — assets estáticos con expiración larga
+# ═══════════════════════════════════════════════════════
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/x-font-ttf "access plus 1 year"
+    ExpiresByType application/x-font-opentype "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|svg|png|jpg|jpeg|webp|woff2?|ttf|otf)$">
+        Header set Cache-Control "public, max-age=2592000, immutable"
+    </FilesMatch>
+</IfModule>
+
+# ═══════════════════════════════════════════════════════
+#  URLs LIMPIAS — sin extensión .php
+# ═══════════════════════════════════════════════════════
+
+Options -MultiViews
+RewriteEngine On
+
+# ── REGLA 0: Bloquear acceso directo a archivos sensibles ──
+RewriteRule ^config/ - [F,L]
+RewriteRule ^src/ - [F,L]
+RewriteRule ^vendor/ - [F,L]
+RewriteRule ^\.env - [F,L]
+RewriteRule ^composer\.(json|lock) - [F,L]
+
+# ── REGLA 1: Redirigir .php externo → URL limpia (301) ──
+RewriteCond %{THE_REQUEST} \s/([^.]+)\.php[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L,NE]
+
+# ── REGLA 2: Caso especial: /api sin subdirectorio → api.php ──
+# (debe ir antes del rewrite genérico, porque existe el directorio api/)
+RewriteRule ^api$ api.php [L]
+
+# ── REGLA 3: Reescribir internamente URL limpia → .php ──
+# Si la URL no tiene extensión y el archivo .php correspondiente existe
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L,QSA]
+
+# ── REGLA 4: Página 404 personalizada ──
+ErrorDocument 404 /404.php

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sin Conexión - SOLUCIONESCEL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            padding-left: calc(2rem + env(safe-area-inset-left, 0px));
+            padding-right: calc(2rem + env(safe-area-inset-right, 0px));
+            padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+            padding-top: calc(2rem + env(safe-area-inset-top, 0px));
+        }
+
+        .container {
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .icon-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        .icon {
+            font-size: 4rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .retry-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .info-box h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #3b82f6;
+        }
+
+        .info-box p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="icon-container">
+            <div class="icon">📡</div>
+        </div>
+
+        <h1>Sin Conexión a Internet</h1>
+        <p>No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta nuevamente.</p>
+
+        <button class="retry-btn" onclick="window.location.reload()">
+            🔄 Reintentar Conexión
+        </button>
+
+        <p class="mt-3">
+            <a href="/index.php" style="color: #94a3b8; text-decoration: underline;">Ir al inicio</a>
+        </p>
+
+        <div class="info-box">
+            <h3>💡 Modo Offline</h3>
+            <p>Esta aplicación funciona mejor con conexión a internet. Algunas funciones pueden no estar disponibles sin
+                conexión.</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-retry connection every 30 seconds
+        let retryInterval;
+
+        function checkConnection() {
+            if (navigator.onLine) {
+                console.log('Conexión restaurada, recargando...');
+                window.location.href = '/';
+            }
+        }
+
+        // Start auto-retry
+        retryInterval = setInterval(checkConnection, 30000);
+
+        // Listen for online event
+        window.addEventListener('online', () => {
+            console.log('Conexión detectada');
+            clearInterval(retryInterval);
+            window.location.href = '/';
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+# ═══════════════════════════════════════════════════════
+#  URLs LIMPIAS EN MODULES — sin extensión .php
+# ═══════════════════════════════════════════════════════
+
+Options -MultiViews
+RewriteEngine On
+
+# ── REGLA 1: Redirigir .php externo → URL limpia (301) ──
+RewriteCond %{THE_REQUEST} \s/([^.]+)\.php[\s?] [NC]
+RewriteRule ^ %{ENV:BASE}%1 [R=301,L,NE]
+
+# ── REGLA 2: Reescribir internamente URL limpia → .php ──
+# Si la URL no tiene extensión y el archivo .php correspondiente existe
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L,QSA]
