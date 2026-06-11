@@ -16,12 +16,11 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Install autoloader (no external deps, just generates vendor/autoload.php)
-COPY composer.json ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-
-# Copy application source (vendor/ excluded via .dockerignore)
+# Copy full source first (classmap autoloader needs src/ to exist)
 COPY . .
+
+# Generate autoloader (no external deps, classmap scans src/)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Correct ownership so Apache can read all files
 RUN chown -R www-data:www-data /var/www/html
