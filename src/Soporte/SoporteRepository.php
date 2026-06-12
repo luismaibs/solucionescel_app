@@ -138,6 +138,16 @@ class SoporteRepository
         return $result['ok'] ? count($result['data'] ?? []) : 0;
     }
 
+    public function countSoporteTotal(): int
+    {
+        return $this->countTotalConversaciones();
+    }
+
+    public function countSoportePendiente(): int
+    {
+        return $this->countConversacionesPausadas();
+    }
+
     public function findTrendSoporte(int $dias = 7): array
     {
         $tid = TenantContext::requireTenant();

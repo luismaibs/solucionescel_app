@@ -302,6 +302,8 @@ try {
                 reactivarBot: reactivarBot,
                 filterConversations: filterConversations
             };
+            window.filterConversations = filterConversations;
+            window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat(['Soporte', 'filterConversations']);
 
             onModuleReady(function () {
                 cargarConversaciones();

@@ -192,6 +192,16 @@ $soporteData     = json_encode(array_column($data['trendSoporte'], 'total'));
 
     <script>
         // CONFIGURACIÓN GLOBAL CHART.JS
+    (function () {
+        'use strict';
+
+        function initCharts() {
+            if (!window.Chart) {
+                setTimeout(initCharts, 50);
+                return;
+            }
+            if (!document.getElementById('chartTrend')) return;
+
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
         Chart.defaults.font.family = "'Inter', sans-serif";
@@ -367,7 +377,10 @@ $soporteData     = json_encode(array_column($data['trendSoporte'], 'total'));
                 }
             }
         });
+        }
 
+        onModuleReady(initCharts);
+    })();
     </script>
 <?php if (!$isFragment): ?>
 </main>
