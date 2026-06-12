@@ -67,7 +67,7 @@
     function loadEstadosMap() {
         if (estadosReady) return estadosReady;
         estadosReady = new Promise(function (resolve) {
-            fetch(apiBase + 'api_estados.php?action=tree')
+            fetch(apiBase + 'api_estados?action=tree')
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     if (!data.ok) {

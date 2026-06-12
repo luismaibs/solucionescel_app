@@ -943,7 +943,7 @@ if ($panelError !== null) {
     <script>window.PANEL_DATA = { datosMarcas: <?= $jsonMarcas ?: '{}' ?>, equiposMarcas: <?= $jsonEquiposMarcas ?: '[]' ?> };</script>
     <script>window.PIPELINE_ESTADOS = <?= $jsonEstadosPipeline ?: '[]' ?>;</script>
     <script>window.PIPELINE_PUEDE_CAMBIAR_ESTADO = true;</script>
-    <?php $v = date('YmdHi'); ?>
+    <?php $v = defined('APP_VERSION') ? APP_VERSION : date('Ymd'); ?>
     <script defer src="../assets/js/panel-utils.js?v=<?= $v ?>"></script>
     <script defer src="../assets/js/panel-offcanvas.js?v=<?= $v ?>"></script>
     <script defer src="../assets/js/panel-reparaciones.js?v=<?= $v ?>"></script>

@@ -382,12 +382,12 @@ function redirectTo(string $path, string $query = ''): void
         $url .= (strpos($url, '?') === false ? '?' : '&') . $query;
     }
 
-    // Fragment requests: retornar 401/403 JSON para que el SPA router maneje el redirect
-    if (isFragmentRequest()) {
+    // Fragment requests (SPA router) o llamadas de API pura: responder JSON en vez de redirect
+    if (isFragmentRequest() || defined('IS_API_REQUEST')) {
         http_response_code($path === 'login' ? 401 : 403);
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
         header('X-Redirect-Url: ' . $url);
-        echo json_encode(['redirect' => $url]);
+        echo json_encode(['ok' => false, 'redirect' => $url, 'message' => $path === 'login' ? 'Sesión expirada' : 'Sin permisos']);
         exit;
     }
 

@@ -149,7 +149,8 @@ include_once '../includes/fragment_helper.php';
         </main>
     </div>
 
-    <script defer src="../assets/js/asistente-ia.js"></script>
+    <?php $v = defined('APP_VERSION') ? APP_VERSION : date('Ymd'); ?>
+    <script defer src="../assets/js/asistente-ia.js?v=<?= $v ?>"></script>
 
 <?php if (!$isFragment): ?>
 </main>

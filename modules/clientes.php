@@ -498,7 +498,7 @@ include_once '../includes/fragment_helper.php';
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        onModuleReady(function () {
             const modalEl = document.getElementById('modalEliminar');
             if (modalEl) modalEliminar = new bootstrap.Modal(modalEl);
 

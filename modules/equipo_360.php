@@ -342,7 +342,7 @@ if ($equipoId <= 0) {
             }).join('') + '</div>';
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        onModuleReady(function () {
             loadEquipo();
         });
 

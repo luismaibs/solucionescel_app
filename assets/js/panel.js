@@ -7,7 +7,7 @@
 
     const datosMarcas = (window.PANEL_DATA && window.PANEL_DATA.datosMarcas) ? window.PANEL_DATA.datosMarcas : {};
 
-    document.addEventListener('DOMContentLoaded', function () {
+    onModuleReady(function () {
         var pr = window.PanelReparaciones;
         if (!pr) return;
 
@@ -79,7 +79,7 @@
                     fd.append('telefono', telefono);
                     fd.append('lada', lada || '52');
                     fd.append('correo', '');
-                    fetch((window.APP_API_BASE || 'api/') + 'api_clientes.php', { method: 'POST', body: fd })
+                    fetch((window.APP_API_BASE || 'api/') + 'api_clientes', { method: 'POST', body: fd })
                         .then(function (r) { return r.json(); })
                         .then(function (data) {
                             if (!data.ok) {

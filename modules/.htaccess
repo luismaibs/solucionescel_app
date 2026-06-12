@@ -5,7 +5,9 @@
 Options -MultiViews
 RewriteEngine On
 
-# ── REGLA 1: Redirigir .php externo → URL limpia (301) ──
+# ── REGLA 1: Redirigir .php externo → URL limpia (301, solo GET) ──
+# Solo aplica en GET para no corromper body en POST/PUT/DELETE
+RewriteCond %{REQUEST_METHOD} GET
 RewriteCond %{THE_REQUEST} \s/([^.]+)\.php[\s?] [NC]
 RewriteRule ^ %{ENV:BASE}%1 [R=301,L,NE]
 

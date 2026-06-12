@@ -303,7 +303,7 @@ if ($clienteId <= 0) {
             '</div>';
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        onModuleReady(function () {
             loadCliente();
         });
 

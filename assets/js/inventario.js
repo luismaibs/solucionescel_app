@@ -613,7 +613,7 @@
         });
 
         // Mobile card click delegation
-        document.addEventListener('DOMContentLoaded', function () {
+        onModuleReady(function () {
             var invCardsContainer = document.getElementById('invCardsContainer');
             if (invCardsContainer) {
                 invCardsContainer.addEventListener('click', function (e) {

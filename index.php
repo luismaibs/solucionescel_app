@@ -177,7 +177,7 @@ $rolColor    = $currentRole === 'admin' ? 'warning' : 'primary';
         document.getElementById('mainContent').classList.add('d-none');
         document.getElementById('errorState').classList.add('d-none');
 
-        fetch('api/api_usuario_360.php')
+        fetch((window.APP_API_BASE || 'api/') + 'api_usuario_360')
             .then(function(r){ return r.json(); })
             .then(function(res) {
                 if (!res.ok) throw new Error(res.message || 'Error');
@@ -203,7 +203,7 @@ $rolColor    = $currentRole === 'admin' ? 'warning' : 'primary';
             });
     }
 
-    document.addEventListener('DOMContentLoaded', cargarPerfil);
+    onModuleReady(cargarPerfil);
     </script>
 
 <?php if (!$isFragment): ?>

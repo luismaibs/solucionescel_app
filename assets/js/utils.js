@@ -86,6 +86,19 @@
     window.getEstadoColor = getEstadoColor;
     window.getEstadoLabel = getEstadoLabel;
 
+    /**
+     * Reemplaza document.addEventListener('DOMContentLoaded', fn) para módulos
+     * cargados tanto en carga inicial como vía SPA router (donde DOMContentLoaded
+     * ya disparó y nunca vuelve a hacerlo).
+     */
+    window.onModuleReady = function (fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn, { once: true });
+        } else {
+            fn();
+        }
+    };
+
     window.SCToast = {
         show: function (message, type) {
             type = type || 'info';

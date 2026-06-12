@@ -303,7 +303,7 @@ try {
                 filterConversations: filterConversations
             };
 
-            document.addEventListener('DOMContentLoaded', function () {
+            onModuleReady(function () {
                 cargarConversaciones();
                 startPolling();
 

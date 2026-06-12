@@ -240,7 +240,7 @@ include_once '../includes/fragment_helper.php';
                 });
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
+        onModuleReady(function () {
             loadAll();
             var liveToast = document.getElementById('liveToast');
             var errorToast = document.getElementById('errorToast');

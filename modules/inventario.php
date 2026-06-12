@@ -812,9 +812,9 @@ include_once '../includes/fragment_helper.php';
     };
     window.APP_DEBUG = <?= json_encode((getenv('APP_DEBUG') ?: 'false') === 'true') ?>;
     </script>
-    <script defer src="../assets/js/realtime.js"></script>
-
-    <script defer src="../assets/js/inventario.js"></script>
+    <?php $v = defined('APP_VERSION') ? APP_VERSION : date('Ymd'); ?>
+    <script defer src="../assets/js/realtime.js?v=<?= $v ?>"></script>
+    <script defer src="../assets/js/inventario.js?v=<?= $v ?>"></script>
 <?php if (!$isFragment): ?>
 </main>
 </body>

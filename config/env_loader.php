@@ -68,6 +68,13 @@ function loadEnv($path)
 // Como estamos en config/, subimos un nivel con dirname(__DIR__)
 loadEnv(dirname(__DIR__) . '/.env');
 
+// Versión de assets — se usa como ?v= en <script> y <link> para cache-busting.
+// Cambiar en .env (APP_VERSION=x.y.z) o déjalo vacío para usar la fecha de hoy.
+if (!defined('APP_VERSION')) {
+    $v = getenv('APP_VERSION') ?: '';
+    define('APP_VERSION', $v !== '' ? $v : date('Ymd'));
+}
+
 // Base path de la app (usar en redirectTo y otros)
 if (!defined('APP_BASE_PATH')) {
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';

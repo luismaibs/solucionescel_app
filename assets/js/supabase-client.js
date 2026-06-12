@@ -78,7 +78,7 @@
             if (result.error) return { ok: false, error: result.error.message };
 
             // Notificar al backend para establecer cookie HttpOnly
-            var bridgeRes = await fetch(apiBase() + 'auth_bridge.php', {
+            var bridgeRes = await fetch(apiBase() + 'auth_bridge', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -112,7 +112,7 @@
         }
 
         try {
-            await fetch(apiBase() + 'auth_bridge.php?action=logout', { method: 'POST' });
+            await fetch(apiBase() + 'auth_bridge?action=logout', { method: 'POST' });
         } catch (e) {}
 
         __authListeners = [];

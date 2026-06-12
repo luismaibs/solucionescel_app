@@ -177,7 +177,7 @@
                 return;
             }
             clienteSearchTimer = setTimeout(function () {
-                fetch((window.APP_API_BASE || 'api/') + 'api_clientes.php?action=search&q=' + encodeURIComponent(q))
+                fetch((window.APP_API_BASE || 'api/') + 'api_clientes?action=search&q=' + encodeURIComponent(q))
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
                         const items = (data.ok && Array.isArray(data.items)) ? data.items : [];
@@ -318,7 +318,7 @@
         fd.append('lada', lada);
         fd.append('correo', '');
 
-        fetch((window.APP_API_BASE || 'api/') + 'api_clientes.php', { method: 'POST', body: fd })
+        fetch((window.APP_API_BASE || 'api/') + 'api_clientes', { method: 'POST', body: fd })
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (!data.ok) {
@@ -450,7 +450,7 @@
         document.getElementById('loaderHistorial').style.display = 'block';
         document.getElementById('timelineContainer').innerHTML = '';
         abrirOffcanvas('offcanvasHistorial');
-        fetch((window.APP_API_BASE || 'api/') + 'api_history.php?id=' + id)
+        fetch((window.APP_API_BASE || 'api/') + 'api_history?id=' + id)
             .then(function (response) { return response.json(); })
             .then(function (data) {
                 document.getElementById('loaderHistorial').style.display = 'none';

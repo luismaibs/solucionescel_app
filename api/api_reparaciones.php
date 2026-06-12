@@ -1,10 +1,10 @@
 <?php
-include '../config/auth.php';
-requireLogin();
-include '../config/db.php';
+require_once __DIR__ . '/../config/api_guard.php';
 
 $webhook_n8n = getenv('N8N_WEBHOOK_NOTIFICAR');
-if (!$webhook_n8n) { throw new RuntimeException('N8N_WEBHOOK_NOTIFICAR no configurado'); }
+if (!$webhook_n8n) {
+    jsonResponse(['message' => 'Webhook N8N no configurado'], 500);
+}
 
 $repo = new ReparacionRepository($supabase);
 $clienteRepo = new ClienteRepository($supabase);
@@ -15,11 +15,9 @@ $service = new ReparacionService($supabase, $repo, $clienteRepo, $garantiaRepo, 
 
 $action = $_POST['action'] ?? '';
 
-function jsonResponse(bool $ok, string $message): void {
-    header('Content-Type: application/json');
-    echo json_encode(['ok' => $ok, 'message' => $message]);
-    exit;
-}
+// Alias local con la firma simple que usa este archivo
+function repOk(string $message): void { jsonResponse(['message' => $message]); }
+function repErr(string $message, int $code = 400): void { jsonResponse(['message' => $message], $code); }
 
 try {
     $handler = match ($action) {
@@ -27,70 +25,70 @@ try {
             if (isset($_POST['plantillas']) && is_array($_POST['plantillas'])) {
                 $service->guardarPlantillas($_POST['plantillas']);
             }
-            jsonResponse(true, 'Plantillas guardadas');
+            repOk('Plantillas guardadas');
         },
         'create' => function () use ($service) {
             $service->crearReparacion($_POST);
-            jsonResponse(true, 'Equipo creado exitosamente');
+            repOk('Equipo creado exitosamente');
         },
         'edit' => function () use ($service) {
             $service->editarReparacion($_POST);
-            jsonResponse(true, 'Equipo editado');
+            repOk('Equipo editado');
         },
         'update_status' => function () use ($service) {
             $id = (int) ($_POST['id'] ?? 0);
             $nuevoEstado = (string) ($_POST['nuevo_estado'] ?? '');
             $tipoGarantia = isset($_POST['tipo_garantia']) ? (string) $_POST['tipo_garantia'] : null;
             $service->cambiarEstado($id, $nuevoEstado, $tipoGarantia);
-            jsonResponse(true, 'Estado actualizado');
+            repOk('Estado actualizado');
         },
         'reactivar_sin_garantia' => function () use ($service) {
             $id = (int) ($_POST['id'] ?? 0);
             $service->reactivarSinGarantia($id);
-            jsonResponse(true, 'Equipo reactivado');
+            repOk('Equipo reactivado');
         },
         'reactivar_inactivo' => function () use ($service) {
             $id = (int) ($_POST['id'] ?? 0);
             $service->reactivarInactivo($id);
-            jsonResponse(true, 'Dispositivo reactivado');
+            repOk('Dispositivo reactivado');
         },
         'reactivar_entregado' => function () use ($service) {
             $id = (int) ($_POST['id'] ?? 0);
             $service->reactivarEntregado($id);
-            jsonResponse(true, 'Dispositivo reactivado - Garantía activada');
+            repOk('Dispositivo reactivado - Garantía activada');
         },
         'inactivar_garantia' => function () use ($service) {
             $id = (int) ($_POST['id'] ?? 0);
             $service->inactivarEquipo($id);
-            jsonResponse(true, 'Equipo inactivado');
+            repOk('Equipo inactivado');
         },
         'iniciar_garantia' => function () use ($service) {
             $id = (int) ($_POST['id'] ?? 0);
             $service->iniciarGarantia($id);
-            jsonResponse(true, 'Garantía iniciada');
+            repOk('Garantía iniciada');
         },
         'notify_extra' => function () use ($service) {
             $id = (int) ($_POST['id'] ?? 0);
             $tipoExtra = (string) ($_POST['tipo_extra'] ?? '');
             $service->enviarNotificacionExtra($id, $tipoExtra);
-            jsonResponse(true, 'Notificación enviada');
+            repOk('Notificación enviada');
         },
         'send_message' => function () use ($service) {
             $service->enviarMensajePersonalizado($_POST);
-            jsonResponse(true, 'Mensaje enviado');
+            repOk('Mensaje enviado');
         },
         'delete' => function () use ($service) {
             $id = (int) ($_POST['id'] ?? 0);
             $service->eliminarReparacion($id);
-            jsonResponse(true, 'Equipo eliminado');
+            repOk('Equipo eliminado');
         },
         default => function () {
-            jsonResponse(false, 'Acción no reconocida');
+            repErr('Acción no reconocida');
         },
     };
     $handler();
 } catch (InvalidArgumentException $e) {
     jsonResponse(false, $e->getMessage());
 } catch (Exception $e) {
-    jsonResponse(false, 'Error: ' . $e->getMessage());
+    repErr('Error: ' . $e->getMessage());
 }

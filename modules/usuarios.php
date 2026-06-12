@@ -563,6 +563,9 @@ include_once '../includes/fragment_helper.php';
     </div>
 
     <script>
+    (function () {
+        'use strict';
+
         const MODULO_ICONOS = {
             equipos: 'bi-tools', clientes: 'bi-person-lines-fill',
             inventario: 'bi-box-seam', soporte: 'bi-headset',
@@ -571,11 +574,11 @@ include_once '../includes/fragment_helper.php';
         const TODOS_MODULOS = ['equipos','clientes','inventario','soporte','mes_azul','analiticas'];
         let usersLastList = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
+        onModuleReady(function () {
             loadUsers();
             loadLogs();
             loadAuditoria();
-            window.addEventListener('resize', () => { if (usersLastList.length > 0) renderUsers(usersLastList); });
+            window.addEventListener('resize', function () { if (usersLastList.length > 0) renderUsers(usersLastList); });
         });
 
         function switchTab(tabName, el) {
@@ -919,6 +922,7 @@ include_once '../includes/fragment_helper.php';
                     document.getElementById('msgBoxEdit').innerHTML = '<span class="text-danger fw-bold">Error de conexión.</span>';
                 });
         });
+    })(); // IIFE
     </script>
 
 <?php if (!$isFragment): ?>

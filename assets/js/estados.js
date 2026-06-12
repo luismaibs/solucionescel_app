@@ -24,7 +24,7 @@
         if (tp) tp.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Cargando...</td></tr>';
         if (tr) tr.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Cargando...</td></tr>';
 
-        fetch(apiBase + 'api_estados.php?action=tree')
+        fetch(apiBase + 'api_estados?action=tree')
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (!data.ok) { showError(data.message || 'Error al cargar'); return; }
@@ -147,7 +147,7 @@
     }
 
     function editEstado(id) {
-        fetch(apiBase + 'api_estados.php?action=get&id=' + encodeURIComponent(id))
+        fetch(apiBase + 'api_estados?action=get&id=' + encodeURIComponent(id))
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (!data.ok) { showError(data.message); return; }
@@ -208,7 +208,7 @@
 
     function loadTemplatesForSelect(selectedId) {
         selectedId = selectedId || null;
-        return fetch(apiBase + 'api_estados.php?action=list_templates')
+        return fetch(apiBase + 'api_estados?action=list_templates')
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 var sel = document.getElementById('ef_plantilla_id');
@@ -251,7 +251,7 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
         errorEl.classList.add('d-none');
 
-        fetch(apiBase + 'api_estados.php', { method: 'POST', body: fd })
+        fetch(apiBase + 'api_estados', { method: 'POST', body: fd })
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (!data.ok) {
@@ -291,7 +291,7 @@
         fd.append('action', 'delete');
         fd.append('id', eliminarId);
 
-        fetch(apiBase + 'api_estados.php', { method: 'POST', body: fd })
+        fetch(apiBase + 'api_estados', { method: 'POST', body: fd })
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (modalEliminar) modalEliminar.hide();
@@ -377,7 +377,7 @@
     //  INICIALIZACION
     // ═══════════════════════════════════════════════════════
 
-    document.addEventListener('DOMContentLoaded', function () {
+    onModuleReady(function () {
         var offcanvasEl = document.getElementById('offcanvasEstado');
         var modalDelEl = document.getElementById('modalEliminar');
         if (offcanvasEl) offcanvasEstado = new bootstrap.Offcanvas(offcanvasEl);

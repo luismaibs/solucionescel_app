@@ -8,16 +8,7 @@
     var apiBase = (window.APP_API_BASE || 'api/');
 
     function apiUrl(endpoint) {
-        var url = apiBase + endpoint;
-        if (!url.endsWith('.php') && url.indexOf('?') === -1) {
-            var match = url.match(/^(.+?)([\?#].*)?$/);
-            if (match) {
-                url = match[1] + '.php' + (match[2] || '');
-            }
-        } else if (!url.endsWith('.php') && url.indexOf('?') > -1) {
-            url = url.replace('?', '.php?');
-        }
-        return url;
+        return apiBase + endpoint;
     }
 
     var notifList = [];
@@ -464,7 +455,7 @@
     //  INICIALIZACION
     // ═══════════════════════════════════════════════════════
 
-    document.addEventListener('DOMContentLoaded', function () {
+    onModuleReady(function () {
         var offcanvasEl = document.getElementById('offcanvasNotificacion');
         var modalDelEl = document.getElementById('modalEliminarNotif');
         var modalGrupoEl = document.getElementById('modalGrupoNotif');

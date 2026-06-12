@@ -15,7 +15,7 @@
     var _notifConfigCache = [];
 
     function loadNotifConfigCache() {
-        fetch(apiBase + 'api_notificaciones_config.php?action=list')
+        fetch(apiBase + 'api_notificaciones_config?action=list')
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (data.ok) _notifConfigCache = data.notificaciones || [];
@@ -64,7 +64,7 @@
             fd.append('action', 'enviar');
             fd.append('repair_id', repairId);
             fd.append('notif_id', notifId);
-            fetch((window.APP_API_BASE || 'api/') + 'api_notificaciones_config.php', { method: 'POST', body: fd })
+            fetch((window.APP_API_BASE || 'api/') + 'api_notificaciones_config', { method: 'POST', body: fd })
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     var toastEl = document.getElementById('liveToast');
@@ -373,7 +373,7 @@
         try {
             // Cargar el mapa de estados y las reparaciones en paralelo
             const [resp] = await Promise.all([
-                fetch(apiBase + 'api_reparaciones_list.php?page=' + page + '&per_page=' + repPerPage),
+                fetch(apiBase + 'api_reparaciones_list?page=' + page + '&per_page=' + repPerPage),
                 window.loadEstadosMap ? window.loadEstadosMap() : Promise.resolve(),
             ]);
             const data = await resp.json();
@@ -418,7 +418,7 @@
 
     function postReparacionAjax(formData, successMsg) {
         window.__REALTIME_SKIP = Date.now() + 2000;
-        fetch((window.APP_API_BASE || 'api/') + 'api_reparaciones.php', {
+        fetch((window.APP_API_BASE || 'api/') + 'api_reparaciones', {
             method: 'POST',
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -760,7 +760,7 @@
         var board = document.getElementById('pipelineBoard');
         if (!board) return;
         try {
-            var resp = await fetch(apiBase + 'api_reparaciones_list.php?page=1&per_page=500');
+            var resp = await fetch(apiBase + 'api_reparaciones_list?page=1&per_page=500');
             var data = await resp.json();
             if (!data.ok) throw new Error(data.message || 'Error al cargar');
             repPipelineItems = data.items || [];

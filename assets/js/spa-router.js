@@ -157,17 +157,15 @@
 
     function cleanupModuleGlobals() {
         // Clean up known module globals
-        var globals = [
-            'PANEL_DATA', 'PANEL_KPIS', 'PANEL_PLANTILLAS',
-            'REPARACIONES_LIST', 'APP_DEBUG',
-            'panelSearch', 'panelLoadReparaciones', 'panelRefreshKPIs',
-            'toggleEstadosSection', 'toggleNotificacionesSection'
-        ];
+            // Los módulos registran sus propios globals en window.__spaModuleGlobals = [...]
+        // antes de ejecutar su lógica. El router los limpia aquí al salir.
+        var globals = window.__spaModuleGlobals || [];
         for (var i = 0; i < globals.length; i++) {
             try { delete window[globals[i]]; } catch (e) {
                 window[globals[i]] = undefined;
             }
         }
+        window.__spaModuleGlobals = [];
     }
 
     function removeModuleCss() {
@@ -310,21 +308,22 @@
                 // Load module CSS (move to head)
                 loadModuleCss(container);
 
+                // Actualizar URL ANTES de ejecutar scripts para que fetch() con rutas
+                // relativas dentro del módulo resuelvan contra la URL destino
+                if (pushHistory !== false) {
+                    history.pushState({ spaUrl: url }, '', url);
+                }
+                updateActiveLinks(new URL(url, window.location.origin).pathname);
+
                 // Execute scripts in order
                 executeScripts(container).then(function () {
-                    // Update URL and sidebar
-                    if (pushHistory !== false) {
-                        history.pushState({ spaUrl: url }, '', url);
-                    }
-                    updateActiveLinks(new URL(url, window.location.origin).pathname);
-
                     // Scroll to top
                     window.scrollTo(0, 0);
 
                     isNavigating = false;
                     hideLoading();
 
-                    // Dispatch custom event for modules that need it
+                    // Dispatch custom event para módulos que inicializan con onModuleReady
                     document.dispatchEvent(new CustomEvent('spa:navigated', {
                         detail: { url: url, module: getModuleName(new URL(url, window.location.origin).pathname) }
                     }));

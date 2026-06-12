@@ -1,5 +1,7 @@
 <?php
 $asset_base = strpos($_SERVER['SCRIPT_NAME'], '/modules/') !== false ? '../' : './';
+// APP_VERSION se define en env_loader (via auth.php o db.php que ya fue incluido antes)
+$_av = defined('APP_VERSION') ? APP_VERSION : date('Ymd');
 ?>
 <!-- Resource Hints — acelera conexión a CDNs -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -51,23 +53,23 @@ $asset_base = strpos($_SERVER['SCRIPT_NAME'], '/modules/') !== false ? '../' : '
 <link rel="apple-touch-icon" href="<?= $asset_base ?>assets/logo.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="<?= $asset_base ?>assets/logo.svg">
 
-<!-- Global UI Styles (versionado para evitar caché vieja) -->
-<link rel="stylesheet" href="<?= $asset_base ?>assets/css/app.css?v=10">
+<!-- Global UI Styles -->
+<link rel="stylesheet" href="<?= $asset_base ?>assets/css/app.css?v=<?= $_av ?>">
 
 <!-- Supabase JS SDK (UMD para window.supabase global) -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <?php include __DIR__ . '/../config/supabase_js_config.php'; ?>
-<script defer src="<?= $asset_base ?>assets/js/supabase-client.js"></script>
-<!-- Utilidades compartidas (escapeHtml, fmtDate, getEstadoColor, getEstadoLabel, SCToast) -->
-<script defer src="<?= $asset_base ?>assets/js/utils.js"></script>
+<script defer src="<?= $asset_base ?>assets/js/supabase-client.js?v=<?= $_av ?>"></script>
+<!-- Utilidades compartidas (escapeHtml, fmtDate, getEstadoColor, getEstadoLabel, SCToast, onModuleReady) -->
+<script defer src="<?= $asset_base ?>assets/js/utils.js?v=<?= $_av ?>"></script>
 <!-- Shared UI Layout Scripts -->
-<script defer src="<?= $asset_base ?>assets/js/bottom-sheet.js"></script>
+<script defer src="<?= $asset_base ?>assets/js/bottom-sheet.js?v=<?= $_av ?>"></script>
 
-<!-- Bootstrap JS Bundle (centralizado — antes estaba repetido en cada módulo) -->
+<!-- Bootstrap JS Bundle -->
 <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- SPA Router — navegación sin full reload -->
-<script defer src="<?= $asset_base ?>assets/js/spa-router.js"></script>
+<script defer src="<?= $asset_base ?>assets/js/spa-router.js?v=<?= $_av ?>"></script>
 
 <!-- Splash Screens (iOS) -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
