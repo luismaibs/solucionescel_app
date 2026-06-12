@@ -15,6 +15,10 @@ if (!$requestUri || $requestUri === '') {
 $staticDirs = ['api', 'assets', 'vendor', 'public', 'storage', 'downloads', 'includes', 'js', 'css', 'img'];
 foreach ($staticDirs as $dir) {
     if (strpos($requestUri, $dir . '/') === 0) {
+        $ext = pathinfo($requestUri, PATHINFO_EXTENSION);
+        if ($ext === '') {
+            break;
+        }
         return false;
     }
 }

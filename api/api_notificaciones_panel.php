@@ -2,11 +2,7 @@
 /**
  * Panel de notificaciones para el header: dispositivos vencidos (90+ días) y soporte (pausadas + notificaciones).
  */
-header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../config/auth.php';
-requireLogin();
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../src/Shared/TenantContext.php';
+require_once __DIR__ . '/../config/api_guard.php';
 if (!class_exists('Utils', false)) {
     require_once __DIR__ . '/../src/Shared/Utils.php';
 }

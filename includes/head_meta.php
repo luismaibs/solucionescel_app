@@ -1,5 +1,21 @@
 <?php
-$asset_base = strpos($_SERVER['SCRIPT_NAME'], '/modules/') !== false ? '../' : './';
+$_request_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$_request_path = preg_replace('#/+#', '/', str_replace('\\', '/', $_request_path));
+$_asset_root = '/';
+$_asset_root_detected = false;
+foreach (['/modules/', '/api/', '/cron/'] as $_segment) {
+    $_pos = strpos($_request_path, $_segment);
+    if ($_pos !== false) {
+        $_asset_root = rtrim(substr($_request_path, 0, $_pos), '/') . '/';
+        $_asset_root_detected = true;
+        break;
+    }
+}
+if (!$_asset_root_detected && $_asset_root === '/' && !preg_match('#^/(?:index|login|logout|api|bot)?(?:\.php)?/?$#', $_request_path)) {
+    $_dir = rtrim(dirname($_request_path), '/\\');
+    $_asset_root = ($_dir === '' || $_dir === '.') ? '/' : $_dir . '/';
+}
+$asset_base = $_asset_root;
 // APP_VERSION se define en env_loader (via auth.php o db.php que ya fue incluido antes)
 $_av = defined('APP_VERSION') ? APP_VERSION : date('Ymd');
 $_supabase_client_version = is_file(__DIR__ . '/../assets/js/supabase-client.js')
@@ -32,6 +48,15 @@ $_supabase_client_version = is_file(__DIR__ . '/../assets/js/supabase-client.js'
         if (m) m.setAttribute('content', themeColor);
     });
 })();
+</script>
+<script>
+window.onModuleReady = window.onModuleReady || function (fn) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fn, { once: true });
+    } else {
+        fn();
+    }
+};
 </script>
 <!-- PWA Meta Tags -->
 <meta name="viewport"

@@ -5,9 +5,26 @@
  */
 
 // Determinar entorno y rutas de forma dinámica
-$current_script = basename($_SERVER['SCRIPT_NAME']);
-$in_modules = strpos($_SERVER['SCRIPT_NAME'], '/modules/') !== false;
-$base_path = $in_modules ? '../' : './';
+$_request_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$_request_path = preg_replace('#/+#', '/', str_replace('\\', '/', $_request_path));
+$in_modules = strpos($_request_path, '/modules/') !== false;
+$current_script = basename($_request_path);
+$current_script = preg_replace('/\.php$/', '', $current_script) ?: 'index';
+$_app_root = '/';
+$_app_root_detected = false;
+foreach (['/modules/', '/api/', '/cron/'] as $_segment) {
+    $_pos = strpos($_request_path, $_segment);
+    if ($_pos !== false) {
+        $_app_root = rtrim(substr($_request_path, 0, $_pos), '/') . '/';
+        $_app_root_detected = true;
+        break;
+    }
+}
+if (!$_app_root_detected && $_app_root === '/' && !preg_match('#^/(?:index|login|logout|api|bot)?(?:\.php)?/?$#', $_request_path)) {
+    $_dir = rtrim(dirname($_request_path), '/\\');
+    $_app_root = ($_dir === '' || $_dir === '.') ? '/' : $_dir . '/';
+}
+$base_path = $_app_root;
 
 // Función helper para class active
 if (!function_exists('activeClass')) {
@@ -343,16 +360,7 @@ if ($displayName !== '') {
 
 <?php
 // Ruta absoluta desde la raíz web (funciona desde cualquier página, evita problemas con rutas relativas)
-$_script_name = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/'));
-if (strpos($_script_name, '/var/www/') !== false) {
-    $_abs_root = '/';
-} else {
-    $_sd = str_replace('\\', '/', dirname($_script_name));
-    $_abs_root = $in_modules ? dirname($_sd) : $_sd;
-    $_abs_root = str_replace('\\', '/', $_abs_root);
-    $_abs_root = preg_replace('#/+#', '/', $_abs_root);
-    $_abs_root = rtrim($_abs_root, '/') . '/';
-}
+$_abs_root = $_app_root;
 ?>
 <script>
     window.APP_BASE_PATH = <?= json_encode($_abs_root) ?>;
@@ -591,7 +599,7 @@ if (strpos($_script_name, '/var/www/') !== false) {
     function loadNotifications() {
         notifBody.innerHTML = '<div class="app-notif-loading"><div class="app-notif-spinner"></div>Cargando...</div>';
 
-        var apiUrl = window.APP_API_BASE + 'api_notificaciones_panel.php';
+        var apiUrl = window.APP_API_BASE + 'api_notificaciones_panel';
         console.log('[Notificaciones] Cargando desde:', apiUrl);
 
         fetch(apiUrl)
@@ -800,7 +808,7 @@ if (strpos($_script_name, '/var/www/') !== false) {
         /* Auto-refresh badge cada 60 segundos (usa datos filtrados por leídos) */
         setInterval(function () {
             if (notifOpen) return;
-            fetch(window.APP_API_BASE + 'api_notificaciones_panel.php')
+            fetch(window.APP_API_BASE + 'api_notificaciones_panel')
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     if (data.ok) {
