@@ -62,7 +62,26 @@
     }
 
     function apiBase() {
-        return (window.APP_API_BASE || './api/').replace(/\/?$/, '/');
+        var fallback = window.location.origin + '/api/';
+        var raw = window.APP_API_BASE || fallback;
+
+        try {
+            var url = new URL(raw, window.location.origin);
+            var path = url.pathname.replace(/\\/g, '/');
+
+            if (url.protocol !== window.location.protocol || /\/var\/www\/html(?:\/|$)/.test(path)) {
+                return fallback;
+            }
+
+            path = path.replace(/\/api\/api\/?$/, '/api/');
+            if (!/\/api\/$/.test(path)) {
+                path = path.replace(/\/?$/, '/') + 'api/';
+            }
+
+            return url.origin + path;
+        } catch (e) {
+            return fallback;
+        }
     }
 
     /**

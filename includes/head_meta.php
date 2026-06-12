@@ -2,6 +2,9 @@
 $asset_base = strpos($_SERVER['SCRIPT_NAME'], '/modules/') !== false ? '../' : './';
 // APP_VERSION se define en env_loader (via auth.php o db.php que ya fue incluido antes)
 $_av = defined('APP_VERSION') ? APP_VERSION : date('Ymd');
+$_supabase_client_version = is_file(__DIR__ . '/../assets/js/supabase-client.js')
+    ? (string) filemtime(__DIR__ . '/../assets/js/supabase-client.js')
+    : $_av;
 ?>
 <!-- Resource Hints — acelera conexión a CDNs -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -59,7 +62,7 @@ $_av = defined('APP_VERSION') ? APP_VERSION : date('Ymd');
 <!-- Supabase JS SDK (UMD para window.supabase global) -->
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <?php include __DIR__ . '/../config/supabase_js_config.php'; ?>
-<script defer src="<?= $asset_base ?>assets/js/supabase-client.js?v=<?= $_av ?>"></script>
+<script defer src="<?= $asset_base ?>assets/js/supabase-client.js?v=<?= $_supabase_client_version ?>"></script>
 <!-- Utilidades compartidas (escapeHtml, fmtDate, getEstadoColor, getEstadoLabel, SCToast, onModuleReady) -->
 <script defer src="<?= $asset_base ?>assets/js/utils.js?v=<?= $_av ?>"></script>
 <!-- Shared UI Layout Scripts -->

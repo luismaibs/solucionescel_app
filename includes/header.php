@@ -343,10 +343,16 @@ if ($displayName !== '') {
 
 <?php
 // Ruta absoluta desde la raíz web (funciona desde cualquier página, evita problemas con rutas relativas)
-$_sd = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-$_abs_root = $in_modules ? dirname($_sd) : $_sd;
-$_abs_root = str_replace('\\', '/', $_abs_root);  // Normalize Windows paths
-$_abs_root = rtrim($_abs_root, '/') . '/';
+$_script_name = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/'));
+if (strpos($_script_name, '/var/www/') !== false) {
+    $_abs_root = '/';
+} else {
+    $_sd = str_replace('\\', '/', dirname($_script_name));
+    $_abs_root = $in_modules ? dirname($_sd) : $_sd;
+    $_abs_root = str_replace('\\', '/', $_abs_root);
+    $_abs_root = preg_replace('#/+#', '/', $_abs_root);
+    $_abs_root = rtrim($_abs_root, '/') . '/';
+}
 ?>
 <script>
     window.APP_BASE_PATH = <?= json_encode($_abs_root) ?>;
