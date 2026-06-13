@@ -145,7 +145,7 @@ if ($equipoId <= 0) {
 
         async function loadEquipo() {
             try {
-                var resp = await fetch(API_BASE + 'api_equipo_360.php?id=' + EQUIPO_ID);
+                var resp = await fetch(API_BASE + 'api_equipo_360?id=' + EQUIPO_ID);
                 var data = await resp.json();
                 if (!data.ok) throw new Error(data.message);
 
@@ -207,7 +207,7 @@ if ($equipoId <= 0) {
 
         async function loadTimeline() {
             try {
-                var resp = await fetch(API_BASE + 'api_equipo_360.php?id=' + EQUIPO_ID + '&timeline=1&page=' + timelinePage + '&per_page=30');
+                var resp = await fetch(API_BASE + 'api_equipo_360?id=' + EQUIPO_ID + '&timeline=1&page=' + timelinePage + '&per_page=30');
                 var data = await resp.json();
                 if (!data.ok) throw new Error(data.message);
 

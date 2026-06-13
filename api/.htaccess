@@ -5,6 +5,9 @@
 Options -MultiViews
 RewriteEngine On
 
+# Honor HTTPS desde reverse proxy
+SetEnvIf X-Forwarded-Proto "https" HTTPS=on
+
 # ── REGLA 1: Redirigir .php externo → URL limpia (301, solo GET) ──
 # Solo aplica en GET para no corromper body en POST/PUT/DELETE
 RewriteCond %{REQUEST_METHOD} GET

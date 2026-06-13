@@ -311,7 +311,7 @@ include_once '../includes/fragment_helper.php';
             if (cards) cards.innerHTML = '<div class="text-center py-5 text-muted">Cargando...</div>';
 
             try {
-                const url = API_BASE + 'api_clientes_list.php?page=' + page + '&per_page=' + perPage + '&search=' + encodeURIComponent(search);
+                const url = API_BASE + 'api_clientes_list?page=' + page + '&per_page=' + perPage + '&search=' + encodeURIComponent(search);
                 const resp = await fetch(url);
                 const data = await resp.json();
                 if (!data.ok) throw new Error(data.message);

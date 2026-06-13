@@ -152,7 +152,7 @@ if ($clienteId <= 0) {
 
         async function loadCliente() {
             try {
-                var resp = await fetch(API_BASE + 'api_cliente_360.php?id=' + CLIENTE_ID);
+                var resp = await fetch(API_BASE + 'api_cliente_360?id=' + CLIENTE_ID);
                 var data = await resp.json();
                 if (!data.ok) throw new Error(data.message);
 
@@ -217,7 +217,7 @@ if ($clienteId <= 0) {
 
         async function loadTimeline() {
             try {
-                var resp = await fetch(API_BASE + 'api_cliente_360.php?id=' + CLIENTE_ID + '&timeline=1&page=' + timelinePage + '&per_page=30');
+                var resp = await fetch(API_BASE + 'api_cliente_360?id=' + CLIENTE_ID + '&timeline=1&page=' + timelinePage + '&per_page=30');
                 var data = await resp.json();
                 if (!data.ok) throw new Error(data.message);
 
