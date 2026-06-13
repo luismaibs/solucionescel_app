@@ -28,8 +28,11 @@ class ClienteRepository
         ], $this->userToken());
 
         if ($result['ok'] && is_array($result['data'])) {
-            $total = (int) ($result['data']['total_count'] ?? 0);
-            $rows = $result['data']['rows'] ?? '[]';
+            $row = isset($result['data'][0]) && is_array($result['data'][0])
+                ? $result['data'][0]
+                : $result['data'];
+            $total = (int) ($row['total_count'] ?? 0);
+            $rows = $row['rows'] ?? '[]';
             return json_decode(is_string($rows) ? $rows : '[]', true) ?? [];
         }
 
