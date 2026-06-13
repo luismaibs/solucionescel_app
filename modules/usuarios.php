@@ -16,16 +16,7 @@ include_once '../includes/fragment_helper.php';
     <?php include '../includes/head_meta.php'; ?>
 <?php endif; ?>
     <style data-module-css="usuarios">
-        body {
-            background-color: var(--bg-app);
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
-            padding-top: 90px;
-            min-height: 100vh;
-            overflow-y: auto;
-            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%);
-        }
-
+        /* body global en app.css */
         .navbar-custom {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(20px);
@@ -77,15 +68,7 @@ include_once '../includes/fragment_helper.php';
             }
         }
 
-        /* Igual que index/inventario: sin padding ni margin; el padding lo aporta .stat-card */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-xl);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-
+        /* .glass-card global en app.css */
         .stat-card {
             padding: 1.5rem;
             transition: all 0.3s ease;

@@ -1,12 +1,4 @@
-body {
-    background-color: var(--bg-app);
-    font-family: 'Inter', sans-serif;
-    color: var(--text-main);
-    padding-top: 90px;
-    min-height: 100vh;
-    background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%);
-    overflow-y: auto;
-}
+/* Globales (body) en app.css */
 
 /* Tabs de navegación Analíticas */
 .analytics-tabs {

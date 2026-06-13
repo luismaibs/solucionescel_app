@@ -21,20 +21,7 @@ if ($equipoId <= 0) {
     <?php include '../includes/head_meta.php'; ?>
 <?php endif; ?>
     <style data-module-css="equipo_360">
-        html { -ms-overflow-style: none; scrollbar-width: none; }
-        html::-webkit-scrollbar { display: none; }
-        body { background-color: var(--bg-app); font-family: 'Inter', sans-serif; color: var(--text-main); min-height: 100vh; background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%); -ms-overflow-style: none; scrollbar-width: none; }
-        body::-webkit-scrollbar { display: none; }
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600; margin-bottom: 0.25rem; }
-        .info-value { font-size: 0.95rem; color: #e2e8f0; font-weight: 500; }
-        .timeline-wrap { position: relative; padding-left: 2rem; }
-        .timeline-wrap::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.06); }
-        .timeline-item { position: relative; padding-bottom: 1.5rem; }
-        .timeline-item:last-child { padding-bottom: 0; }
-        .timeline-dot { position: absolute; left: -2rem; top: 2px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; z-index: 1; }
-        .timeline-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; transition: all 0.15s; }
-        .timeline-card:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+        /* Globales en app.css: body, .glass-card, .info-label/value, .timeline-*, .status-dot, .cliente-link, .badge-estado */
         .timeline-card--estado { border-left: 3px solid #f59e0b; background: rgba(245,158,11,0.06); }
         .timeline-card--entregado { border-left: 3px solid #22c55e; background: rgba(34,197,94,0.06); }
         .timeline-card--mensaje { border-left: 3px solid #10b981; background: rgba(16,185,129,0.06); }
@@ -44,12 +31,6 @@ if ($equipoId <= 0) {
         .stat-mini { text-align: center; padding: 1rem; }
         .stat-mini h4 { font-size: 1.5rem; font-weight: 700; margin: 0; }
         .stat-mini small { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: #94a3b8; font-weight: 600; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .back-link { color: #94a3b8; text-decoration: none; transition: color 0.15s; font-size: 0.9rem; }
-        .back-link:hover { color: #e2e8f0; }
-        .cliente-link { color: #60a5fa; text-decoration: none; cursor: pointer; }
-        .cliente-link:hover { color: #93c5fd; text-decoration: underline; }
-        .badge-estado { padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
     </style>
 <?php if (!$isFragment): ?>
 </head>

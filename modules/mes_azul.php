@@ -15,9 +15,7 @@ include_once '../includes/fragment_helper.php';
     <?php include '../includes/head_meta.php'; ?>
     <link rel="stylesheet" href="../assets/css/panel.css" data-module-css="mes_azul">
     <style data-module-css="mes_azul">
-        body { background-color: var(--bg-app); font-family: 'Inter', sans-serif; color: var(--text-main); min-height: 100vh; background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%); }
-        .back-link { color: #94a3b8; text-decoration: none; transition: color 0.15s; font-size: 0.9rem; }
-        .back-link:hover { color: #e2e8f0; }
+        /* body y .back-link globales en app.css */
         .mes-azul-lista { max-height: 320px; overflow-y: auto; }
         .mes-azul-lateral { max-height: calc(100vh - 220px); overflow-y: auto; }
         .mes-azul-item { border: 1px solid rgba(255,255,255,0.06); }
@@ -33,9 +31,7 @@ include_once '../includes/fragment_helper.php';
 <?php if ($isFragment): ?>
     <link rel="stylesheet" href="<?= $fragment_asset_base ?>assets/css/panel.css" data-module-css="mes_azul">
     <style data-module-css="mes_azul">
-        body { background-color: var(--bg-app); font-family: 'Inter', sans-serif; color: var(--text-main); min-height: 100vh; background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%); }
-        .back-link { color: #94a3b8; text-decoration: none; transition: color 0.15s; font-size: 0.9rem; }
-        .back-link:hover { color: #e2e8f0; }
+        /* body y .back-link globales en app.css */
         .mes-azul-lista { max-height: 320px; overflow-y: auto; }
         .mes-azul-lateral { max-height: calc(100vh - 220px); overflow-y: auto; }
         .mes-azul-item { border: 1px solid rgba(255,255,255,0.06); }

@@ -28,20 +28,7 @@ include_once '../includes/fragment_helper.php';
         [data-bs-theme="light"] .wp-bubble { background: #d9fdd3; }
         [data-bs-theme="light"] .wp-bubble-time { color: rgba(0,0,0,0.45); }
 
-        body {
-            background-color: var(--bg-app);
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
-            min-height: 100vh;
-            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%);
-        }
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-xl);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
+        /* body y .glass-card globales en app.css */
         .form-control {
             background: rgba(255,255,255,0.04);
             border: 1px solid var(--glass-border);

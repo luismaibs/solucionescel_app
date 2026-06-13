@@ -1,27 +1,4 @@
-        html {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        html::-webkit-scrollbar {
-            display: none;
-        }
-
-        body {
-            background-color: var(--bg-app);
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
-            padding-top: 90px;
-            min-height: 100vh;
-            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%);
-            overflow-y: auto;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        body::-webkit-scrollbar {
-            display: none;
-        }
+/* Globales (html, body, scrollbar) en app.css */
 
         .navbar-custom {
             background: rgba(15, 23, 42, 0.8);
@@ -89,11 +66,7 @@
 
         /* form-control, form-select: centralizados en app.css */
 
-        .search-bar {
-            border-radius: 50px;
-            background: rgba(30, 41, 59, 0.6);
-            padding-left: 2.5rem;
-        }
+        /* .search-bar centralizado en app.css */
 
         /* Tabla */
         .table-container {
@@ -482,10 +455,6 @@
 
         /* ===== TEMA CLARO ===== */
 
-        [data-bs-theme="light"] body {
-            background-image: radial-gradient(circle at top right, #e2e8f0 0%, #f1f5f9 40%);
-        }
-
         [data-bs-theme="light"] .navbar-custom {
             background: rgba(241, 245, 249, 0.85);
             border-bottom-color: rgba(0, 0, 0, 0.1);
@@ -495,10 +464,6 @@
             background: rgba(255, 255, 255, 0.97);
             border-color: rgba(0, 0, 0, 0.1);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        [data-bs-theme="light"] .search-bar {
-            background: rgba(255, 255, 255, 0.8);
         }
 
         [data-bs-theme="light"] .modal-cat-selector {

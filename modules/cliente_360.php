@@ -21,26 +21,12 @@ if ($clienteId <= 0) {
     <?php include '../includes/head_meta.php'; ?>
 <?php endif; ?>
     <style data-module-css="cliente_360">
-        body { background-color: var(--bg-app); font-family: 'Inter', sans-serif; color: var(--text-main); min-height: 100vh; background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%); }
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600; margin-bottom: 0.25rem; }
-        .info-value { font-size: 0.95rem; color: #e2e8f0; font-weight: 500; }
-        .timeline-wrap { position: relative; padding-left: 2rem; }
-        .timeline-wrap::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.06); }
-        .timeline-item { position: relative; padding-bottom: 1.5rem; }
-        .timeline-item:last-child { padding-bottom: 0; }
-        .timeline-dot { position: absolute; left: -2rem; top: 2px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; z-index: 1; }
-        .timeline-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; transition: all 0.15s; }
-        .timeline-card:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+        /* Globales en app.css: body, .glass-card, .info-label/value, .timeline-*, .status-dot, .badge-estado */
         .stat-mini { text-align: center; padding: 1rem; border-radius: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
         .stat-mini h4 { font-size: 1.5rem; font-weight: 700; margin: 0; }
         .stat-mini small { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: #94a3b8; font-weight: 600; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .back-link { color: #94a3b8; text-decoration: none; transition: color 0.15s; font-size: 0.9rem; }
-        .back-link:hover { color: #e2e8f0; }
         .equipo-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 1rem; transition: all 0.2s; cursor: pointer; text-decoration: none; display: block; color: inherit; }
         .equipo-card:hover { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); transform: translateY(-2px); color: inherit; }
-        .badge-estado { padding: 0.3rem 0.65rem; border-radius: 50px; font-size: 0.72rem; font-weight: 600; }
         .avatar-big { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; color: white; flex-shrink: 0; }
     </style>
 <?php if (!$isFragment): ?>

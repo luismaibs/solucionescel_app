@@ -43,6 +43,8 @@ body.sidebar-pinned {
 
 body {
     background-color: var(--bg-app);
+    background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%);
+    background-attachment: fixed;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: var(--text-main);
     padding-top: 90px;
@@ -1141,6 +1143,46 @@ body.app-mobile-nav-open {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Enlace de retroceso (usado en vistas 360° y Mes Azul) */
+.back-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+    font-size: 0.9rem;
+}
+
+.back-link:hover {
+    color: #e2e8f0;
+}
+
+/* ===== Componentes de vistas de detalle 360° (cliente / equipo) ===== */
+.info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600; margin-bottom: 0.25rem; }
+.info-value { font-size: 0.95rem; color: #e2e8f0; font-weight: 500; }
+
+.timeline-wrap { position: relative; padding-left: 2rem; }
+.timeline-wrap::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: rgba(255, 255, 255, 0.06); }
+.timeline-item { position: relative; padding-bottom: 1.5rem; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot { position: absolute; left: -2rem; top: 2px; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; z-index: 1; }
+.timeline-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 1rem; transition: all 0.15s; }
+.timeline-card:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.1); }
+
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+
+/* Píldora de estado (canónica, antes divergía entre cliente_360 y equipo_360) */
+.badge-estado { padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
+
+/* Enlace a ficha de cliente */
+.cliente-link { color: #60a5fa; text-decoration: none; cursor: pointer; transition: color 0.15s; }
+.cliente-link:hover { color: #93c5fd; text-decoration: underline; }
+
+/* Barra de búsqueda dentro de tablas (panel, inventario, soporte) — combina con .form-control */
+.search-bar {
+    border-radius: 50px;
+    background: rgba(30, 41, 59, 0.6);
+    padding-left: 2.5rem;
+}
+
 /* Listas panel taller e inventario: fondo azul del tema (no negro) */
 .table-container,
 .table-container .table-responsive,
@@ -1847,6 +1889,10 @@ body.with-sidebar .main-content-push.with-subheader {
 [data-bs-theme="light"] .glass-card {
     background: rgba(255, 255, 255, 0.8);
     border-color: rgba(0, 0, 0, 0.09);
+}
+
+[data-bs-theme="light"] .search-bar {
+    background: rgba(255, 255, 255, 0.8);
 }
 
 [data-bs-theme="light"] .app-notif-panel {

@@ -15,20 +15,7 @@ include_once '../includes/fragment_helper.php';
     <?php include '../includes/head_meta.php'; ?>
 <?php endif; ?>
     <style data-module-css="clientes">
-        body {
-            background-color: var(--bg-app);
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
-            min-height: 100vh;
-            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 40%);
-        }
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-xl);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
+        /* body y .glass-card definidos en app.css (globales) */
         .table-custom {
             --bs-table-bg: transparent;
             --bs-table-color: #e2e8f0;
@@ -105,24 +92,7 @@ include_once '../includes/fragment_helper.php';
             background: #0f172a !important;
             border-left: 1px solid rgba(255,255,255,0.06);
         }
-        .cliente-link {
-            color: #60a5fa;
-            cursor: pointer;
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-        .cliente-link:hover {
-            color: #93c5fd;
-            text-decoration: underline;
-        }
-        @media (max-width: 991.98px) {
-            .app-table-wrap { display: none; }
-            .app-mobile-cards-wrap { display: block !important; }
-        }
-        @media (min-width: 992px) {
-            .app-table-wrap { display: block; }
-            .app-mobile-cards-wrap { display: none !important; }
-        }
+        /* .cliente-link y toggle responsive .app-table-wrap/.app-mobile-cards-wrap globales en app.css */
         .app-mobile-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
