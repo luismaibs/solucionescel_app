@@ -2,8 +2,8 @@
 
 class UsuarioService
 {
-    public const DEFAULT_MODULOS = ['equipos','clientes','inventario','soporte','mes_azul'];
-    public const VALID_MODULOS   = ['equipos','clientes','inventario','soporte','mes_azul','analiticas','plantillas'];
+    public const DEFAULT_MODULOS = ['equipos','clientes','inventario','opencloud','soporte','mes_azul'];
+    public const VALID_MODULOS   = ['equipos','clientes','inventario','opencloud','soporte','mes_azul','analiticas','plantillas'];
 
     private UsuarioRepository $repo;
 

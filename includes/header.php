@@ -97,6 +97,14 @@ if ($displayName !== '') {
             <span class="app-sidebar-link-label">Inventario</span>
         </a>
         <?php endif; ?>
+        <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
+        <a href="<?= $base_path ?>modules/opencloud"
+            class="app-sidebar-link <?= activeClass('opencloud', $current_script) ?>"
+            title="OpenCloud">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span class="app-sidebar-link-label">OpenCloud</span>
+        </a>
+        <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('soporte')): ?>
         <a href="<?= $base_path ?>modules/soporte"
             class="app-sidebar-link <?= activeClass('soporte', $current_script) ?>"
@@ -300,6 +308,12 @@ if ($displayName !== '') {
         <a href="<?= $base_path ?>modules/inventario" class="app-mobile-nav-link <?= activeClass('inventario', $current_script) ?>">
             <i class="bi bi-box-seam"></i>
             <span>Inventario</span>
+        </a>
+        <?php endif; ?>
+        <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
+        <a href="<?= $base_path ?>modules/opencloud" class="app-mobile-nav-link <?= activeClass('opencloud', $current_script) ?>">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span>OpenCloud</span>
         </a>
         <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('soporte')): ?>

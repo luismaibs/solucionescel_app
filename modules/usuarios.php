@@ -429,6 +429,7 @@ include_once '../includes/fragment_helper.php';
                             'equipos'    => ['label' => 'Equipos',    'icon' => 'bi-tools'],
                             'clientes'   => ['label' => 'Clientes',   'icon' => 'bi-person-lines-fill'],
                             'inventario' => ['label' => 'Inventario', 'icon' => 'bi-box-seam'],
+                            'opencloud'  => ['label' => 'OpenCloud',  'icon' => 'bi-cloud-arrow-up-fill'],
                             'soporte'    => ['label' => 'Soporte',    'icon' => 'bi-headset'],
                             'mes_azul'   => ['label' => 'Mes Azul',   'icon' => 'bi-hourglass-split'],
                             'analiticas' => ['label' => 'Analíticas', 'icon' => 'bi-graph-up-arrow'],
@@ -444,7 +445,7 @@ include_once '../includes/fragment_helper.php';
                                 <input class="form-check-input nuevo-modulo-switch" type="checkbox"
                                        name="modulos[]" value="<?= $slug ?>"
                                        id="nmod_<?= $slug ?>" role="switch"
-                                       <?= in_array($slug, ['equipos','clientes','inventario','soporte','mes_azul']) ? 'checked' : '' ?>>
+                                       <?= in_array($slug, ['equipos','clientes','inventario','opencloud','soporte','mes_azul']) ? 'checked' : '' ?>>
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -551,10 +552,10 @@ include_once '../includes/fragment_helper.php';
 
         const MODULO_ICONOS = {
             equipos: 'bi-tools', clientes: 'bi-person-lines-fill',
-            inventario: 'bi-box-seam', soporte: 'bi-headset',
+            inventario: 'bi-box-seam', opencloud: 'bi-cloud-arrow-up-fill', soporte: 'bi-headset',
             mes_azul: 'bi-hourglass-split', analiticas: 'bi-graph-up-arrow'
         };
-        const TODOS_MODULOS = ['equipos','clientes','inventario','soporte','mes_azul','analiticas'];
+        const TODOS_MODULOS = ['equipos','clientes','inventario','opencloud','soporte','mes_azul','analiticas'];
         let usersLastList = [];
 
         onModuleReady(function () {
