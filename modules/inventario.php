@@ -26,6 +26,7 @@ include_once '../includes/fragment_helper.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inventario | SOLUCIONESCEL</title>
     <?php include '../includes/head_meta.php'; ?>
+    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_midnight.min.css" data-module-css="inventario">
     <link rel="stylesheet" href="../assets/css/inventario.css" data-module-css="inventario">
 
 </head>
@@ -35,6 +36,7 @@ include_once '../includes/fragment_helper.php';
     <!-- NAVBAR -->
     <?php include '../includes/header.php'; ?>
 <?php else: ?>
+    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_midnight.min.css" data-module-css="inventario">
     <link rel="stylesheet" href="<?= $fragment_asset_base ?>assets/css/inventario.css" data-module-css="inventario">
 <?php endif; ?>
 
@@ -129,8 +131,16 @@ include_once '../includes/fragment_helper.php';
                 </span>
             </div>
 
-            <!-- Buscador + Filtros -->
+            <!-- Switch vista + Buscador + Filtros -->
             <div class="inv-search-filter-wrap flex-shrink-0">
+                <div class="inv-view-switch" role="group" aria-label="Cambiar vista">
+                    <button type="button" class="inv-view-opt active" data-vista="lista" onclick="cambiarVista('lista', this)" title="Vista lista">
+                        <i class="bi bi-list-ul"></i>
+                    </button>
+                    <button type="button" class="inv-view-opt" data-vista="tabla" onclick="cambiarVista('tabla', this)" title="Vista tabla (hoja de cálculo)">
+                        <i class="bi bi-table"></i>
+                    </button>
+                </div>
                 <button id="btnFiltros" type="button" class="inv-filter-btn" onclick="toggleFiltros(event)" title="Filtros avanzados">
                     <i class="bi bi-sliders2"></i>
                     <span id="filtrosBadge" class="inv-filter-badge d-none">0</span>
@@ -169,8 +179,11 @@ include_once '../includes/fragment_helper.php';
             </div>
             <div id="invCardsContainer" class="app-mobile-cards-wrap" style="min-height: 200px; padding: 0 0 1rem;"></div>
 
+            <!-- Vista tabla tipo hoja de cálculo (Tabulator) -->
+            <div id="invExcelContainer" class="inv-excel-wrap d-none"></div>
+
             <!-- Paginación -->
-            <div
+            <div id="invPaginationRow"
                 class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-4 py-3 border-top border-white border-opacity-10 gap-2">
                 <small class="text-muted" id="invPaginationInfo" style="font-size: 0.8rem;">
                     Cargando inventario...
@@ -830,6 +843,7 @@ include_once '../includes/fragment_helper.php';
     window.APP_DEBUG = <?= json_encode((getenv('APP_DEBUG') ?: 'false') === 'true') ?>;
     </script>
     <?php $v = defined('APP_VERSION') ? APP_VERSION : date('Ymd'); ?>
+    <script defer src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
     <script defer src="../assets/js/realtime.js?v=<?= $v ?>"></script>
     <script defer src="../assets/js/inventario.js?v=<?= $v ?>"></script>
 <?php if (!$isFragment): ?>

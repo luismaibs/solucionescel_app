@@ -33,8 +33,9 @@ class InventarioCategoriaRepository
             'p_tenant_id' => $tid, 'p_offset' => $offset, 'p_limit' => $limit,
         ], $this->userToken());
         if ($result['ok'] && is_array($result['data'])) {
-            $total = (int) ($result['data']['total_count'] ?? 0);
-            $rows = $result['data']['rows'] ?? [];
+            $row = isset($result['data'][0]) && is_array($result['data'][0]) ? $result['data'][0] : $result['data'];
+            $total = (int) ($row['total_count'] ?? 0);
+            $rows = $row['rows'] ?? [];
             return is_string($rows) ? json_decode($rows, true) ?? [] : (is_array($rows) ? $rows : []);
         }
         $total = 0;
@@ -48,8 +49,9 @@ class InventarioCategoriaRepository
             'p_tenant_id' => $tid, 'p_offset' => $offset, 'p_limit' => $limit,
         ], $this->userToken());
         if ($result['ok'] && is_array($result['data'])) {
-            $total = (int) ($result['data']['total_count'] ?? 0);
-            $rows = $result['data']['rows'] ?? [];
+            $row = isset($result['data'][0]) && is_array($result['data'][0]) ? $result['data'][0] : $result['data'];
+            $total = (int) ($row['total_count'] ?? 0);
+            $rows = $row['rows'] ?? [];
             return is_string($rows) ? json_decode($rows, true) ?? [] : (is_array($rows) ? $rows : []);
         }
         $total = 0;
@@ -63,8 +65,9 @@ class InventarioCategoriaRepository
             'p_tenant_id' => $tid, 'p_offset' => $offset, 'p_limit' => $limit,
         ], $this->userToken());
         if ($result['ok'] && is_array($result['data'])) {
-            $total = (int) ($result['data']['total_count'] ?? 0);
-            $rows = $result['data']['rows'] ?? [];
+            $row = isset($result['data'][0]) && is_array($result['data'][0]) ? $result['data'][0] : $result['data'];
+            $total = (int) ($row['total_count'] ?? 0);
+            $rows = $row['rows'] ?? [];
             return is_string($rows) ? json_decode($rows, true) ?? [] : (is_array($rows) ? $rows : []);
         }
         $total = 0;
@@ -78,8 +81,9 @@ class InventarioCategoriaRepository
             'p_tenant_id' => $tid, 'p_offset' => $offset, 'p_limit' => $limit,
         ], $this->userToken());
         if ($result['ok'] && is_array($result['data'])) {
-            $total = (int) ($result['data']['total_count'] ?? 0);
-            $rows = $result['data']['rows'] ?? [];
+            $row = isset($result['data'][0]) && is_array($result['data'][0]) ? $result['data'][0] : $result['data'];
+            $total = (int) ($row['total_count'] ?? 0);
+            $rows = $row['rows'] ?? [];
             return is_string($rows) ? json_decode($rows, true) ?? [] : (is_array($rows) ? $rows : []);
         }
         $total = 0;
@@ -99,6 +103,79 @@ class InventarioCategoriaRepository
             'tenant_id' => 'eq.' . $tid, 'id' => 'eq.' . $id, 'deleted_at' => 'is.null',
         ], $this->userToken());
         return $result['ok'];
+    }
+
+    /* ─── UPDATE DE CAMPO (edición inline tipo hoja de cálculo) ─── */
+
+    /**
+     * Campos editables directamente por categoría → tipo de dato.
+     * Los campos FK (marca_id, color_id, modelo_id…) y los derivados de joins
+     * (marca_nombre…) NO se incluyen: requieren resolución de catálogo aparte.
+     */
+    private const EDITABLE_FIELDS = [
+        'accesorios' => [
+            'codigo' => 'string', 'nombre_producto' => 'string',
+            'stock' => 'int', 'precio' => 'float',
+        ],
+        'baterias' => [
+            'marca' => 'string', 'modelo_bateria' => 'string', 'codigo' => 'string',
+            'calidad' => 'string', 'tipo' => 'string', 'tiempo' => 'string',
+            'notas' => 'string', 'stock' => 'int', 'precio' => 'float',
+        ],
+        'pantallas' => [
+            'calidad' => 'string', 'tiempo' => 'string', 'nota' => 'string',
+            'precio' => 'float',
+        ],
+        'servicios' => [
+            'subcategoria' => 'string', 'gama' => 'string', 'garantia' => 'string',
+            'sistemas_operativos' => 'string', 'tiempo_entrega' => 'string',
+            'nota' => 'string', 'precio' => 'float',
+        ],
+    ];
+
+    public function camposEditables(string $categoria): array
+    {
+        return array_keys(self::EDITABLE_FIELDS[$categoria] ?? []);
+    }
+
+    /**
+     * Actualiza una sola celda. Devuelve el valor normalizado guardado.
+     * @throws InvalidArgumentException si la categoría o el campo no son válidos.
+     */
+    public function updateCampo(string $categoria, int $id, string $campo, $valor)
+    {
+        if (!isset(self::TABLE_MAP[$categoria])) {
+            throw new InvalidArgumentException("Categoría no válida.");
+        }
+        $fields = self::EDITABLE_FIELDS[$categoria] ?? [];
+        if (!isset($fields[$campo])) {
+            throw new InvalidArgumentException("El campo '$campo' no es editable.");
+        }
+
+        // Normalizar según tipo
+        switch ($fields[$campo]) {
+            case 'int':
+                $valor = max(0, (int) $valor);
+                break;
+            case 'float':
+                $valor = round(max(0, (float) $valor), 2);
+                break;
+            default:
+                $valor = trim((string) $valor);
+                if ($valor === '') $valor = null;
+                break;
+        }
+
+        $tid   = TenantContext::requireTenant();
+        $table = self::TABLE_MAP[$categoria];
+        $result = $this->api->patch($table, [$campo => $valor], [
+            'tenant_id' => 'eq.' . $tid, 'id' => 'eq.' . $id, 'deleted_at' => 'is.null',
+        ], $this->userToken());
+
+        if (!$result['ok']) {
+            throw new RuntimeException('No se pudo guardar el cambio.');
+        }
+        return $valor;
     }
 
     /* ─── KPIS ─── */

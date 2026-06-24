@@ -51,6 +51,10 @@
         let invAllItems = [];
         let invFilteredItems = [];
         let filtrosActivos = { marcas: [], subcategorias: [], colores: [], stock: 'todos', precioMin: '', precioMax: '' };
+        let vistaActual = 'lista';
+        let invExcelTable = null;
+        let invExcelCat = null;
+        let suppressCellEdited = false;
 
         // ================================================================
         // DEFINICIONES DE COLUMNAS POR CATEGORÍA
@@ -352,6 +356,13 @@
             invCurrentPage = 1;
             invLastItems = invFilteredItems.slice(0, invPerPage);
 
+            // Vista tabla (hoja de cálculo): delegar render a Tabulator
+            if (vistaActual === 'tabla') {
+                renderTablaExcel();
+                updateInvPaginationInfo();
+                return;
+            }
+
             var isMobile = window.innerWidth < 992;
             var tbody = document.getElementById('invTableBody');
             var cardsEl = document.getElementById('invCardsContainer');
@@ -552,6 +563,157 @@
         }
 
         // ================================================================
+        // VISTA TABLA (hoja de cálculo tipo Excel — Tabulator)
+        // ================================================================
+        var moneyFmt = { symbol: '$', precision: 2, thousand: ',' };
+
+        var excelColumnDefs = {
+            accesorios: [
+                { title: 'Subcategoría', field: 'subcategoria_nombre', width: 150, headerFilter: 'input' },
+                { title: 'Marca', field: 'marca_nombre', width: 120, headerFilter: 'input' },
+                { title: 'Código', field: 'codigo', width: 130, editor: 'input', cssClass: 'excel-editable', headerFilter: 'input' },
+                { title: 'Producto', field: 'nombre_producto', minWidth: 220, editor: 'input', cssClass: 'excel-editable', headerFilter: 'input' },
+                { title: 'Stock', field: 'stock', width: 90, hozAlign: 'right', editor: 'number', editorParams: { min: 0 }, cssClass: 'excel-editable' },
+                { title: 'Precio', field: 'precio', width: 110, hozAlign: 'right', editor: 'number', editorParams: { min: 0, step: 0.01 }, formatter: 'money', formatterParams: moneyFmt, cssClass: 'excel-editable' },
+                { title: 'Color', field: 'color_nombre', width: 110, headerFilter: 'input' }
+            ],
+            baterias: [
+                { title: 'Marca', field: 'marca', width: 130, editor: 'input', cssClass: 'excel-editable', headerFilter: 'input' },
+                { title: 'Modelo', field: 'modelo_bateria', width: 140, editor: 'input', cssClass: 'excel-editable', headerFilter: 'input' },
+                { title: 'Código', field: 'codigo', width: 120, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Calidad', field: 'calidad', width: 150, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Tipo', field: 'tipo', width: 130, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Tiempo', field: 'tiempo', width: 150, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Stock', field: 'stock', width: 90, hozAlign: 'right', editor: 'number', editorParams: { min: 0 }, cssClass: 'excel-editable' },
+                { title: 'Precio', field: 'precio', width: 110, hozAlign: 'right', editor: 'number', editorParams: { min: 0, step: 0.01 }, formatter: 'money', formatterParams: moneyFmt, cssClass: 'excel-editable' },
+                { title: 'Notas', field: 'notas', minWidth: 180, editor: 'textarea', cssClass: 'excel-editable' }
+            ],
+            pantallas: [
+                { title: 'Modelo', field: 'modelo_nombre', width: 150, headerFilter: 'input' },
+                { title: 'Modelo Técnico', field: 'modelo_tecnico_nombre', width: 150, headerFilter: 'input' },
+                { title: 'Calidad', field: 'calidad', width: 130, editor: 'list', editorParams: { values: ['Original', 'Intermedio', 'Genérico'] }, cssClass: 'excel-editable' },
+                { title: 'Precio', field: 'precio', width: 120, hozAlign: 'right', editor: 'number', editorParams: { min: 0, step: 0.01 }, formatter: 'money', formatterParams: moneyFmt, cssClass: 'excel-editable' },
+                { title: 'Tiempo', field: 'tiempo', width: 170, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Nota', field: 'nota', minWidth: 180, editor: 'textarea', cssClass: 'excel-editable' }
+            ],
+            servicios: [
+                { title: 'Subcategoría', field: 'subcategoria', width: 140, editor: 'input', cssClass: 'excel-editable', headerFilter: 'input' },
+                { title: 'Gama', field: 'gama', width: 120, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Sist. Operativos', field: 'sistemas_operativos', width: 170, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Garantía', field: 'garantia', width: 100, editor: 'list', editorParams: { values: ['SI', 'NO'] }, cssClass: 'excel-editable' },
+                { title: 'Tiempo', field: 'tiempo_entrega', width: 150, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Precio', field: 'precio', width: 110, hozAlign: 'right', editor: 'number', editorParams: { min: 0, step: 0.01 }, formatter: 'money', formatterParams: moneyFmt, cssClass: 'excel-editable' },
+                { title: 'Nota', field: 'nota', minWidth: 180, editor: 'textarea', cssClass: 'excel-editable' }
+            ]
+        };
+
+        function cambiarVista(vista, btn) {
+            if (vista === vistaActual) return;
+            vistaActual = vista;
+
+            document.querySelectorAll('.inv-view-opt').forEach(function (c) { c.classList.remove('active'); });
+            if (btn) btn.classList.add('active');
+
+            var tableWrap = document.querySelector('.table-container .app-table-wrap');
+            var cardsWrap = document.getElementById('invCardsContainer');
+            var excelWrap = document.getElementById('invExcelContainer');
+            var paginationRow = document.getElementById('invPaginationRow');
+
+            if (vista === 'tabla') {
+                if (tableWrap) tableWrap.classList.add('d-none');
+                if (cardsWrap) cardsWrap.classList.add('d-none');
+                if (excelWrap) excelWrap.classList.remove('d-none');
+                if (paginationRow) paginationRow.classList.add('d-none');
+                renderTablaExcel();
+            } else {
+                if (excelWrap) excelWrap.classList.add('d-none');
+                if (tableWrap) tableWrap.classList.remove('d-none');
+                if (cardsWrap) cardsWrap.classList.remove('d-none');
+                if (paginationRow) paginationRow.classList.remove('d-none');
+                applyLocalFilter(document.getElementById('searchInput').value.trim());
+            }
+        }
+
+        function renderTablaExcel() {
+            if (typeof Tabulator === 'undefined') return;
+            var cols = excelColumnDefs[categoriaActiva];
+            if (!cols) return;
+
+            // Misma categoría → solo refrescar datos
+            if (invExcelTable && invExcelCat === categoriaActiva) {
+                invExcelTable.replaceData(invFilteredItems.slice());
+                return;
+            }
+
+            // Reconstruir (cambió de categoría o primera vez)
+            if (invExcelTable) {
+                try { invExcelTable.destroy(); } catch (e) {}
+                invExcelTable = null;
+            }
+            invExcelCat = categoriaActiva;
+
+            invExcelTable = new Tabulator('#invExcelContainer', {
+                data: invFilteredItems.slice(),
+                index: 'id',
+                layout: 'fitDataStretch',
+                height: '64vh',
+                movableColumns: true,
+                resizableColumns: true,
+                placeholder: 'Sin registros para mostrar.',
+                columnDefaults: { resizable: true, headerSortTristate: true },
+                columns: cols
+            });
+
+            invExcelTable.on('cellEdited', function (cell) {
+                if (suppressCellEdited) return;
+                guardarCeldaExcel(cell);
+            });
+        }
+
+        function guardarCeldaExcel(cell) {
+            var rowData = cell.getRow().getData();
+            var campo = cell.getField();
+            var valor = cell.getValue();
+            var id = rowData.id;
+
+            fetch('../api/inventario/actualizar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ categoria: categoriaActiva, id: id, campo: campo, valor: valor })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        // Reflejar valor normalizado del servidor sin re-disparar edición
+                        if (data.valor !== undefined && data.valor !== null && String(data.valor) !== String(valor)) {
+                            suppressCellEdited = true;
+                            cell.setValue(data.valor, true);
+                            suppressCellEdited = false;
+                        }
+                        syncItemLocal(id, campo, data.valor !== undefined ? data.valor : valor);
+                        cell.getElement().classList.add('excel-saved');
+                        setTimeout(function () { cell.getElement().classList.remove('excel-saved'); }, 900);
+                    } else {
+                        cell.restoreOldValue();
+                        document.getElementById('errorMsg').innerText = data.message || 'No se pudo guardar.';
+                        toastError.show();
+                    }
+                })
+                .catch(function () {
+                    cell.restoreOldValue();
+                    document.getElementById('errorMsg').innerText = 'Error de conexión al guardar.';
+                    toastError.show();
+                });
+        }
+
+        function syncItemLocal(id, campo, valor) {
+            [invAllItems, invFilteredItems].forEach(function (arr) {
+                var it = arr.find(function (x) { return x.id == id; });
+                if (it) it[campo] = valor;
+            });
+        }
+
+        // ================================================================
         // CAMBIAR CATEGORÍA (función principal)
         // ================================================================
         function cambiarCategoria(cat, btn) {
@@ -662,6 +824,7 @@
         window.addEventListener('resize', function () {
             clearTimeout(_resizeTimer);
             _resizeTimer = setTimeout(function () {
+                if (vistaActual === 'tabla') return;
                 if (invLastItems.length === 0) return;
                 var tbody = document.getElementById('invTableBody');
                 var cardsEl = document.getElementById('invCardsContainer');

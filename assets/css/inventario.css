@@ -314,6 +314,201 @@
         [data-bs-theme="light"] .inv-filter-seccion-titulo { color: #94a3b8; }
         [data-bs-theme="light"] .inv-filter-actions { border-top-color: rgba(0,0,0,0.08); }
 
+        /* ================================================================
+           SWITCH DE VISTA (lista / tabla)
+        ================================================================ */
+        .inv-view-switch {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .inv-view-opt {
+            width: 34px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: rgba(248,250,252,0.5);
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .inv-view-opt:hover { color: rgba(248,250,252,0.85); }
+
+        .inv-view-opt.active {
+            background: #3b82f6;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.35);
+        }
+
+        [data-bs-theme="light"] .inv-view-switch {
+            background: rgba(0,0,0,0.04);
+            border-color: rgba(0,0,0,0.12);
+        }
+        [data-bs-theme="light"] .inv-view-opt { color: #64748b; }
+        [data-bs-theme="light"] .inv-view-opt:hover { color: #0f172a; }
+        [data-bs-theme="light"] .inv-view-opt.active { color: #fff; }
+
+        /* ================================================================
+           VISTA TABLA — Overrides de Tabulator (tema oscuro del proyecto)
+        ================================================================ */
+        .inv-excel-wrap {
+            padding: 1rem 1.25rem 1.5rem;
+        }
+
+        .inv-excel-wrap .tabulator {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.85rem;
+            overflow: hidden;
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-header {
+            background: rgba(15,23,42,0.95);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-col {
+            background: transparent;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-col .tabulator-col-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-header-filter input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: #f1f5f9;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-row {
+            background: transparent;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-row.tabulator-row-even {
+            background: rgba(255,255,255,0.015);
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-row:hover {
+            background: rgba(59,130,246,0.06) !important;
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-cell {
+            border-right: 1px solid rgba(255,255,255,0.04);
+            color: #e2e8f0;
+            padding: 8px 10px;
+        }
+
+        /* Celdas editables: indicador sutil */
+        .inv-excel-wrap .tabulator .tabulator-cell.excel-editable {
+            cursor: text;
+        }
+        .inv-excel-wrap .tabulator .tabulator-cell.excel-editable::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.35);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .inv-excel-wrap .tabulator .tabulator-cell.excel-editable:hover::after {
+            opacity: 1;
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-cell.tabulator-editing {
+            border: 1.5px solid var(--primary) !important;
+            box-shadow: inset 0 0 0 1px rgba(59,130,246,0.3);
+            background: rgba(59,130,246,0.08);
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-cell.tabulator-editing input,
+        .inv-excel-wrap .tabulator .tabulator-cell.tabulator-editing textarea,
+        .inv-excel-wrap .tabulator .tabulator-cell.tabulator-editing select {
+            background: transparent;
+            color: #fff;
+            border: none;
+        }
+
+        /* Flash verde al guardar */
+        .inv-excel-wrap .tabulator .tabulator-cell.excel-saved {
+            background: rgba(34,197,94,0.18) !important;
+            transition: background 0.3s ease;
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-footer {
+            background: rgba(15,23,42,0.9);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-muted);
+        }
+
+        .inv-excel-wrap .tabulator .tabulator-page {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #cbd5e1;
+            border-radius: 6px;
+        }
+        .inv-excel-wrap .tabulator .tabulator-page.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* Tema claro Tabulator */
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator {
+            border-color: rgba(0,0,0,0.1);
+        }
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-header {
+            background: rgba(241,245,249,0.98);
+            border-bottom-color: rgba(0,0,0,0.1);
+        }
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-col .tabulator-col-title {
+            color: #475569;
+        }
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-cell {
+            color: #1e293b;
+            border-right-color: rgba(0,0,0,0.04);
+        }
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-row {
+            border-bottom-color: rgba(0,0,0,0.05);
+        }
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-row.tabulator-row-even {
+            background: rgba(0,0,0,0.015);
+        }
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-cell.tabulator-editing input,
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-cell.tabulator-editing textarea,
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-cell.tabulator-editing select {
+            color: #0f172a;
+        }
+        [data-bs-theme="light"] .inv-excel-wrap .tabulator .tabulator-header-filter input {
+            background: #fff;
+            border-color: rgba(0,0,0,0.15);
+            color: #0f172a;
+        }
+
         /* table-custom: centralizado en app.css */
 
         .price-tag {
