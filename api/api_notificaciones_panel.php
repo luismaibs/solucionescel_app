@@ -24,23 +24,28 @@ try {
     ]);
     $dispositivos_vencidos = [];
     if ($dispResult['ok'] && !empty($dispResult['data'])) {
-        foreach ($dispResult['data'] as $row) {
-            $dias = Utils::daysPassed($row['fecha_listo']);
-            $row['dias_en_taller'] = $dias;
-            // Resolver nombre del cliente via query separada
-            $row['cliente_nombre'] = '';
-            if (!empty($row['cliente_id'])) {
-                $cli = $supabase->get('clientes', [
-                    'select' => 'nombre,apellido',
-                    'tenant_id' => 'eq.' . $tenantId,
-                    'id' => 'eq.' . $row['cliente_id'],
-                    'deleted_at' => 'is.null',
-                    'limit' => '1',
-                ]);
-                if ($cli['ok'] && !empty($cli['data'])) {
-                    $row['cliente_nombre'] = trim(($cli['data'][0]['nombre'] ?? '') . ' ' . ($cli['data'][0]['apellido'] ?? ''));
+        // Batch query para nombres de clientes (1 query en lugar de N queries)
+        $clienteIds = array_values(array_unique(array_filter(
+            array_column($dispResult['data'], 'cliente_id')
+        )));
+        $clientesMap = [];
+        if (!empty($clienteIds)) {
+            $cliResult = $supabase->get('clientes', [
+                'select' => 'id,nombre,apellido',
+                'tenant_id' => 'eq.' . $tenantId,
+                'id' => 'in.(' . implode(',', $clienteIds) . ')',
+                'deleted_at' => 'is.null',
+            ]);
+            if ($cliResult['ok'] && !empty($cliResult['data'])) {
+                foreach ($cliResult['data'] as $c) {
+                    $clientesMap[(int) $c['id']] = trim(($c['nombre'] ?? '') . ' ' . ($c['apellido'] ?? ''));
                 }
             }
+        }
+
+        foreach ($dispResult['data'] as $row) {
+            $row['dias_en_taller'] = Utils::daysPassed($row['fecha_listo']);
+            $row['cliente_nombre'] = $clientesMap[(int) ($row['cliente_id'] ?? 0)] ?? '';
             $dispositivos_vencidos[] = $row;
         }
     }

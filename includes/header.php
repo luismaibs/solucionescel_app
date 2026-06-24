@@ -618,10 +618,15 @@ $_abs_root = $_app_root;
 
         fetch(apiUrl)
             .then(function (r) {
+                if (r.status === 401) {
+                    window.location.href = (window.APP_BASE_PATH || '/') + 'login';
+                    return null;
+                }
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 return r.json();
             })
             .then(function (data) {
+                if (!data) return;
                 console.log('[Notificaciones] Datos recibidos:', data);
                 if (!data.ok) {
                     notifBody.innerHTML = '<div class="app-notif-empty"><i class="bi bi-exclamation-triangle" style="font-size:1.5rem;color:#fbbf24"></i><span>Error al cargar notificaciones</span></div>';
@@ -823,8 +828,15 @@ $_abs_root = $_app_root;
         setInterval(function () {
             if (notifOpen) return;
             fetch(window.APP_API_BASE + 'api_notificaciones_panel')
-                .then(function (r) { return r.json(); })
+                .then(function (r) {
+                    if (r.status === 401) {
+                        window.location.href = (window.APP_BASE_PATH || '/') + 'login';
+                        return null;
+                    }
+                    return r.json();
+                })
                 .then(function (data) {
+                    if (!data) return;
                     if (data.ok) {
                         data = filterReadNotifications(data);
                         updateBadge(data.total_alertas || 0);

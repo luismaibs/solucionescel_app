@@ -1,4 +1,4 @@
--- 0015: grupos_notificaciones — Agrupación de notificaciones configurables por tenant
+-- 0019: grupos_notificaciones — Agrupación de notificaciones configurables por tenant
 begin;
 
 create table if not exists public.grupos_notificaciones (

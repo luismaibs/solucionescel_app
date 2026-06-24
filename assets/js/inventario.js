@@ -401,7 +401,7 @@
             }
 
             try {
-                var resp = await fetch('../api/inventario/categoria?categoria=' + cat + '&page=1&per_page=9999');
+                var resp = await fetch('../api/inventario/categoria?categoria=' + cat + '&page=1&per_page=200');
                 var data = await resp.json();
 
                 if (!data.ok) throw new Error(data.message || 'Error');
