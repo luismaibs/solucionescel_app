@@ -179,7 +179,6 @@
                     var color = escapeHtml(p.color_nombre || '—');
                     return '<td class="ps-4 inv-marca-cell">' +
                                 '<div class="inv-marca-name">' + escapeHtml(p.marca_nombre || '—') + '</div>' +
-                                '<span class="badge-cat cat-accesorios inv-sub-badge">' + escapeHtml(p.subcategoria_nombre || '—') + '</span>' +
                             '</td>' +
                             '<td class="inv-producto-cell">' +
                                 '<div class="inv-producto-name">' + escapeHtml(p.nombre_producto) + '</div>' +
@@ -191,7 +190,7 @@
                 card: function (p) {
                     var stock = parseInt(p.stock || 0, 10);
                     var stockClass = stock < 3 ? 'text-danger' : 'text-success';
-                    return '<div class="app-mobile-card-meta mb-1"><span class="badge-cat cat-accesorios">' + escapeHtml(p.subcategoria_nombre || '—') + '</span> <span class="app-mobile-card-subtitle">' + escapeHtml(p.marca_nombre || '') + '</span></div>' +
+                    return '<div class="app-mobile-card-meta mb-1"><span class="app-mobile-card-subtitle">' + escapeHtml(p.marca_nombre || '') + '</span></div>' +
                         '<div class="app-mobile-card-title">' + escapeHtml(p.nombre_producto) + '</div>' +
                         '<div class="app-mobile-card-subtitle">' + escapeHtml(p.codigo) + ' · $' + parseFloat(p.precio || 0).toFixed(2) + ' · <span class="' + stockClass + '">' + stock + ' u.</span></div>';
                 }
