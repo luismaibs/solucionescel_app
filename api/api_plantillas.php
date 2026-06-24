@@ -22,7 +22,7 @@ function asegurarCarpetasFijasPlantillas(): void {
             'tenant_id' => 'eq.' . $tenantId,
             'nombre' => 'eq.' . $nombre,
             'limit' => '1',
-        ]);
+        ], null, true);
 
         if (!empty($actual['ok']) && !empty($actual['data'])) {
             continue;
@@ -31,7 +31,7 @@ function asegurarCarpetasFijasPlantillas(): void {
         $supabase->post('whatsapp_template_carpetas', [
             'nombre' => $nombre,
             'tenant_id' => $tenantId,
-        ]);
+        ], null, true);
     }
 }
 
@@ -56,7 +56,12 @@ if ($action === 'list') {
 if ($action === 'carpetas') {
     try {
         asegurarCarpetasFijasPlantillas();
-        $r = $supabase->get('whatsapp_template_carpetas', ['select' => '*', 'order' => 'nombre.asc']);
+        $tenantId = TenantContext::getTenantIdOrDefault();
+        $r = $supabase->get('whatsapp_template_carpetas', [
+            'select' => '*',
+            'tenant_id' => 'eq.' . $tenantId,
+            'order' => 'nombre.asc',
+        ], null, true);
         echo json_encode(['ok' => true, 'data' => $r['data'] ?? []]);
     } catch (Throwable $e) {
         http_response_code(500);

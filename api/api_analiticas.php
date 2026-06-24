@@ -50,8 +50,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if ($action === 'obtener_conversaciones') {
         try {
-            $conversaciones = $soporteService->obtenerConversacionesFormateadasParaApi(50);
-            jsonResponse(['conversaciones' => $conversaciones, 'total' => count($conversaciones)], 200);
+            $page = max(1, (int) ($_GET['page'] ?? 1));
+            $perPage = min(100, max(10, (int) ($_GET['per_page'] ?? 50)));
+            $offset = ($page - 1) * $perPage;
+            $total = $soporteRepo->countTotalConversaciones();
+            $conversaciones = $soporteService->obtenerConversacionesFormateadasParaApi($perPage, $offset);
+            jsonResponse([
+                'conversaciones' => $conversaciones,
+                'total' => $total,
+                'page' => $page,
+                'per_page' => $perPage,
+            ], 200);
         } catch (Exception $e) {
             error_log('api_analiticas obtener_conversaciones: ' . $e->getMessage());
             jsonResponse(['message' => 'Error al obtener conversaciones'], 500);

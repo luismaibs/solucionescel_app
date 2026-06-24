@@ -41,7 +41,7 @@ try {
     <link rel="stylesheet" href="<?= $fragment_asset_base ?>assets/css/soporte.css" data-module-css="soporte">
 <?php endif; ?>
 
-    <div class="container-xl main-content-push with-subheader pb-5" style="max-width: 1400px;">
+    <div class="soporte-content container-xl main-content-push with-subheader with-subfooter" style="max-width: 1400px;">
 
         <!-- Subheader: título + KPI chips -->
         <div class="module-subheader">
@@ -67,7 +67,7 @@ try {
         </div>
 
         <!-- Filtros -->
-        <div class="filters-row-wrap d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between mb-4 gap-3">
+        <div class="filters-row-wrap soporte-filters-row d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between gap-3">
             <div class="d-flex gap-2 overflow-x-auto hide-scrollbar pb-1 pb-lg-0 w-100">
                 <span class="filter-chip active flex-shrink-0" onclick="filterConversations('all', this)">Todos</span>
                 <span class="filter-chip flex-shrink-0" onclick="filterConversations('pausado', this)">Pendientes</span>
@@ -81,12 +81,8 @@ try {
         </div>
 
         <!-- LISTA CONVERSACIONES -->
-        <div class="glass-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold m-0">Listado de Conversaciones</h5>
-            </div>
-
-            <div class="d-none d-md-flex row px-3 py-2 text-muted small fw-bold text-uppercase border-bottom border-white border-opacity-10 mb-2">
+        <div class="soporte-table-surface">
+            <div class="soporte-table-head d-none d-md-flex row px-3 py-2 text-muted small fw-bold text-uppercase border-bottom border-white border-opacity-10">
                 <div class="col-md-3">Cliente</div>
                 <div class="col-md-4">Contexto</div>
                 <div class="col-md-2 text-center">Estado del Bot</div>
@@ -101,6 +97,20 @@ try {
                     </div>
                     <p class="text-muted mt-3">Cargando conversaciones...</p>
                 </div>
+            </div>
+        </div>
+
+        <div class="module-subfooter">
+            <small class="text-muted" id="soportePaginationInfo" style="font-size: 0.8rem;">Cargando conversaciones...</small>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
+                        id="btnSoportePrevPage" onclick="changeSoportePage(-1)" disabled>
+                    <i class="bi bi-chevron-left me-1"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
+                        id="btnSoporteNextPage" onclick="changeSoportePage(1)" disabled>
+                    Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                </button>
             </div>
         </div>
 
@@ -140,6 +150,9 @@ try {
         (function () {
             let allConversations = [];
             let currentFilter = 'all';
+            let currentPage = 1;
+            const perPage = 50;
+            let totalItems = 0;
             let pendingReactivation = null;
             let pollIntervalId = null;
             const reactivarModal = new bootstrap.Modal(document.getElementById('reactivarModal'));
@@ -148,7 +161,8 @@ try {
                 ? (s) => window.escapeHtml(String(s ?? ''))
                 : (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-            async function cargarConversaciones() {
+            async function cargarConversaciones(page) {
+                page = page || currentPage || 1;
                 const container = document.getElementById('conversacionesContainer');
 
                 if (allConversations.length === 0) {
@@ -156,12 +170,15 @@ try {
                 }
 
                 try {
-                    const response = await fetch('../api/api_analiticas?action=obtener_conversaciones');
+                    const response = await fetch('../api/api_analiticas?action=obtener_conversaciones&page=' + page + '&per_page=' + perPage);
                     const data = await response.json();
 
                     if (data.ok) {
-                        allConversations = data.conversaciones;
+                        currentPage = data.page || page;
+                        totalItems = data.total || 0;
+                        allConversations = data.conversaciones || [];
                         renderFiltered();
+                        updatePaginationInfo();
                     } else {
                         container.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> ' + (data.message || data.error || 'Error') + '</div>';
                     }
@@ -184,6 +201,7 @@ try {
                 });
 
                 renderConversaciones(filtered);
+                updatePaginationInfo(filtered.length);
             }
 
             function renderConversaciones(conversations) {
@@ -255,6 +273,34 @@ try {
                 renderFiltered();
             }
 
+            function updatePaginationInfo(filteredCount) {
+                const info = document.getElementById('soportePaginationInfo');
+                const prev = document.getElementById('btnSoportePrevPage');
+                const next = document.getElementById('btnSoporteNextPage');
+                if (!info || !prev || !next) return;
+
+                const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+                const start = totalItems === 0 ? 0 : ((currentPage - 1) * perPage) + 1;
+                const end = Math.min(totalItems, currentPage * perPage);
+                const visible = typeof filteredCount === 'number' ? filteredCount : allConversations.length;
+                const hasLocalFilter = currentFilter !== 'all' || (document.getElementById('searchInput').value || '').trim() !== '';
+
+                info.textContent = totalItems === 0
+                    ? 'Sin conversaciones'
+                    : 'Mostrando ' + start + '-' + end + ' de ' + totalItems + ' conversaciones' + (hasLocalFilter ? ' · ' + visible + ' visibles' : '');
+                prev.disabled = currentPage <= 1;
+                next.disabled = currentPage >= totalPages;
+            }
+
+            function changeSoportePage(delta) {
+                const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+                let target = currentPage + delta;
+                if (target < 1) target = 1;
+                if (target > totalPages) target = totalPages;
+                if (target === currentPage) return;
+                cargarConversaciones(target);
+            }
+
             function reactivarBot(remoteJid, convId) {
                 pendingReactivation = { remoteJid: remoteJid, convId: convId };
                 reactivarModal.show();
@@ -300,10 +346,12 @@ try {
             // API pública
             window.Soporte = {
                 reactivarBot: reactivarBot,
-                filterConversations: filterConversations
+                filterConversations: filterConversations,
+                changeSoportePage: changeSoportePage
             };
             window.filterConversations = filterConversations;
-            window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat(['Soporte', 'filterConversations']);
+            window.changeSoportePage = changeSoportePage;
+            window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat(['Soporte', 'filterConversations', 'changeSoportePage']);
 
             onModuleReady(function () {
                 cargarConversaciones();

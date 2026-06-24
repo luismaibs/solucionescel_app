@@ -215,6 +215,91 @@ include_once '../includes/fragment_helper.php';
             scrollbar-width: none;
         }
 
+        body.with-sidebar .usuarios-content.main-content-push {
+            padding-top: calc(var(--topbar-height) + var(--subheader-height));
+            padding-left: 0;
+            padding-right: 0;
+            padding-bottom: 0;
+        }
+
+        .usuarios-content .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .usuarios-content .row > [class*="col-"] {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .usuarios-filters-row {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(30, 41, 59, 0.36);
+            margin-bottom: 0 !important;
+        }
+
+        .usuarios-table-surface {
+            width: 100%;
+            min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - 58px);
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+        }
+
+        .usuarios-table-surface .app-table-wrap,
+        .usuarios-table-surface .table-responsive,
+        .usuarios-table-surface .app-mobile-cards-wrap {
+            background: transparent;
+        }
+
+        .usuarios-table-surface .table-responsive {
+            max-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - 58px);
+            overflow-y: auto;
+        }
+
+        .usuarios-table-surface .table-custom th {
+            background: rgba(30, 41, 59, 0.72);
+        }
+
+        .usuarios-table-surface .table-custom td {
+            border-bottom-color: rgba(148, 163, 184, 0.08);
+        }
+
+        .usuarios-table-surface .table-custom tr:hover td {
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        .usuarios-audit-title {
+            margin: 0;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+            background: rgba(30, 41, 59, 0.36);
+        }
+
+        @media (max-width: 991.98px) {
+            body.with-sidebar .usuarios-content.main-content-push {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .usuarios-filters-row {
+                padding: 0.75rem 1rem;
+            }
+
+            .usuarios-table-surface,
+            .usuarios-table-surface .table-responsive {
+                min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - 58px);
+                max-height: none;
+            }
+
+            .usuarios-table-surface .app-mobile-cards-wrap {
+                padding: 0.75rem 1rem 1rem;
+            }
+        }
+
         .btn-new-ingreso {
             background: linear-gradient(135deg, #3b82f6, #2563eb);
             border: 1px solid rgba(59, 130, 246, 0.4);
@@ -266,7 +351,7 @@ include_once '../includes/fragment_helper.php';
     <?php include '../includes/header.php'; ?>
 <?php endif; ?>
 
-    <div class="container-xl main-content-push with-subheader pb-5" style="max-width: 1440px;">
+    <div class="usuarios-content container-xl main-content-push with-subheader" style="max-width: 1440px;">
 
         <!-- Subheader: título + KPI chips + Nuevo Usuario -->
         <div class="module-subheader">
@@ -300,7 +385,7 @@ include_once '../includes/fragment_helper.php';
             <!-- COLUMNA FULL: Lista y Logs -->
             <div class="col-12">
                 <!-- Filtros Tipo Chips (mismo layout que Equipos/Inventario) -->
-                <div class="filters-row-wrap d-flex gap-2 overflow-x-auto hide-scrollbar pb-1 pb-lg-0 mb-4 w-100">
+                <div class="filters-row-wrap usuarios-filters-row d-flex gap-2 overflow-x-auto hide-scrollbar w-100">
                     <span class="filter-chip active flex-shrink-0" onclick="switchTab('users', this)">Usuarios</span>
                     <span class="filter-chip flex-shrink-0" onclick="switchTab('logs', this)">Historial</span>
                     <span class="filter-chip flex-shrink-0" onclick="switchTab('audit', this)">Auditoría</span>
@@ -310,7 +395,7 @@ include_once '../includes/fragment_helper.php';
 
                     <!-- TABLA USUARIOS (escritorio) y Fichas (móvil) -->
                     <div class="tab-pane fade show active" id="pills-users">
-                        <div class="glass-card">
+                        <div class="usuarios-table-surface">
                             <div class="app-table-wrap">
                                 <div class="table-responsive">
                                     <table class="table table-custom mb-0">
@@ -332,14 +417,14 @@ include_once '../includes/fragment_helper.php';
                                     </table>
                                 </div>
                             </div>
-                            <div id="usersCardsContainer" class="app-mobile-cards-wrap" style="min-height: 120px; padding: 0 0 1rem;"></div>
+                            <div id="usersCardsContainer" class="app-mobile-cards-wrap"></div>
                         </div>
                     </div>
 
                     <!-- TABLA LOGS -->
                     <div class="tab-pane fade" id="pills-logs">
-                        <div class="glass-card">
-                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                        <div class="usuarios-table-surface">
+                            <div class="table-responsive">
                                 <table class="table table-custom mb-0 text-small">
                                     <thead>
                                         <tr>
@@ -360,10 +445,10 @@ include_once '../includes/fragment_helper.php';
 
                     <!-- TABLA AUDITORÍA -->
                     <div class="tab-pane fade" id="pills-audit">
-                        <div class="glass-card">
-                            <h6 class="mb-3 text-info"><i class="bi bi-journal-text me-2"></i>Registro detallado de
+                        <div class="usuarios-table-surface">
+                            <h6 class="usuarios-audit-title text-info"><i class="bi bi-journal-text me-2"></i>Registro detallado de
                                 acciones</h6>
-                            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                            <div class="table-responsive">
                                 <table class="table table-custom mb-0 text-small">
                                     <thead>
                                         <tr>
@@ -429,7 +514,7 @@ include_once '../includes/fragment_helper.php';
                             'equipos'    => ['label' => 'Equipos',    'icon' => 'bi-tools'],
                             'clientes'   => ['label' => 'Clientes',   'icon' => 'bi-person-lines-fill'],
                             'inventario' => ['label' => 'Inventario', 'icon' => 'bi-box-seam'],
-                            'opencloud'  => ['label' => 'OpenCloud',  'icon' => 'bi-cloud-arrow-up-fill'],
+                            'opencloud'  => ['label' => 'Cloud',      'icon' => 'bi-cloud-arrow-up-fill'],
                             'soporte'    => ['label' => 'Soporte',    'icon' => 'bi-headset'],
                             'mes_azul'   => ['label' => 'Mes Azul',   'icon' => 'bi-hourglass-split'],
                             'analiticas' => ['label' => 'Analíticas', 'icon' => 'bi-graph-up-arrow'],
@@ -572,6 +657,9 @@ include_once '../includes/fragment_helper.php';
             const target = document.getElementById('pills-' + tabName);
             if (target) target.classList.add('show', 'active');
         }
+
+        window.switchTab = switchTab;
+        window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat(['switchTab']);
 
         function parseJsonResponse(res) {
             return res.text().then(text => {

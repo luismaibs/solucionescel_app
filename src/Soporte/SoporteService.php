@@ -33,12 +33,18 @@ class SoporteService
     /**
      * Devuelve conversaciones formateadas para la API (igual que obtenerConversaciones actual).
      */
-    public function obtenerConversacionesFormateadasParaApi(int $limit = 50): array
+    public function obtenerConversacionesFormateadasParaApi(int $limit = 50, int $offset = 0): array
     {
-        $conversaciones = $this->repo->findConversacionesParaApi($limit);
+        $conversaciones = $this->repo->findConversacionesParaApi($limit, $offset);
 
         return array_map(function (array $conv) {
-            $minutos = (int) ($conv['minutos_transcurridos'] ?? 0);
+            if (isset($conv['minutos_transcurridos'])) {
+                $minutos = (int) $conv['minutos_transcurridos'];
+            } elseif (!empty($conv['fecha_pausa'])) {
+                $minutos = max(0, (int) floor((time() - strtotime($conv['fecha_pausa'])) / 60));
+            } else {
+                $minutos = 0;
+            }
 
             if ($minutos < 60) {
                 $tiempo = $minutos . ' min';

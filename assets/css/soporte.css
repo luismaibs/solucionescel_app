@@ -2,17 +2,18 @@
 /* Estilos globales (body, navbar, glass-card, filter-chip, search-bar) en app.css */
 
 .conv-item {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    border-radius: 0;
     padding: 1rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0;
     transition: all 0.2s;
 }
 
 .conv-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.035);
+    border-color: rgba(148, 163, 184, 0.12);
 }
 
 .conv-estado {
@@ -93,7 +94,7 @@
 @media (max-width: 991.98px) {
     .conv-item {
         padding: 1.25rem 1rem;
-        border-radius: 16px;
+        border-radius: 0;
         -webkit-tap-highlight-color: transparent;
     }
 
@@ -110,5 +111,62 @@
     .conv-item .d-flex.gap-2 .btn-wa {
         flex: 1;
         justify-content: center;
+    }
+}
+
+body.with-sidebar .soporte-content.main-content-push {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.with-sidebar .soporte-content.main-content-push.with-subheader {
+    padding-top: calc(var(--topbar-height) + var(--subheader-height));
+}
+
+body.with-sidebar .soporte-content.main-content-push.with-subfooter {
+    padding-bottom: var(--subfooter-height);
+}
+
+.soporte-filters-row {
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(30, 41, 59, 0.36);
+}
+
+.soporte-table-surface {
+    width: 100%;
+    min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--subfooter-height) - 68px);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.soporte-table-head {
+    margin: 0;
+    background: rgba(30, 41, 59, 0.72);
+}
+
+#conversacionesContainer {
+    padding: 0.75rem 1rem 1rem;
+}
+
+@media (max-width: 991.98px) {
+    body.with-sidebar .soporte-content.main-content-push {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .soporte-filters-row {
+        padding: 0.75rem 1rem;
+    }
+
+    .soporte-table-surface {
+        min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--subfooter-height) - 126px);
+    }
+
+    #conversacionesContainer {
+        padding: 0.75rem 1rem 1rem;
     }
 }

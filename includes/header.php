@@ -98,11 +98,11 @@ if ($displayName !== '') {
         </a>
         <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
-        <a href="<?= $base_path ?>modules/opencloud"
-            class="app-sidebar-link <?= activeClass('opencloud', $current_script) ?>"
-            title="OpenCloud">
+        <a href="<?= $base_path ?>modules/cloud"
+            class="app-sidebar-link <?= activeClass('cloud', $current_script) ?>"
+            title="Cloud">
             <i class="bi bi-cloud-arrow-up-fill"></i>
-            <span class="app-sidebar-link-label">OpenCloud</span>
+            <span class="app-sidebar-link-label">Cloud</span>
         </a>
         <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('soporte')): ?>
@@ -311,9 +311,9 @@ if ($displayName !== '') {
         </a>
         <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
-        <a href="<?= $base_path ?>modules/opencloud" class="app-mobile-nav-link <?= activeClass('opencloud', $current_script) ?>">
+        <a href="<?= $base_path ?>modules/cloud" class="app-mobile-nav-link <?= activeClass('cloud', $current_script) ?>">
             <i class="bi bi-cloud-arrow-up-fill"></i>
-            <span>OpenCloud</span>
+            <span>Cloud</span>
         </a>
         <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('soporte')): ?>

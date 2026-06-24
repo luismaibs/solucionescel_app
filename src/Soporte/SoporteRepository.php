@@ -60,12 +60,16 @@ class SoporteRepository
         return null;
     }
 
-    public function findConversacionesParaApi(int $limit = 50): array
+    public function findConversacionesParaApi(int $limit = 50, int $offset = 0): array
     {
         $tid = TenantContext::requireTenant();
-        $result = $this->api->rpc('rpc_conversaciones_api', [
-            'p_tenant_id' => $tid,
-            'p_limit' => $limit,
+        $result = $this->api->get('bot_conversaciones', [
+            'select' => 'id,remote_jid,nombre_cliente,telefono,mensaje,estado,fecha_pausa,fecha_reactivacion',
+            'tenant_id' => 'eq.' . $tid,
+            'deleted_at' => 'is.null',
+            'order' => 'fecha_pausa.desc',
+            'limit' => (string) $limit,
+            'offset' => (string) max(0, $offset),
         ], $this->userToken());
         return $result['ok'] ? ($result['data'] ?? []) : [];
     }

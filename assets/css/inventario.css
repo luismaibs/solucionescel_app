@@ -66,13 +66,14 @@
         /* Tabla */
         body.with-sidebar .inventario-content.is-list-view.main-content-push,
         body.with-sidebar .inventario-content.is-excel-view.main-content-push {
+            --inventario-bars-gap: 12px;
             padding-left: 0;
             padding-right: 0;
         }
 
         body.with-sidebar .inventario-content.is-list-view.main-content-push.with-subheader.with-filters-bar,
         body.with-sidebar .inventario-content.is-excel-view.main-content-push.with-subheader.with-filters-bar {
-            padding-top: calc(var(--topbar-height) + var(--subheader-height) + var(--filters-bar-height));
+            padding-top: calc(var(--topbar-height) + var(--subheader-height) + var(--filters-bar-height) + var(--inventario-bars-gap));
         }
 
         body.with-sidebar .inventario-content.is-list-view.main-content-push.with-subfooter {
@@ -85,7 +86,7 @@
 
         .inv-table-surface.table-container {
             width: 100%;
-            min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height));
+            min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height) - var(--inventario-bars-gap));
             padding-bottom: 0;
             background: transparent !important;
             border: 0;
@@ -95,7 +96,7 @@
         }
 
         .inventario-content.is-excel-view .inv-table-surface.table-container {
-            min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height));
+            min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--inventario-bars-gap));
         }
 
         .inv-table-surface.table-container .table-responsive,
@@ -106,7 +107,7 @@
 
         @media (min-width: 992px) {
             .inv-table-surface.table-container .table-responsive {
-                max-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height));
+                max-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height) - var(--inventario-bars-gap));
                 overflow-y: auto;
             }
         }
@@ -119,11 +120,11 @@
             }
 
             .inv-table-surface.table-container {
-                min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height));
+                min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height) - var(--inventario-bars-gap));
             }
 
             .inventario-content.is-excel-view .inv-table-surface.table-container {
-                min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height));
+                min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--inventario-bars-gap));
             }
 
             .inv-table-surface.table-container .app-mobile-cards-wrap {
