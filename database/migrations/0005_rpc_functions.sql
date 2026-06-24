@@ -754,9 +754,9 @@ begin
       am.nombre as marca_nombre,
       ac.nombre as color_nombre
     from public.inv_accesorios a
-    left join public.accesorios_subcategorias asub on asub.tenant_id = a.tenant_id and asub.id = a.subcategoria_id
-    left join public.accesorios_marcas am on am.tenant_id = a.tenant_id and am.id = a.marca_id
-    left join public.accesorios_colores ac on ac.tenant_id = a.tenant_id and ac.id = a.color_id
+    left join public.subcategorias asub on asub.tenant_id = a.tenant_id and asub.id = a.subcategoria_id
+    left join public.marcas am on am.tenant_id = a.tenant_id and am.id = a.marca_id
+    left join public.colores ac on ac.tenant_id = a.tenant_id and ac.id = a.color_id
     where a.tenant_id = p_tenant_id and a.deleted_at is null
     limit p_limit offset p_offset
   ) t;

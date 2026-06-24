@@ -11,6 +11,63 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function getAccesorioSubcategoria(p) {
+            var nombre = p && p.subcategoria_nombre !== undefined && p.subcategoria_nombre !== null
+                ? String(p.subcategoria_nombre).trim()
+                : '';
+            return nombre || 'Sin subcategoría';
+        }
+
+        function compareInvText(a, b) {
+            return String(a || '').localeCompare(String(b || ''), 'es', {
+                sensitivity: 'base',
+                numeric: true
+            });
+        }
+
+        function sortAccesoriosBySubcategoria(items) {
+            return (items || []).slice().sort(function (a, b) {
+                return compareInvText(getAccesorioSubcategoria(a), getAccesorioSubcategoria(b)) ||
+                    compareInvText(a.marca_nombre, b.marca_nombre) ||
+                    compareInvText(a.nombre_producto, b.nombre_producto) ||
+                    compareInvText(a.codigo, b.codigo);
+            });
+        }
+
+        function getStableSubcategoriaStyle(nombre) {
+            var hash = 0;
+            var text = String(nombre || 'Sin subcategoría');
+            for (var i = 0; i < text.length; i++) {
+                hash = ((hash << 5) - hash) + text.charCodeAt(i);
+                hash |= 0;
+            }
+            var hue = Math.abs(hash) % 360;
+            return '--inv-subcat-hue:' + hue + ';' +
+                '--inv-subcat-bg:hsla(' + hue + ',82%,62%,0.13);' +
+                '--inv-subcat-bg-strong:hsla(' + hue + ',82%,62%,0.24);' +
+                '--inv-subcat-border:hsla(' + hue + ',82%,62%,0.38);' +
+                '--inv-subcat-text:hsl(' + hue + ',88%,80%);' +
+                '--inv-subcat-text-light:hsl(' + hue + ',68%,34%);';
+        }
+
+        function getSubcategoriaCounts(items) {
+            var counts = {};
+            (items || []).forEach(function (p) {
+                var sub = getAccesorioSubcategoria(p);
+                counts[sub] = (counts[sub] || 0) + 1;
+            });
+            return counts;
+        }
+
+        function renderSubcategoriaLabel(nombre, count) {
+            var total = parseInt(count || 0, 10);
+            return '<div class="inv-subcat-heading">' +
+                '<span class="inv-subcat-dot"></span>' +
+                '<span class="inv-subcat-title">' + escapeHtml(nombre) + '</span>' +
+                '<span class="inv-subcat-count">' + total + (total === 1 ? ' accesorio' : ' accesorios') + '</span>' +
+                '</div>';
+        }
+
         // Toasts
         const toastSuccess = new bootstrap.Toast(document.getElementById('liveToast'));
         const toastError = new bootstrap.Toast(document.getElementById('errorToast'));
@@ -206,12 +263,38 @@
                 return;
             }
 
-            var rows = items.map(function (p) {
-                return '<tr>' + def.row(p) +
+            var rows = '';
+            var lastSubcategoria = null;
+            var countSource = cat === 'accesorios' && invFilteredItems.length ? invFilteredItems : items;
+            var subcategoriaCounts = cat === 'accesorios' ? getSubcategoriaCounts(countSource) : {};
+
+            items.forEach(function (p) {
+                var editBtn = cat === 'accesorios'
+                    ? '<button class="btn-action bg-primary bg-opacity-10 text-primary border-0" onclick="abrirEditarAccesorio(' + p.id + ')" title="Editar"><i class="bi bi-pencil"></i></button>'
+                    : '';
+                var rowClass = '';
+                var rowStyle = '';
+
+                if (cat === 'accesorios') {
+                    var subcategoria = getAccesorioSubcategoria(p);
+                    rowStyle = getStableSubcategoriaStyle(subcategoria);
+                    rowClass = ' class="inv-subcat-item" style="' + rowStyle + '"';
+
+                    if (subcategoria !== lastSubcategoria) {
+                        rows += '<tr class="inv-subcat-group" style="' + rowStyle + '">' +
+                            '<td colspan="' + def.thead.length + '">' +
+                            renderSubcategoriaLabel(subcategoria, subcategoriaCounts[subcategoria]) +
+                            '</td></tr>';
+                        lastSubcategoria = subcategoria;
+                    }
+                }
+
+                rows += '<tr' + rowClass + '>' + def.row(p) +
                     '<td class="text-end pe-4"><div class="d-flex justify-content-end gap-2">' +
+                    editBtn +
                     '<button class="btn-action bg-danger bg-opacity-10 text-danger border-0" onclick="confirmDeleteCat(' + p.id + ')" title="Eliminar"><i class="bi bi-trash"></i></button>' +
                     '</div></td></tr>';
-            }).join('');
+            });
 
             tbody.innerHTML = rows;
         }
@@ -224,6 +307,33 @@
 
             if (!items || items.length === 0) {
                 container.innerHTML = '<div class="text-center py-5 text-muted">Sin registros para mostrar.</div>';
+                return;
+            }
+
+            if (cat === 'accesorios') {
+                var groupedCards = '';
+                var lastSubcategoria = null;
+                var countSource = invFilteredItems.length ? invFilteredItems : items;
+                var subcategoriaCounts = getSubcategoriaCounts(countSource);
+
+                items.forEach(function (p) {
+                    var subcategoria = getAccesorioSubcategoria(p);
+                    var cardStyle = getStableSubcategoriaStyle(subcategoria);
+
+                    if (subcategoria !== lastSubcategoria) {
+                        groupedCards += '<div class="inv-mobile-subcat-group" style="' + cardStyle + '">' +
+                            renderSubcategoriaLabel(subcategoria, subcategoriaCounts[subcategoria]) +
+                            '</div>';
+                        lastSubcategoria = subcategoria;
+                    }
+
+                    groupedCards += '<div class="app-mobile-card inv-subcat-card d-flex align-items-start justify-content-between gap-2" style="' + cardStyle + '" data-inv-id="' + p.id + '" role="button" tabindex="0">' +
+                        '<div class="flex-grow-1 min-w-0">' + def.card(p) + '</div>' +
+                        '<button type="button" class="app-mobile-card-more flex-shrink-0" onclick="event.preventDefault();event.stopPropagation();openInvActionsSheet(' + p.id + ')" aria-label="Mas acciones"><i class="bi bi-three-dots-vertical"></i></button>' +
+                        '</div>';
+                });
+
+                container.innerHTML = groupedCards;
                 return;
             }
 
@@ -351,6 +461,10 @@
                 if (f.precioMax !== '' && parseFloat(p.precio || 0) > parseFloat(f.precioMax)) return false;
                 return true;
             });
+
+            if (cat === 'accesorios') {
+                invFilteredItems = sortAccesoriosBySubcategoria(invFilteredItems);
+            }
 
             invTotalItems = invFilteredItems.length;
             invCurrentPage = 1;
@@ -767,12 +881,12 @@
         function openInvActionsSheet(prodId) {
             var p = invLastItems.find(function (item) { return item.id == prodId; });
             if (!p || typeof window.openBottomSheet !== 'function') return;
-            window.openBottomSheet({
-                title: 'Registro',
-                actions: [
-                    { label: 'Eliminar', icon: 'bi-trash', onClick: function () { confirmDeleteCat(p.id); }, danger: true }
-                ]
-            });
+            var actions = [];
+            if (categoriaActiva === 'accesorios') {
+                actions.push({ label: 'Editar', icon: 'bi-pencil', onClick: function () { abrirEditarAccesorio(p.id); } });
+            }
+            actions.push({ label: 'Eliminar', icon: 'bi-trash', onClick: function () { confirmDeleteCat(p.id); }, danger: true });
+            window.openBottomSheet({ title: 'Registro', actions: actions });
         }
 
         // ================================================================
@@ -1078,6 +1192,9 @@
         function abrirFormAccesorios() {
             modalCategoria.hide();
             document.getElementById('formAccesorio').reset();
+            document.getElementById('accId').value = '';
+            document.getElementById('offcanvasAccesorioTitle').textContent = 'Nuevo Accesorio';
+            document.getElementById('btnGuardarAccesorioLabel').textContent = 'Guardar Producto';
             hideFeedback('accFeedback');
             cargarCatalogo('../api/catalogos?tipo=subcategorias&action=listar', 'accSubcategoria');
             cargarCatalogo('../api/catalogos?tipo=marcas&action=listar', 'accMarca');
@@ -1085,10 +1202,48 @@
             offcanvasAccesorio.show();
         }
 
+        function abrirEditarAccesorio(id) {
+            var p = invAllItems.find(function (item) { return item.id == id; });
+            if (!p) return;
+
+            document.getElementById('formAccesorio').reset();
+            document.getElementById('accId').value = p.id;
+            document.getElementById('offcanvasAccesorioTitle').textContent = 'Editar Accesorio';
+            document.getElementById('btnGuardarAccesorioLabel').textContent = 'Guardar Cambios';
+            hideFeedback('accFeedback');
+
+            // Carga los selects y luego pre-selecciona los valores del accesorio
+            function preselect(selectId, val) {
+                var sel = document.getElementById(selectId);
+                function trySet() {
+                    var opt = sel.querySelector('option[value="' + val + '"]');
+                    if (opt) { sel.value = val; }
+                    else { setTimeout(trySet, 100); }
+                }
+                trySet();
+            }
+
+            cargarCatalogo('../api/catalogos?tipo=subcategorias&action=listar', 'accSubcategoria');
+            cargarCatalogo('../api/catalogos?tipo=marcas&action=listar', 'accMarca');
+            cargarCatalogo('../api/catalogos?tipo=colores&action=listar', 'accColor');
+
+            preselect('accSubcategoria', p.subcategoria_id);
+            preselect('accMarca', p.marca_id);
+            preselect('accColor', p.color_id);
+
+            document.getElementById('accCodigo').value = p.codigo || '';
+            document.getElementById('accNombre').value = p.nombre_producto || '';
+            document.getElementById('accStock').value = p.stock || 0;
+            document.getElementById('accPrecio').value = parseFloat(p.precio || 0).toFixed(2);
+
+            offcanvasAccesorio.show();
+        }
+
         document.getElementById('formAccesorio').addEventListener('submit', function (e) {
             e.preventDefault();
             hideFeedback('accFeedback');
 
+            var editId = document.getElementById('accId').value;
             var subId = document.getElementById('accSubcategoria').value;
             var marcaId = document.getElementById('accMarca').value;
             var colorId = document.getElementById('accColor').value;
@@ -1113,9 +1268,16 @@
             fd.append('precio', precio);
             fd.append('color_id', colorId);
 
-            submitFormAjax(fd, '../api/inventario/crear_accesorio', 'btnGuardarAccesorio', 'accFeedback', 'Accesorio creado correctamente.', function () {
-                offcanvasAccesorio.hide();
-            });
+            if (editId) {
+                fd.append('id', editId);
+                submitFormAjax(fd, '../api/inventario/actualizar_accesorio', 'btnGuardarAccesorio', 'accFeedback', 'Accesorio actualizado correctamente.', function () {
+                    offcanvasAccesorio.hide();
+                });
+            } else {
+                submitFormAjax(fd, '../api/inventario/crear_accesorio', 'btnGuardarAccesorio', 'accFeedback', 'Accesorio creado correctamente.', function () {
+                    offcanvasAccesorio.hide();
+                });
+            }
         });
 
         // ================================================================

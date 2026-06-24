@@ -48,14 +48,13 @@ class ReparacionRepository
         ], $this->userToken());
 
         if ($result['ok'] && is_array($result['data'])) {
-            $total = (int) ($result['data']['total_count'] ?? 0);
-            $rows = [];
-            if (is_string($result['data']['rows'] ?? null)) {
-                $rows = json_decode($result['data']['rows'], true) ?? [];
-            } elseif (is_array($result['data']['rows'] ?? null)) {
-                $rows = $result['data']['rows'];
+            $row = isset($result['data'][0]) && is_array($result['data'][0]) ? $result['data'][0] : $result['data'];
+            $total = (int) ($row['total_count'] ?? 0);
+            $rows = $row['rows'] ?? null;
+            if (is_string($rows)) {
+                return json_decode($rows, true) ?? [];
             }
-            return $rows;
+            return is_array($rows) ? $rows : [];
         }
 
         $total = 0;

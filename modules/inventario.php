@@ -625,11 +625,12 @@ include_once '../includes/fragment_helper.php';
     <div class="offcanvas offcanvas-end offcanvas-custom text-white" tabindex="-1" id="offcanvasAccesorio"
         data-bs-scroll="true" data-bs-backdrop="false">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title fw-bold">Nuevo Accesorio</h5>
+            <h5 class="offcanvas-title fw-bold" id="offcanvasAccesorioTitle">Nuevo Accesorio</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body">
             <form id="formAccesorio" novalidate>
+                <input type="hidden" id="accId" value="">
                 <!-- 1. Subcategoría dinámica -->
                 <div class="form-section">
                     <label class="form-label">Subcategoría</label>
@@ -701,7 +702,7 @@ include_once '../includes/fragment_helper.php';
                 <div id="accFeedback" class="d-none mb-3" style="font-size: 0.85rem;"></div>
                 <div class="d-grid gap-2 mt-2">
                     <button type="submit" class="btn btn-primary py-3" id="btnGuardarAccesorio">
-                        <i class="bi bi-check-circle me-2"></i>Guardar Producto
+                        <i class="bi bi-check-circle me-2"></i><span id="btnGuardarAccesorioLabel">Guardar Producto</span>
                     </button>
                     <button type="button" class="btn btn-outline-light py-2" data-bs-dismiss="offcanvas"
                         style="border-radius: 12px; border-color: rgba(255,255,255,0.1);">Cancelar</button>

@@ -91,6 +91,86 @@
             padding-left: 1.25rem !important;
         }
 
+        #invTable .inv-subcat-group td {
+            position: sticky;
+            top: calc(var(--topbar-height, 64px) + var(--subheader-height, 58px));
+            z-index: 6;
+            padding: 0.55rem 1.25rem !important;
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(30, 41, 59, 0.96) 62%) !important;
+            border-top: 1px solid var(--inv-subcat-border);
+            border-bottom: 1px solid var(--inv-subcat-border);
+            box-shadow: 0 8px 22px rgba(2, 6, 23, 0.22);
+            backdrop-filter: blur(18px);
+        }
+
+        #invTable .inv-subcat-item td {
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg), rgba(255, 255, 255, 0) 58%) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.045);
+        }
+
+        #invTable .inv-subcat-item:hover td {
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(255, 255, 255, 0.025) 62%) !important;
+        }
+
+        .inv-subcat-heading {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            min-width: 0;
+            color: var(--inv-subcat-text);
+        }
+
+        .inv-subcat-dot {
+            width: 0.7rem;
+            height: 0.7rem;
+            border-radius: 999px;
+            background: hsl(var(--inv-subcat-hue), 82%, 62%);
+            box-shadow: 0 0 0 4px var(--inv-subcat-bg);
+            flex-shrink: 0;
+        }
+
+        .inv-subcat-title {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .inv-subcat-count {
+            color: rgba(226, 232, 240, 0.62);
+            font-size: 0.72rem;
+            font-weight: 700;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+
+        .inv-mobile-subcat-group {
+            position: sticky;
+            top: calc(var(--topbar-height, 64px) + var(--subheader-height, 58px));
+            z-index: 5;
+            margin: 0.35rem 0 0.65rem;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid var(--inv-subcat-border);
+            border-radius: 10px;
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(30, 41, 59, 0.96) 70%);
+            box-shadow: 0 8px 22px rgba(2, 6, 23, 0.2);
+            backdrop-filter: blur(18px);
+        }
+
+        .app-mobile-card.inv-subcat-card {
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg), var(--glass-bg) 76%);
+            border-color: var(--inv-subcat-border);
+        }
+
         /* Celda Marca */
         .inv-marca-cell { white-space: nowrap; }
         .inv-marca-name {
@@ -132,6 +212,35 @@
         [data-bs-theme="light"] .inv-marca-name,
         [data-bs-theme="light"] .inv-producto-name { color: #0f172a; }
         [data-bs-theme="light"] .inv-meta-line { color: #94a3b8; }
+        [data-bs-theme="light"] #invTable .inv-subcat-group td {
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(255, 255, 255, 0.96) 62%) !important;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+        }
+        [data-bs-theme="light"] #invTable .inv-subcat-item td {
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg), rgba(255, 255, 255, 0) 58%) !important;
+            border-bottom-color: rgba(15, 23, 42, 0.055);
+        }
+        [data-bs-theme="light"] #invTable .inv-subcat-item:hover td {
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(15, 23, 42, 0.025) 62%) !important;
+        }
+        [data-bs-theme="light"] .inv-subcat-heading {
+            color: var(--inv-subcat-text-light);
+        }
+        [data-bs-theme="light"] .inv-subcat-count {
+            color: rgba(71, 85, 105, 0.75);
+        }
+        [data-bs-theme="light"] .inv-mobile-subcat-group {
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(255, 255, 255, 0.96) 70%);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+        }
+        [data-bs-theme="light"] .app-mobile-card.inv-subcat-card {
+            background:
+                linear-gradient(90deg, var(--inv-subcat-bg), rgba(255, 255, 255, 0.82) 76%);
+        }
 
         /* ================================================================
            BUSCADOR + FILTROS
