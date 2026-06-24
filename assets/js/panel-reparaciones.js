@@ -783,7 +783,10 @@
             pipelineContainer.style.display = 'block';
             if (filtrosChips) filtrosChips.style.display = 'none';
             if (subfooter) subfooter.style.display = 'none';
-            if (content) content.classList.remove('with-filters-bar');
+            if (content) {
+                content.classList.remove('with-filters-bar', 'is-table-view');
+                content.classList.add('is-pipeline-view');
+            }
             loadReparacionesPipeline();
             setTimeout(function () { syncPipelineScrollBar(); }, 100);
         } else {
@@ -791,7 +794,10 @@
             pipelineContainer.style.display = 'none';
             if (filtrosChips) filtrosChips.style.display = '';
             if (subfooter) subfooter.style.display = 'flex';
-            if (content) content.classList.add('with-filters-bar');
+            if (content) {
+                content.classList.add('with-filters-bar', 'is-table-view');
+                content.classList.remove('is-pipeline-view');
+            }
             loadReparaciones(repCurrentPage);
         }
         try { localStorage.setItem(PIPELINE_STORAGE_KEY, mode); } catch (e) { }

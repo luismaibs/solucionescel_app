@@ -54,7 +54,7 @@ function generarSlugNotif(string $titulo): string {
 
 function buscarOCrearPlantillaNotif(string $titulo): ?int {
     global $supabase, $tid;
-    $nombreCarpeta = 'Automatizaciones de Notificaciones';
+    $nombreCarpeta = 'Notificaciones';
 
     $carpetaResult = $supabase->get('whatsapp_template_carpetas', [
         'select' => 'id',

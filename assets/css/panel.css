@@ -14,10 +14,70 @@
 
 /* .search-bar centralizado en app.css */
 
-.table-container {
-    border-radius: var(--radius-xl);
-    min-height: 80vh;
-    padding-bottom: 150px;
+.panel-table-surface.table-container {
+    border-radius: 0;
+    min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height));
+    padding-bottom: 0;
+}
+
+body.with-sidebar .panel-equipos-content.is-table-view.main-content-push {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.with-sidebar .panel-equipos-content.is-table-view.main-content-push.with-subheader.with-filters-bar {
+    padding-top: calc(var(--topbar-height) + var(--subheader-height) + var(--filters-bar-height));
+}
+
+body.with-sidebar .panel-equipos-content.is-table-view.main-content-push.with-subfooter {
+    padding-bottom: var(--subfooter-height);
+}
+
+.panel-table-surface,
+.panel-table-surface .table-responsive,
+.panel-table-surface .app-table-wrap,
+.panel-table-surface .app-mobile-cards-wrap {
+    background: transparent !important;
+}
+
+.panel-table-surface {
+    width: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.panel-table-surface .app-table-wrap,
+.panel-table-surface .table-responsive {
+    min-height: inherit;
+}
+
+.panel-table-surface .table-custom th {
+    background: rgba(30, 41, 59, 0.72) !important;
+}
+
+.panel-table-surface .table-custom td {
+    border-bottom-color: rgba(148, 163, 184, 0.08);
+}
+
+.panel-table-surface .table-custom tr:hover td {
+    background: rgba(255, 255, 255, 0.035) !important;
+}
+
+@media (max-width: 991.98px) {
+    body.with-sidebar .panel-equipos-content.is-table-view.main-content-push {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .panel-table-surface {
+        min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height));
+    }
+
+    .panel-table-surface .app-mobile-cards-wrap {
+        padding: 0.75rem 1rem 1rem;
+    }
 }
 
 /* table-custom: centralizado en app.css */

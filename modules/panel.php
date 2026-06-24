@@ -132,7 +132,7 @@ if ($panelError !== null) {
         </div>
     </div>
 
-    <div id="panelEquiposContent" class="container-xl main-content-push with-subheader with-filters-bar with-subfooter" style="max-width: 1440px;">
+    <div id="panelEquiposContent" class="panel-equipos-content is-table-view container-xl main-content-push with-subheader with-filters-bar with-subfooter" style="max-width: 1440px;">
 
         <!-- Filtros (barra fija sub-subheader, oculta en modo pipeline) -->
         <div id="filtrosEstadosContainer" class="module-filters-bar">
@@ -154,9 +154,6 @@ if ($panelError !== null) {
                         <label class="view-switch-option" for="viewPipeline" title="Vista Pipeline"><i class="bi bi-kanban"></i></label>
                     </div>
                 </div>
-                <a href="mes_azul" class="btn mes-azul-trigger view-switch-size" title="Rastreo Mes Azul" aria-label="Rastreo Mes Azul">
-                    <i class="bi bi-hourglass-split"></i>
-                </a>
                 <div class="position-relative" style="max-width: 260px;">
                     <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
                     <input type="text" id="searchInput" class="form-control search-bar" placeholder="Buscar...">
@@ -165,9 +162,9 @@ if ($panelError !== null) {
         </div>
 
         <!-- Vista Tabla -->
-        <div id="viewTablaContainer" class="glass-card table-container">
+        <div id="viewTablaContainer" class="panel-table-surface table-container">
             <div class="app-table-wrap">
-                <div class="table-responsive" style="min-height: 400px;">
+                <div class="table-responsive">
                     <table class="table table-custom mb-0" id="repairsTable">
                         <thead>
                             <tr>
@@ -185,7 +182,7 @@ if ($panelError !== null) {
                     </table>
                 </div>
             </div>
-            <div id="repairsCardsContainer" class="app-mobile-cards-wrap" style="min-height: 300px; padding: 0 0 1rem;"></div>
+            <div id="repairsCardsContainer" class="app-mobile-cards-wrap"></div>
         </div>
 
         <!-- Vista Pipeline (Kanban) -->
