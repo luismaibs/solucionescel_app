@@ -120,7 +120,7 @@ include_once '../includes/fragment_helper.php';
     <?php include '../includes/header.php'; ?>
 <?php endif; ?>
 
-    <div class="container-xl main-content-push with-subheader" style="max-width: 1440px;">
+    <div class="container-xl main-content-push with-subheader with-subfooter" style="max-width: 1440px;">
 
         <!-- Subheader -->
         <div class="module-subheader">
@@ -170,18 +170,20 @@ include_once '../includes/fragment_helper.php';
                 </div>
             </div>
             <div id="clientesCardsContainer" class="app-mobile-cards-wrap" style="min-height: 200px; padding: 0 0 1rem;"></div>
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-4 py-3 border-top border-white border-opacity-10 gap-2">
-                <small class="text-muted" id="paginationInfo" style="font-size: 0.8rem;">Cargando...</small>
-                <div class="d-flex gap-2 ms-auto">
-                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
-                            id="btnPrevPage" onclick="changePage(-1)" disabled>
-                        <i class="bi bi-chevron-left me-1"></i> Anterior
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
-                            id="btnNextPage" onclick="changePage(1)" disabled>
-                        Siguiente <i class="bi bi-chevron-right ms-1"></i>
-                    </button>
-                </div>
+        </div>
+
+        <!-- Subfooter fijo: paginación -->
+        <div class="module-subfooter">
+            <small class="text-muted" id="paginationInfo" style="font-size: 0.8rem;">Cargando...</small>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
+                        id="btnPrevPage" onclick="changePage(-1)" disabled>
+                    <i class="bi bi-chevron-left me-1"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
+                        id="btnNextPage" onclick="changePage(1)" disabled>
+                    Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                </button>
             </div>
         </div>
     </div>

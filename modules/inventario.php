@@ -80,7 +80,7 @@ include_once '../includes/fragment_helper.php';
         </div>
     </div>
 
-    <div class="container-xl main-content-push with-subheader" style="max-width: 1440px;">
+    <div class="container-xl main-content-push with-subheader with-subfooter" style="max-width: 1440px;">
 
         <!-- Subheader: título + KPI chips + Nuevo Producto (izquierda) + acciones (derecha) -->
         <div class="module-subheader">
@@ -181,23 +181,22 @@ include_once '../includes/fragment_helper.php';
 
             <!-- Vista tabla tipo hoja de cálculo (Tabulator) -->
             <div id="invExcelContainer" class="inv-excel-wrap d-none"></div>
+        </div>
 
-            <!-- Paginación -->
-            <div id="invPaginationRow"
-                class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-4 py-3 border-top border-white border-opacity-10 gap-2">
-                <small class="text-muted" id="invPaginationInfo" style="font-size: 0.8rem;">
-                    Cargando inventario...
-                </small>
-                <div class="d-flex gap-2 ms-auto">
-                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
-                        id="btnPrevPage" onclick="changeInvPage(-1)" disabled>
-                        <i class="bi bi-chevron-left me-1"></i> Anterior
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
-                        id="btnNextPage" onclick="changeInvPage(1)" disabled>
-                        Siguiente <i class="bi bi-chevron-right ms-1"></i>
-                    </button>
-                </div>
+        <!-- Subfooter fijo: paginación (id=invPaginationRow para que el JS lo muestre/oculte en vista Excel) -->
+        <div id="invPaginationRow" class="module-subfooter">
+            <small class="text-muted" id="invPaginationInfo" style="font-size: 0.8rem;">
+                Cargando inventario...
+            </small>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
+                    id="btnPrevPage" onclick="changeInvPage(-1)" disabled>
+                    <i class="bi bi-chevron-left me-1"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3"
+                    id="btnNextPage" onclick="changeInvPage(1)" disabled>
+                    Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                </button>
             </div>
         </div>
     </div>

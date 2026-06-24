@@ -132,7 +132,7 @@ if ($panelError !== null) {
         </div>
     </div>
 
-    <div id="panelEquiposContent" class="container-xl main-content-push with-subheader" style="max-width: 1440px;">
+    <div id="panelEquiposContent" class="container-xl main-content-push with-subheader with-subfooter" style="max-width: 1440px;">
 
         <!-- Filtros (solo visibles en modo tabla) -->
         <div id="filtrosEstadosContainer" class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between mb-4 gap-3">
@@ -167,7 +167,7 @@ if ($panelError !== null) {
         <!-- Vista Tabla -->
         <div id="viewTablaContainer" class="glass-card table-container">
             <div class="app-table-wrap">
-                <div class="table-responsive" style="min-height: 400px; padding-bottom: 80px;">
+                <div class="table-responsive" style="min-height: 400px;">
                     <table class="table table-custom mb-0" id="repairsTable">
                         <thead>
                             <tr>
@@ -186,17 +186,6 @@ if ($panelError !== null) {
                 </div>
             </div>
             <div id="repairsCardsContainer" class="app-mobile-cards-wrap" style="min-height: 300px; padding: 0 0 1rem;"></div>
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center px-4 py-3 border-top border-white border-opacity-10 gap-2">
-                <small class="text-muted" id="repPaginationInfo" style="font-size: 0.8rem;">Cargando reparaciones...</small>
-                <div class="d-flex gap-2 ms-auto">
-                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" id="btnRepPrevPage" onclick="changeRepPage(-1)" disabled>
-                        <i class="bi bi-chevron-left me-1"></i> Anterior
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" id="btnRepNextPage" onclick="changeRepPage(1)" disabled>
-                        Siguiente <i class="bi bi-chevron-right ms-1"></i>
-                    </button>
-                </div>
-            </div>
         </div>
 
         <!-- Vista Pipeline (Kanban) -->

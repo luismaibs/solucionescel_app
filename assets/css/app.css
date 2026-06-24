@@ -34,6 +34,7 @@ html::-webkit-scrollbar {
     --sidebar-width: var(--sidebar-collapsed);
     --topbar-height: 64px;
     --subheader-height: 52px;
+    --subfooter-height: 52px;
 }
 
 /* Cuando el sidebar está fijo expandido, el layout usa el ancho expandido */
@@ -1807,6 +1808,37 @@ body.with-sidebar .main-content-push.with-subheader {
     .module-subheader { left: 0; }
     body.with-sidebar .main-content-push.with-subheader {
         padding-top: calc(var(--topbar-height) + var(--subheader-height) + 12px);
+    }
+}
+
+/* ===== MODULE SUBFOOTER ===== */
+.module-subfooter {
+    position: fixed;
+    bottom: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    z-index: 98;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 1.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: none;
+    border-top: 1px solid var(--glass-border);
+    border-radius: 0;
+    transition: left 0.25s ease;
+}
+
+body.with-sidebar .main-content-push.with-subfooter {
+    padding-bottom: calc(var(--subfooter-height) + 24px);
+}
+
+@media (max-width: 991.98px) {
+    .module-subfooter { left: 0; }
+    body.with-sidebar .main-content-push.with-subfooter {
+        padding-bottom: calc(var(--subfooter-height) + 12px);
     }
 }
 
