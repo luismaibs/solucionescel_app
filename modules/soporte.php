@@ -148,6 +148,25 @@ try {
 
     <script>
         (function () {
+            var previousDestroy = window.__soporteDestroy;
+            if (typeof previousDestroy === 'function') {
+                try { previousDestroy(); } catch (e) {}
+                window.__spaModuleCleanup = (window.__spaModuleCleanup || []).filter(function (fn) {
+                    return fn !== previousDestroy;
+                });
+            }
+
+            var cleanupFns = [];
+            var API_BASE = window.APP_API_BASE || '../api/';
+
+            function on(target, type, handler, options) {
+                if (!target || !target.addEventListener) return;
+                target.addEventListener(type, handler, options);
+                cleanupFns.push(function () {
+                    target.removeEventListener(type, handler, options);
+                });
+            }
+
             let allConversations = [];
             let currentFilter = 'all';
             let currentPage = 1;
@@ -170,7 +189,7 @@ try {
                 }
 
                 try {
-                    const response = await fetch('../api/api_analiticas?action=obtener_conversaciones&page=' + page + '&per_page=' + perPage);
+                    const response = await fetch(API_BASE + 'api_analiticas?action=obtener_conversaciones&page=' + page + '&per_page=' + perPage);
                     const data = await response.json();
 
                     if (data.ok) {
@@ -311,7 +330,7 @@ try {
                 if (window.SCToast) window.SCToast.show('Reactivando bot...', 'info');
 
                 try {
-                    const response = await fetch('../api/api_analiticas', {
+                    const response = await fetch(API_BASE + 'api_analiticas', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'reactivar_bot', remote_jid: remoteJid, conv_id: convId })
@@ -357,19 +376,29 @@ try {
                 cargarConversaciones();
                 startPolling();
 
-                document.getElementById('btnConfirmReactivar').addEventListener('click', function () {
+                on(document.getElementById('btnConfirmReactivar'), 'click', function () {
                     if (pendingReactivation) {
                         processReactivation(pendingReactivation.remoteJid, pendingReactivation.convId);
                     }
                 });
             });
 
-            document.addEventListener('visibilitychange', function () {
+            on(document, 'visibilitychange', function () {
                 if (document.hidden) stopPolling();
                 else { cargarConversaciones(); startPolling(); }
             });
 
-            window.addEventListener('beforeunload', stopPolling);
+            on(window, 'beforeunload', stopPolling);
+
+            window.__soporteDestroy = function () {
+                stopPolling();
+                while (cleanupFns.length) {
+                    try { cleanupFns.pop()(); } catch (e) {}
+                }
+            };
+            window.__spaModuleCleanup = window.__spaModuleCleanup || [];
+            window.__spaModuleCleanup.push(window.__soporteDestroy);
+            window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat(['__soporteDestroy']);
         })();
     </script>
 <?php if (!$isFragment): ?>

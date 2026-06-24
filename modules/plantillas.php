@@ -158,6 +158,24 @@ include_once '../includes/fragment_helper.php';
             background: transparent;
             font-size: 0.7rem;
         }
+        .variable-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.55rem;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            background: rgba(59,130,246,0.08);
+            border: 1px solid rgba(59,130,246,0.22);
+            color: #93c5fd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .variable-chip:hover {
+            background: rgba(59,130,246,0.16);
+            color: #bfdbfe;
+        }
 
         .btn-action-icon {
             width: 34px;
@@ -342,6 +360,13 @@ include_once '../includes/fragment_helper.php';
                                     <label class="form-label fw-semibold small text-muted text-uppercase mb-1">Titulo</label>
                                     <input type="text" id="inputTitle" class="form-control mb-3" placeholder="Ej: Saludo de bienvenida">
                                     <label class="form-label fw-semibold small text-muted text-uppercase mb-1">Contenido</label>
+                                    <div class="d-flex gap-2 flex-wrap mb-2">
+                                        <button type="button" class="variable-chip" onclick="insertVariable('inputContent', '{{cliente}}')"><i class="bi bi-person"></i>cliente</button>
+                                        <button type="button" class="variable-chip" onclick="insertVariable('inputContent', '{{folio}}')"><i class="bi bi-hash"></i>folio</button>
+                                        <button type="button" class="variable-chip" onclick="insertVariable('inputContent', '{{modelo}}')"><i class="bi bi-phone"></i>modelo</button>
+                                        <button type="button" class="variable-chip" onclick="insertVariable('inputContent', '{{falla}}')"><i class="bi bi-tools"></i>falla</button>
+                                        <button type="button" class="variable-chip" onclick="insertVariable('inputContent', '{{fecha}}')"><i class="bi bi-calendar3"></i>fecha</button>
+                                    </div>
                                     <textarea id="inputContent" class="form-control flex-grow-1" style="min-height:200px;resize:none;"
                                         placeholder="Escribe tu mensaje...&#10;&#10;Formatos: *negrita*  _cursiva_  ~tachado~  ```mono```"></textarea>
                                     <div class="d-flex justify-content-between align-items-center mt-2">
@@ -419,6 +444,13 @@ include_once '../includes/fragment_helper.php';
             <label class="form-label fw-semibold small text-muted text-uppercase mb-1">Titulo</label>
             <input type="text" id="mInputTitle" class="form-control mb-3" placeholder="Ej: Saludo de bienvenida">
             <label class="form-label fw-semibold small text-muted text-uppercase mb-1">Contenido</label>
+            <div class="d-flex gap-2 flex-wrap mb-2">
+                <button type="button" class="variable-chip" onclick="insertVariable('mInputContent', '{{cliente}}')"><i class="bi bi-person"></i>cliente</button>
+                <button type="button" class="variable-chip" onclick="insertVariable('mInputContent', '{{folio}}')"><i class="bi bi-hash"></i>folio</button>
+                <button type="button" class="variable-chip" onclick="insertVariable('mInputContent', '{{modelo}}')"><i class="bi bi-phone"></i>modelo</button>
+                <button type="button" class="variable-chip" onclick="insertVariable('mInputContent', '{{falla}}')"><i class="bi bi-tools"></i>falla</button>
+                <button type="button" class="variable-chip" onclick="insertVariable('mInputContent', '{{fecha}}')"><i class="bi bi-calendar3"></i>fecha</button>
+            </div>
             <textarea id="mInputContent" class="form-control flex-grow-1" style="min-height:180px;resize:none;"
                 placeholder="Escribe tu mensaje..."></textarea>
             <span class="small text-muted mt-1 mb-2" id="mCharCount">0 caracteres</span>
@@ -452,6 +484,26 @@ include_once '../includes/fragment_helper.php';
     </div>
 
     <script>
+    (function () {
+    'use strict';
+
+    const previousDestroy = window.__plantillasDestroy;
+    if (typeof previousDestroy === 'function') {
+        try { previousDestroy(); } catch (e) {}
+        window.__spaModuleCleanup = (window.__spaModuleCleanup || []).filter(function (fn) {
+            return fn !== previousDestroy;
+        });
+    }
+
+    const cleanupFns = [];
+    function on(target, type, handler, options) {
+        if (!target || !target.addEventListener) return;
+        target.addEventListener(type, handler, options);
+        cleanupFns.push(function () {
+            target.removeEventListener(type, handler, options);
+        });
+    }
+
     const API = (window.APP_API_BASE || '../api/') + 'api_plantillas';
     const API_ESTADOS = (window.APP_API_BASE || '../api/') + 'api_estados';
     const escapeHtml = window.escapeHtml || (s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; });
@@ -791,6 +843,24 @@ include_once '../includes/fragment_helper.php';
         loadTemplates();
     }
 
+    function insertVariable(textareaId, variable) {
+        const textarea = document.getElementById(textareaId);
+        if (!textarea) return;
+
+        const start = textarea.selectionStart ?? textarea.value.length;
+        const end = textarea.selectionEnd ?? textarea.value.length;
+        textarea.value = textarea.value.slice(0, start) + variable + textarea.value.slice(end);
+        const nextPosition = start + variable.length;
+        textarea.focus();
+        textarea.setSelectionRange(nextPosition, nextPosition);
+
+        if (textareaId === 'mInputContent') {
+            updateMobilePreview();
+        } else {
+            updatePreview();
+        }
+    }
+
     // ─── HELPERS ───
     function showToast(msg, type) {
         if (window.SCToast) { window.SCToast.show(msg, type); }
@@ -798,10 +868,39 @@ include_once '../includes/fragment_helper.php';
     }
 
     // ─── EVENT LISTENERS ───
-    document.getElementById('inputContent').addEventListener('input', updatePreview);
-    document.getElementById('mInputContent').addEventListener('input', updateMobilePreview);
+    on(document.getElementById('inputContent'), 'input', updatePreview);
+    on(document.getElementById('mInputContent'), 'input', updateMobilePreview);
 
     init();
+    const publicApi = {
+        filterByCarpeta,
+        filterTemplates,
+        saveCarpeta,
+        openCarpetaModal,
+        selectTemplate,
+        createNewTemplate,
+        saveTemplate,
+        deleteTemplate,
+        openEditorMobile,
+        saveTemplateMobile,
+        deleteTemplateMobile,
+        insertVariable
+    };
+
+    Object.keys(publicApi).forEach(function (name) {
+        window[name] = publicApi[name];
+    });
+
+    window.__plantillasDestroy = function () {
+        while (cleanupFns.length) {
+            try { cleanupFns.pop()(); } catch (e) {}
+        }
+    };
+
+    window.__spaModuleCleanup = window.__spaModuleCleanup || [];
+    window.__spaModuleCleanup.push(window.__plantillasDestroy);
+    window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat(Object.keys(publicApi).concat('__plantillasDestroy'));
+    })();
     </script>
 <?php if (!$isFragment): ?>
     <?php include '../includes/pwa_script.php'; ?>

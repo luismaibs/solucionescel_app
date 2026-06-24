@@ -970,6 +970,7 @@ if ($panelError !== null) {
     <script defer src="../assets/js/estados.js?v=<?= $v ?>"></script>
     <script defer src="../assets/js/notificaciones.js?v=<?= $v ?>"></script>
     <script>
+    (function () {
     function toggleView(showId, hideIds) {
         hideIds.forEach(function (id) {
             var el = document.getElementById(id);
@@ -1021,6 +1022,15 @@ if ($panelError !== null) {
             if (typeof loadNotificaciones === 'function') loadNotificaciones();
         }
     }
+    window.toggleView = toggleView;
+    window.toggleEstadosSection = toggleEstadosSection;
+    window.toggleNotificacionesSection = toggleNotificacionesSection;
+    window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat([
+        'toggleView',
+        'toggleEstadosSection',
+        'toggleNotificacionesSection'
+    ]);
+    })();
     </script>
     <?php endif; ?>
 <?php if (!$isFragment): ?>

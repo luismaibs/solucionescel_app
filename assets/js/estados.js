@@ -5,6 +5,23 @@
 (function () {
     'use strict';
 
+    var previousDestroy = window.__estadosDestroy;
+    if (typeof previousDestroy === 'function') {
+        try { previousDestroy(); } catch (e) {}
+        window.__spaModuleCleanup = (window.__spaModuleCleanup || []).filter(function (fn) {
+            return fn !== previousDestroy;
+        });
+    }
+
+    var cleanupFns = [];
+    function on(target, type, handler, options) {
+        if (!target || !target.addEventListener) return;
+        target.addEventListener(type, handler, options);
+        cleanupFns.push(function () {
+            target.removeEventListener(type, handler, options);
+        });
+    }
+
     var basePath = (window.BASE_PATH || window.APP_BASE_PATH || '').replace(/\/$/, '') || '';
     var apiBase = window.APP_API_BASE || (basePath ? basePath + '/api/' : '/api/');
     var treeData = { primer_ingreso: [], re_ingreso: [] };
@@ -343,7 +360,7 @@
     // ═══════════════════════════════════════════════════════
 
     function setupTableEvents() {
-        document.addEventListener('click', function (e) {
+        on(document, 'click', function (e) {
             // Toggle subestados
             var toggle = e.target.closest('.toggle-hijos');
             if (toggle) {
@@ -410,8 +427,27 @@
     window._openCreateModal = openCreateModal;
     window._confirmDelete = confirmDelete;
 
+    window.loadTree = loadTree;
     window.openCreateModal = openCreateModal;
     window.copiarSlug = copiarSlug;
     window.onTipoChange = onTipoChange;
     window.loadTemplates = function () { loadTemplatesForSelect(null); };
+    window.__estadosDestroy = function () {
+        while (cleanupFns.length) {
+            try { cleanupFns.pop()(); } catch (e) {}
+        }
+    };
+    window.__spaModuleCleanup = window.__spaModuleCleanup || [];
+    window.__spaModuleCleanup.push(window.__estadosDestroy);
+    window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat([
+        '_editEstado',
+        '_openCreateModal',
+        '_confirmDelete',
+        'loadTree',
+        'openCreateModal',
+        'copiarSlug',
+        'onTipoChange',
+        'loadTemplates',
+        '__estadosDestroy'
+    ]);
 })();

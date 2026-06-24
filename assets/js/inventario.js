@@ -1,3 +1,29 @@
+        (function () {
+        'use strict';
+
+        var previousDestroy = window.__inventarioDestroy;
+        if (typeof previousDestroy === 'function') {
+            try { previousDestroy(); } catch (e) {}
+            window.__spaModuleCleanup = (window.__spaModuleCleanup || []).filter(function (fn) {
+                return fn !== previousDestroy;
+            });
+        }
+
+        var cleanupFns = [];
+        var API_BASE = window.APP_API_BASE || '../api/';
+
+        function apiUrl(path) {
+            return API_BASE + String(path || '').replace(/^\/+/, '');
+        }
+
+        function on(target, type, handler, options) {
+            if (!target || !target.addEventListener) return;
+            target.addEventListener(type, handler, options);
+            cleanupFns.push(function () {
+                target.removeEventListener(type, handler, options);
+            });
+        }
+
         // ================================================================
         // HELPERS
         // ================================================================
@@ -211,7 +237,7 @@
             container.style.transition = 'opacity 0.2s ease';
 
             try {
-                var resp = await fetch('../api/inventario/kpis?categoria=' + cat);
+                var resp = await fetch(apiUrl('inventario/kpis?categoria=' + encodeURIComponent(cat)));
                 var data = await resp.json();
 
                 if (!data.ok || !data.kpis) throw new Error('KPI error');
@@ -401,7 +427,7 @@
             }
 
             try {
-                var resp = await fetch('../api/inventario/categoria?categoria=' + cat + '&page=1&per_page=200');
+                var resp = await fetch(apiUrl('inventario/categoria?categoria=' + encodeURIComponent(cat) + '&page=1&per_page=200'));
                 var data = await resp.json();
 
                 if (!data.ok) throw new Error(data.message || 'Error');
@@ -535,7 +561,7 @@
             }
         }
 
-        document.addEventListener('click', function(e) {
+        on(document, 'click', function(e) {
             if (!panelFiltrosOpen) return;
             var panel = document.getElementById('panelFiltros');
             var btn = document.getElementById('btnFiltros');
@@ -795,7 +821,7 @@
             var valor = cell.getValue();
             var id = rowData.id;
 
-            fetch('../api/inventario/actualizar', {
+            fetch(apiUrl('inventario/actualizar'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ categoria: categoriaActiva, id: id, campo: campo, valor: valor })
@@ -860,7 +886,7 @@
                 fd.append('action', 'delete');
                 fd.append('categoria', categoriaActiva);
                 fd.append('id', id);
-                fetch('../api/inventario/categoria', { method: 'POST', body: fd })
+                fetch(apiUrl('inventario/categoria'), { method: 'POST', body: fd })
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
                         if (data.ok) {
@@ -940,7 +966,7 @@
         // RESIZE HANDLER
         // ================================================================
         var _resizeTimer;
-        window.addEventListener('resize', function () {
+        on(window, 'resize', function () {
             clearTimeout(_resizeTimer);
             _resizeTimer = setTimeout(function () {
                 if (vistaActual === 'tabla') return;
@@ -1085,7 +1111,7 @@
             fd.append('sistemas_operativos', Array.from(sistemasChecked).map(function (cb) { return cb.value; }).join(','));
             fd.append('acciones', JSON.stringify(accionesArr));
 
-            submitFormAjax(fd, '../api/inventario/servicios_generales', 'btnGuardarServicio', 'sgFeedback', 'Servicio creado correctamente.', function () {
+            submitFormAjax(fd, apiUrl('inventario/servicios_generales'), 'btnGuardarServicio', 'sgFeedback', 'Servicio creado correctamente.', function () {
                 offcanvasServicioGeneral.hide();
             });
         });
@@ -1183,7 +1209,7 @@
             fd.append('stock', (document.getElementById('batStock') && document.getElementById('batStock').value) || '0');
             fd.append('codigo', (document.getElementById('batCodigo') && document.getElementById('batCodigo').value) || '');
 
-            submitFormAjax(fd, '../api/inventario/crear_bateria', 'btnGuardarBateria', 'batFeedback', 'Batería creada correctamente.', function () {
+            submitFormAjax(fd, apiUrl('inventario/crear_bateria'), 'btnGuardarBateria', 'batFeedback', 'Batería creada correctamente.', function () {
                 offcanvasBateria.hide();
             });
         });
@@ -1201,9 +1227,9 @@
             document.getElementById('offcanvasAccesorioTitle').textContent = 'Nuevo Accesorio';
             document.getElementById('btnGuardarAccesorioLabel').textContent = 'Guardar Producto';
             hideFeedback('accFeedback');
-            cargarCatalogo('../api/catalogos?tipo=subcategorias&action=listar', 'accSubcategoria');
-            cargarCatalogo('../api/catalogos?tipo=marcas&action=listar', 'accMarca');
-            cargarCatalogo('../api/catalogos?tipo=colores&action=listar', 'accColor');
+            cargarCatalogo(apiUrl('catalogos?tipo=subcategorias&action=listar'), 'accSubcategoria');
+            cargarCatalogo(apiUrl('catalogos?tipo=marcas&action=listar'), 'accMarca');
+            cargarCatalogo(apiUrl('catalogos?tipo=colores&action=listar'), 'accColor');
             offcanvasAccesorio.show();
         }
 
@@ -1228,9 +1254,9 @@
                 trySet();
             }
 
-            cargarCatalogo('../api/catalogos?tipo=subcategorias&action=listar', 'accSubcategoria');
-            cargarCatalogo('../api/catalogos?tipo=marcas&action=listar', 'accMarca');
-            cargarCatalogo('../api/catalogos?tipo=colores&action=listar', 'accColor');
+            cargarCatalogo(apiUrl('catalogos?tipo=subcategorias&action=listar'), 'accSubcategoria');
+            cargarCatalogo(apiUrl('catalogos?tipo=marcas&action=listar'), 'accMarca');
+            cargarCatalogo(apiUrl('catalogos?tipo=colores&action=listar'), 'accColor');
 
             preselect('accSubcategoria', p.subcategoria_id);
             preselect('accMarca', p.marca_id);
@@ -1275,11 +1301,11 @@
 
             if (editId) {
                 fd.append('id', editId);
-                submitFormAjax(fd, '../api/inventario/actualizar_accesorio', 'btnGuardarAccesorio', 'accFeedback', 'Accesorio actualizado correctamente.', function () {
+                submitFormAjax(fd, apiUrl('inventario/actualizar_accesorio'), 'btnGuardarAccesorio', 'accFeedback', 'Accesorio actualizado correctamente.', function () {
                     offcanvasAccesorio.hide();
                 });
             } else {
-                submitFormAjax(fd, '../api/inventario/crear_accesorio', 'btnGuardarAccesorio', 'accFeedback', 'Accesorio creado correctamente.', function () {
+                submitFormAjax(fd, apiUrl('inventario/crear_accesorio'), 'btnGuardarAccesorio', 'accFeedback', 'Accesorio creado correctamente.', function () {
                     offcanvasAccesorio.hide();
                 });
             }
@@ -1299,8 +1325,8 @@
             document.querySelectorAll('.pan-calidad-opt').forEach(function (el) { el.classList.remove('active'); });
             document.querySelectorAll('.pan-tiempo-opt').forEach(function (el) { el.classList.remove('active'); });
             hideFeedback('panFeedback');
-            cargarCatalogo('../api/catalogos?tipo=modelos&action=listar', 'panModelo');
-            cargarCatalogo('../api/catalogos?tipo=modelos_tecnicos&action=listar', 'panModeloTecnico');
+            cargarCatalogo(apiUrl('catalogos?tipo=modelos&action=listar'), 'panModelo');
+            cargarCatalogo(apiUrl('catalogos?tipo=modelos_tecnicos&action=listar'), 'panModeloTecnico');
             offcanvasPantalla.show();
         }
 
@@ -1346,7 +1372,7 @@
             fd.append('tiempo', tiempo);
             fd.append('nota', document.getElementById('panNota').value);
 
-            submitFormAjax(fd, '../api/inventario/crear_pantalla', 'btnGuardarPantalla', 'panFeedback', 'Pantalla creada correctamente.', function () {
+            submitFormAjax(fd, apiUrl('inventario/crear_pantalla'), 'btnGuardarPantalla', 'panFeedback', 'Pantalla creada correctamente.', function () {
                 offcanvasPantalla.hide();
             });
         });
@@ -1357,11 +1383,11 @@
 
         // Mapeo de tipos de catálogo â†’ URL y select target
         var catalogConfig = {
-            'acc_subcategoria':    { listUrl: '../api/catalogos?tipo=subcategorias&action=listar',    addTipo: 'subcategorias',    selectId: 'accSubcategoria' },
-            'acc_marca':           { listUrl: '../api/catalogos?tipo=marcas&action=listar',           addTipo: 'marcas',           selectId: 'accMarca' },
-            'acc_color':           { listUrl: '../api/catalogos?tipo=colores&action=listar',          addTipo: 'colores',          selectId: 'accColor' },
-            'pan_modelo':          { listUrl: '../api/catalogos?tipo=modelos&action=listar',           addTipo: 'modelos',           selectId: 'panModelo' },
-            'pan_modelo_tecnico':  { listUrl: '../api/catalogos?tipo=modelos_tecnicos&action=listar',  addTipo: 'modelos_tecnicos',  selectId: 'panModeloTecnico' },
+            'acc_subcategoria':    { listUrl: apiUrl('catalogos?tipo=subcategorias&action=listar'),    addTipo: 'subcategorias',    selectId: 'accSubcategoria' },
+            'acc_marca':           { listUrl: apiUrl('catalogos?tipo=marcas&action=listar'),           addTipo: 'marcas',           selectId: 'accMarca' },
+            'acc_color':           { listUrl: apiUrl('catalogos?tipo=colores&action=listar'),          addTipo: 'colores',          selectId: 'accColor' },
+            'pan_modelo':          { listUrl: apiUrl('catalogos?tipo=modelos&action=listar'),          addTipo: 'modelos',          selectId: 'panModelo' },
+            'pan_modelo_tecnico':  { listUrl: apiUrl('catalogos?tipo=modelos_tecnicos&action=listar'), addTipo: 'modelos_tecnicos', selectId: 'panModeloTecnico' },
         };
 
         var catalogoActual = null;
@@ -1437,7 +1463,7 @@
             fd.append('tipo', config.addTipo);
             fd.append('nombre', nombre);
 
-            fetch('../api/catalogos', { method: 'POST', body: fd })
+            fetch(apiUrl('catalogos'), { method: 'POST', body: fd })
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     btn.innerHTML = originalHTML;
@@ -1763,7 +1789,7 @@
                     controller.abort();
                 }, 30000);
 
-                fetch('../api/inventario/importar', {
+                fetch(apiUrl('inventario/importar'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ categoria: importCategoriaSeleccionada, rows: chunk }),
@@ -1875,7 +1901,7 @@
                 document.getElementById('toastMsg').innerText = 'Reindexacion iniciada...';
                 toastSuccess.show();
 
-                fetch('../api/inventario/reindexar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+                fetch(apiUrl('inventario/reindexar'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
                         if (data.ok) {
@@ -1906,7 +1932,7 @@
         };
         var rtRefreshTimer = null;
 
-        window.addEventListener('realtime:change', function (e) {
+        on(window, 'realtime:change', function (e) {
             var table = e.detail.table;
             var cat = tableToCat[table];
             if (!cat) return;
@@ -1920,3 +1946,51 @@
                 loadKpis(categoriaActiva);
             }, 500);
         });
+
+        var publicApi = {
+            changeInvPage: changeInvPage,
+            cambiarCategoria: cambiarCategoria,
+            cambiarVista: cambiarVista,
+            toggleFiltros: toggleFiltros,
+            toggleFiltroChip: toggleFiltroChip,
+            selectStockFiltro: selectStockFiltro,
+            aplicarFiltros: aplicarFiltros,
+            limpiarFiltros: limpiarFiltros,
+            abrirOffcanvasCrear: abrirOffcanvasCrear,
+            abrirFormServiciosGenerales: abrirFormServiciosGenerales,
+            abrirFormBaterias: abrirFormBaterias,
+            abrirFormAccesorios: abrirFormAccesorios,
+            abrirEditarAccesorio: abrirEditarAccesorio,
+            abrirFormPantallas: abrirFormPantallas,
+            abrirModalCatalogo: abrirModalCatalogo,
+            confirmDeleteCat: confirmDeleteCat,
+            openInvActionsSheet: openInvActionsSheet,
+            abrirModalImportar: abrirModalImportar,
+            seleccionarCategoriaImportar: seleccionarCategoriaImportar,
+            importarIrPaso: importarIrPaso,
+            descargarPlantillaImportar: descargarPlantillaImportar,
+            enviarImportacion: enviarImportacion,
+            reindexarInventario: reindexarInventario
+        };
+
+        Object.keys(publicApi).forEach(function (name) {
+            window[name] = publicApi[name];
+        });
+
+        window.__inventarioDestroy = function () {
+            while (cleanupFns.length) {
+                try { cleanupFns.pop()(); } catch (e) {}
+            }
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+            if (rtRefreshTimer) clearTimeout(rtRefreshTimer);
+            if (_resizeTimer) clearTimeout(_resizeTimer);
+            if (invExcelTable) {
+                try { invExcelTable.destroy(); } catch (e) {}
+                invExcelTable = null;
+            }
+        };
+
+        window.__spaModuleCleanup = window.__spaModuleCleanup || [];
+        window.__spaModuleCleanup.push(window.__inventarioDestroy);
+        window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat(Object.keys(publicApi).concat('__inventarioDestroy'));
+        })();

@@ -1,6 +1,22 @@
 'use strict';
 
 (function () {
+    var previousDestroy = window.__panelReparacionesDestroy;
+    if (typeof previousDestroy === 'function') {
+        try { previousDestroy(); } catch (e) {}
+        window.__spaModuleCleanup = (window.__spaModuleCleanup || []).filter(function (fn) {
+            return fn !== previousDestroy;
+        });
+    }
+
+    var cleanupFns = [];
+    function on(target, type, handler, options) {
+        if (!target || !target.addEventListener) return;
+        target.addEventListener(type, handler, options);
+        cleanupFns.push(function () {
+            target.removeEventListener(type, handler, options);
+        });
+    }
     // Estado de paginación / listado
     let repCurrentPage = 1;
     const repPerPage = 50;
@@ -953,7 +969,7 @@
     }
 
     function setupResizeHandler() {
-        window.addEventListener('resize', function () {
+        on(window, 'resize', function () {
             if (repLastItems.length === 0) return;
             var tbody = document.getElementById('repairsTableBody');
             var cardsEl = document.getElementById('repairsCardsContainer');
@@ -1001,5 +1017,43 @@
     window.setupResizeHandler = setupResizeHandler;
     window.postReparacionAjax = postReparacionAjax;
     window.showConfirm = showConfirm;
+
+    var panelRepairGlobals = [
+        'filterTable',
+        'changeRepPage',
+        'updateStatus',
+        'updateStatusConGarantia',
+        'updateStatusConHijo',
+        'openSubEstadoModal',
+        'enviarExtra',
+        'enviarNotificacionConfig',
+        'loadNotifConfigCache',
+        'openRepairActionsSheet',
+        'abrirModalActivarGarantia',
+        'reactivarInactivo',
+        'inactivarEquipo',
+        'loadReparaciones',
+        'loadSubEstadosMap',
+        'loadReparacionesPipeline',
+        'getRepLastItems',
+        'setRepLastItems',
+        'initPipelineToggle',
+        'setupSearchInputHandler',
+        'setupCardsContainerClick',
+        'setupResizeHandler',
+        'postReparacionAjax',
+        'showConfirm',
+        'PanelReparaciones',
+        '__panelReparacionesDestroy'
+    ];
+
+    window.__panelReparacionesDestroy = function () {
+        while (cleanupFns.length) {
+            try { cleanupFns.pop()(); } catch (e) {}
+        }
+    };
+    window.__spaModuleCleanup = window.__spaModuleCleanup || [];
+    window.__spaModuleCleanup.push(window.__panelReparacionesDestroy);
+    window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat(panelRepairGlobals);
 
 })();

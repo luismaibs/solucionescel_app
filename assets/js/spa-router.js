@@ -156,6 +156,15 @@
     }
 
     function cleanupModuleGlobals() {
+        var cleanups = window.__spaModuleCleanup || [];
+        for (var c = cleanups.length - 1; c >= 0; c--) {
+            try {
+                if (typeof cleanups[c] === 'function') cleanups[c]();
+            } catch (e) {
+                console.warn('[SPA] Module cleanup failed:', e);
+            }
+        }
+        window.__spaModuleCleanup = [];
         // Clean up known module globals
             // Los módulos registran sus propios globals en window.__spaModuleGlobals = [...]
         // antes de ejecutar su lógica. El router los limpia aquí al salir.

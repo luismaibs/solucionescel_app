@@ -5,6 +5,23 @@
 (function () {
     'use strict';
 
+    var previousDestroy = window.__notificacionesDestroy;
+    if (typeof previousDestroy === 'function') {
+        try { previousDestroy(); } catch (e) {}
+        window.__spaModuleCleanup = (window.__spaModuleCleanup || []).filter(function (fn) {
+            return fn !== previousDestroy;
+        });
+    }
+
+    var cleanupFns = [];
+    function on(target, type, handler, options) {
+        if (!target || !target.addEventListener) return;
+        target.addEventListener(type, handler, options);
+        cleanupFns.push(function () {
+            target.removeEventListener(type, handler, options);
+        });
+    }
+
     var apiBase = (window.APP_API_BASE || 'api/');
 
     function apiUrl(endpoint) {
@@ -439,7 +456,7 @@
     // ═══════════════════════════════════════════════════════
 
     function setupTableEvents() {
-        document.addEventListener('click', function (e) {
+        on(document, 'click', function (e) {
             var copy = e.target.closest('.copy-slug-notif');
             if (copy) {
                 var slug = copy.getAttribute('data-slug');
@@ -497,4 +514,22 @@
     window.loadNotificaciones = loadNotificaciones;
     window.loadGrupos = loadGrupos;
     window.copiarSlugNotif = copiarSlugNotif;
+    window.__notificacionesDestroy = function () {
+        while (cleanupFns.length) {
+            try { cleanupFns.pop()(); } catch (e) {}
+        }
+    };
+    window.__spaModuleCleanup = window.__spaModuleCleanup || [];
+    window.__spaModuleCleanup.push(window.__notificacionesDestroy);
+    window.__spaModuleGlobals = (window.__spaModuleGlobals || []).concat([
+        '_editNotificacion',
+        '_confirmDeleteNotif',
+        'openCreateNotifModal',
+        'openCreateGrupoModal',
+        'deleteGrupoFromModal',
+        'loadNotificaciones',
+        'loadGrupos',
+        'copiarSlugNotif',
+        '__notificacionesDestroy'
+    ]);
 })();
