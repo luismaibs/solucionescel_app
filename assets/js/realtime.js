@@ -20,6 +20,12 @@
 (function () {
     'use strict';
 
+    // Guard: si REALTIME_ENABLED=false, no inicializar nada
+    if (window.REALTIME_CONFIG && window.REALTIME_CONFIG.enabled === false) {
+        window.SupabaseRealtime = { disconnect: function () {}, isConnected: function () { return false; } };
+        return;
+    }
+
     // Guard: si ya existe una instancia (re-carga via SPA), desconectar antes de re-init
     if (window.SupabaseRealtime && typeof window.SupabaseRealtime.disconnect === 'function') {
         try { window.SupabaseRealtime.disconnect(); } catch (_e) {}

@@ -837,7 +837,8 @@ include_once '../includes/fragment_helper.php';
         url: <?= json_encode($supabase_url_for_js) ?>,
         anonKey: <?= json_encode($supabase_anon_key_for_js) ?>,
         tenantId: <?= json_encode($tenant_id_for_js) ?>,
-        tables: ['reparaciones', 'inv_accesorios', 'inv_baterias', 'inv_pantallas', 'inv_servicios_generales']
+        tables: ['reparaciones', 'inv_accesorios', 'inv_baterias', 'inv_pantallas', 'inv_servicios_generales'],
+        enabled: <?= json_encode((getenv('REALTIME_ENABLED') ?: 'true') === 'true') ?>
     };
     window.APP_DEBUG = <?= json_encode((getenv('APP_DEBUG') ?: 'false') === 'true') ?>;
     </script>

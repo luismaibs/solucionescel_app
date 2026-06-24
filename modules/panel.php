@@ -956,7 +956,8 @@ if ($panelError !== null) {
         url: <?= json_encode($supabase_url_for_js) ?>,
         anonKey: <?= json_encode($supabase_anon_key_for_js) ?>,
         tenantId: <?= json_encode($tenant_id_for_js) ?>,
-        tables: ['reparaciones']
+        tables: ['reparaciones'],
+        enabled: <?= json_encode((getenv('REALTIME_ENABLED') ?: 'true') === 'true') ?>
     };
     window.APP_DEBUG = <?= json_encode((getenv('APP_DEBUG') ?: 'false') === 'true') ?>;
     </script>
