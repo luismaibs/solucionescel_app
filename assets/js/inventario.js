@@ -728,18 +728,27 @@
             var cardsWrap = document.getElementById('invCardsContainer');
             var excelWrap = document.getElementById('invExcelContainer');
             var paginationRow = document.getElementById('invPaginationRow');
+            var content = document.querySelector('.inventario-content');
 
             if (vista === 'tabla') {
                 if (tableWrap) tableWrap.classList.add('d-none');
                 if (cardsWrap) cardsWrap.classList.add('d-none');
                 if (excelWrap) excelWrap.classList.remove('d-none');
                 if (paginationRow) paginationRow.classList.add('d-none');
+                if (content) {
+                    content.classList.remove('is-list-view', 'with-subfooter');
+                    content.classList.add('is-excel-view');
+                }
                 renderTablaExcel();
             } else {
                 if (excelWrap) excelWrap.classList.add('d-none');
                 if (tableWrap) tableWrap.classList.remove('d-none');
                 if (cardsWrap) cardsWrap.classList.remove('d-none');
                 if (paginationRow) paginationRow.classList.remove('d-none');
+                if (content) {
+                    content.classList.add('is-list-view', 'with-subfooter');
+                    content.classList.remove('is-excel-view');
+                }
                 applyLocalFilter(document.getElementById('searchInput').value.trim());
             }
         }

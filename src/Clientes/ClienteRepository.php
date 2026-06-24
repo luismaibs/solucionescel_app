@@ -32,8 +32,11 @@ class ClienteRepository
                 ? $result['data'][0]
                 : $result['data'];
             $total = (int) ($row['total_count'] ?? 0);
-            $rows = $row['rows'] ?? '[]';
-            return json_decode(is_string($rows) ? $rows : '[]', true) ?? [];
+            $rows = $row['rows'] ?? [];
+            if (is_string($rows)) {
+                return json_decode($rows, true) ?? [];
+            }
+            return is_array($rows) ? $rows : [];
         }
 
         $total = 0;

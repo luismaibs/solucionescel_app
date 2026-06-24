@@ -86,6 +86,42 @@ include_once '../includes/fragment_helper.php';
             box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
             color: white;
         }
+        body.with-sidebar .clientes-content.main-content-push {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        body.with-sidebar .clientes-content.main-content-push.with-subheader {
+            padding-top: calc(var(--topbar-height) + var(--subheader-height));
+        }
+        body.with-sidebar .clientes-content.main-content-push.with-subfooter {
+            padding-bottom: var(--subfooter-height);
+        }
+        .clientes-table-surface {
+            width: 100%;
+            min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--subfooter-height));
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+        }
+        .clientes-table-surface .app-table-wrap,
+        .clientes-table-surface .table-responsive {
+            min-height: inherit;
+            background: transparent;
+        }
+        .clientes-table-surface .app-mobile-cards-wrap {
+            background: transparent;
+        }
+        .clientes-table-surface .table-custom thead th {
+            background: rgba(30, 41, 59, 0.72);
+        }
+        .clientes-table-surface .table-custom tbody tr {
+            border-bottom-color: rgba(148, 163, 184, 0.08);
+        }
+        .clientes-table-surface .table-custom tbody tr:hover {
+            background: rgba(255,255,255,0.035);
+        }
         .offcanvas-custom {
             width: 420px !important;
             max-width: 90vw;
@@ -112,6 +148,18 @@ include_once '../includes/fragment_helper.php';
             font-size: 0.72rem;
             font-weight: 600;
         }
+        @media (max-width: 991.98px) {
+            body.with-sidebar .clientes-content.main-content-push {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .clientes-table-surface {
+                min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--subfooter-height));
+            }
+            .clientes-table-surface .app-mobile-cards-wrap {
+                padding: 0.75rem 0 1rem;
+            }
+        }
     </style>
 <?php if (!$isFragment): ?>
 </head>
@@ -120,7 +168,7 @@ include_once '../includes/fragment_helper.php';
     <?php include '../includes/header.php'; ?>
 <?php endif; ?>
 
-    <div class="container-xl main-content-push with-subheader with-subfooter" style="max-width: 1440px;">
+    <div class="clientes-content container-xl main-content-push with-subheader with-subfooter" style="max-width: 1440px;">
 
         <!-- Subheader con búsqueda integrada -->
         <div class="module-subheader">
@@ -145,9 +193,9 @@ include_once '../includes/fragment_helper.php';
         </div>
 
         <!-- Tabla -->
-        <div class="glass-card">
+        <div class="clientes-table-surface">
             <div class="app-table-wrap">
-                <div class="table-responsive" style="min-height: 300px;">
+                <div class="table-responsive">
                     <table class="table table-custom mb-0" id="clientesTable">
                         <thead>
                             <tr>
@@ -165,7 +213,7 @@ include_once '../includes/fragment_helper.php';
                     </table>
                 </div>
             </div>
-            <div id="clientesCardsContainer" class="app-mobile-cards-wrap" style="min-height: 200px; padding: 0 0 1rem;"></div>
+            <div id="clientesCardsContainer" class="app-mobile-cards-wrap"></div>
         </div>
 
         <!-- Subfooter fijo: paginación -->

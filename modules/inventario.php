@@ -80,7 +80,7 @@ include_once '../includes/fragment_helper.php';
         </div>
     </div>
 
-    <div class="container-xl main-content-push with-subheader with-filters-bar with-subfooter" style="max-width: 1440px;">
+    <div class="inventario-content is-list-view container-xl main-content-push with-subheader with-filters-bar with-subfooter" style="max-width: 1440px;">
 
         <!-- Subheader: título + KPI chips + Nuevo Producto (izquierda) + acciones (derecha) -->
         <div class="module-subheader">
@@ -163,7 +163,7 @@ include_once '../includes/fragment_helper.php';
         </div>
 
         <!-- Tabla dinámica por categoría -->
-        <div class="glass-card table-container">
+        <div class="inv-table-surface table-container">
             <div class="app-table-wrap">
                 <div class="table-responsive">
                     <table class="table table-custom mb-0" id="invTable">
@@ -176,7 +176,7 @@ include_once '../includes/fragment_helper.php';
                     </table>
                 </div>
             </div>
-            <div id="invCardsContainer" class="app-mobile-cards-wrap" style="min-height: 200px; padding: 0 0 1rem;"></div>
+            <div id="invCardsContainer" class="app-mobile-cards-wrap"></div>
 
             <!-- Vista tabla tipo hoja de cálculo (Tabulator) -->
             <div id="invExcelContainer" class="inv-excel-wrap d-none"></div>

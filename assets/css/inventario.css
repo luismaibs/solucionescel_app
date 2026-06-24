@@ -64,17 +64,70 @@
         /* .search-bar centralizado en app.css */
 
         /* Tabla */
-        .table-container {
-            border-radius: var(--radius-xl);
-            min-height: 80vh;
-            padding-bottom: 150px;
+        body.with-sidebar .inventario-content.is-list-view.main-content-push,
+        body.with-sidebar .inventario-content.is-excel-view.main-content-push {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        body.with-sidebar .inventario-content.is-list-view.main-content-push.with-subheader.with-filters-bar,
+        body.with-sidebar .inventario-content.is-excel-view.main-content-push.with-subheader.with-filters-bar {
+            padding-top: calc(var(--topbar-height) + var(--subheader-height) + var(--filters-bar-height));
+        }
+
+        body.with-sidebar .inventario-content.is-list-view.main-content-push.with-subfooter {
+            padding-bottom: var(--subfooter-height);
+        }
+
+        body.with-sidebar .inventario-content.is-excel-view.main-content-push {
+            padding-bottom: 0;
+        }
+
+        .inv-table-surface.table-container {
+            width: 100%;
+            min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height));
+            padding-bottom: 0;
+            background: transparent !important;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
             overflow: hidden;
         }
 
+        .inventario-content.is-excel-view .inv-table-surface.table-container {
+            min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height));
+        }
+
+        .inv-table-surface.table-container .table-responsive,
+        .inv-table-surface.table-container .app-table-wrap,
+        .inv-table-surface.table-container .app-mobile-cards-wrap {
+            background: transparent !important;
+        }
+
         @media (min-width: 992px) {
-            .table-container .table-responsive {
-                max-height: calc(100vh - var(--topbar-height, 64px) - var(--subheader-height, 58px) - 190px);
+            .inv-table-surface.table-container .table-responsive {
+                max-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height));
                 overflow-y: auto;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            body.with-sidebar .inventario-content.is-list-view.main-content-push,
+            body.with-sidebar .inventario-content.is-excel-view.main-content-push {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .inv-table-surface.table-container {
+                min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height) - var(--subfooter-height));
+            }
+
+            .inventario-content.is-excel-view .inv-table-surface.table-container {
+                min-height: calc(100vh - var(--topbar-height) - var(--subheader-height) - var(--filters-bar-height));
+            }
+
+            .inv-table-surface.table-container .app-mobile-cards-wrap {
+                padding: 0.75rem 1rem 1rem;
             }
         }
 
