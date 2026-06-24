@@ -50,6 +50,7 @@
         let invLastItems = [];
         let invAllItems = [];
         let invFilteredItems = [];
+        let filtrosActivos = { marcas: [], subcategorias: [], colores: [], stock: 'todos', precioMin: '', precioMax: '' };
 
         // ================================================================
         // DEFINICIONES DE COLUMNAS POR CATEGORÍA
@@ -312,12 +313,40 @@
 
         function applyLocalFilter(query) {
             var q = (query || '').toLowerCase().trim();
+            var f = filtrosActivos;
+            var cat = categoriaActiva;
 
-            invFilteredItems = q
-                ? invAllItems.filter(function(p) {
-                    return getItemSearchText(p, categoriaActiva).indexOf(q) !== -1;
-                })
-                : invAllItems.slice();
+            invFilteredItems = invAllItems.filter(function(p) {
+                // Texto
+                if (q && getItemSearchText(p, cat).indexOf(q) === -1) return false;
+                // Marca
+                if (f.marcas.length) {
+                    var marca = cat === 'baterias' ? p.marca : p.marca_nombre;
+                    if (f.marcas.indexOf(marca) === -1) return false;
+                }
+                // Subcategoría / calidad
+                if (f.subcategorias.length) {
+                    var sub = cat === 'accesorios' ? p.subcategoria_nombre
+                            : cat === 'pantallas'  ? p.calidad
+                            : cat === 'servicios'  ? p.subcategoria
+                            : p.calidad;
+                    if (f.subcategorias.indexOf(sub) === -1) return false;
+                }
+                // Color (solo accesorios)
+                if (f.colores.length && cat === 'accesorios') {
+                    if (f.colores.indexOf(p.color_nombre) === -1) return false;
+                }
+                // Stock
+                if (f.stock !== 'todos') {
+                    var stock = parseInt(p.stock || 0, 10);
+                    if (f.stock === 'disponible' && stock <= 0) return false;
+                    if (f.stock === 'bajo' && stock >= 3) return false;
+                }
+                // Precio
+                if (f.precioMin !== '' && parseFloat(p.precio || 0) < parseFloat(f.precioMin)) return false;
+                if (f.precioMax !== '' && parseFloat(p.precio || 0) > parseFloat(f.precioMax)) return false;
+                return true;
+            });
 
             invTotalItems = invFilteredItems.length;
             invCurrentPage = 1;
@@ -328,21 +357,19 @@
             var cardsEl = document.getElementById('invCardsContainer');
 
             if (isMobile) {
-                renderMobileCards(categoriaActiva, invLastItems);
+                renderMobileCards(cat, invLastItems);
                 if (tbody) tbody.innerHTML = '';
             } else {
-                renderTableRows(categoriaActiva, invLastItems);
+                renderTableRows(cat, invLastItems);
                 if (cardsEl) cardsEl.innerHTML = '';
             }
 
-            var paginationInfo = document.getElementById('invPaginationInfo');
             updateInvPaginationInfo();
-            if (q && paginationInfo) {
-                paginationInfo.textContent = invFilteredItems.length + ' resultado(s) para "' + query + '"';
-                var btnPrev = document.getElementById('btnPrevPage');
-                var btnNext = document.getElementById('btnNextPage');
-                if (btnPrev) btnPrev.disabled = true;
-                if (btnNext) btnNext.disabled = true;
+            var hayFiltroTexto = q;
+            var hayFiltros = f.marcas.length || f.subcategorias.length || f.colores.length || f.stock !== 'todos' || f.precioMin !== '' || f.precioMax !== '';
+            if ((hayFiltroTexto || hayFiltros) && invFilteredItems.length !== invAllItems.length) {
+                var paginationInfo = document.getElementById('invPaginationInfo');
+                if (paginationInfo) paginationInfo.textContent = invFilteredItems.length + ' resultado(s)' + (q ? ' para "' + query + '"' : '');
             }
         }
 
@@ -368,11 +395,170 @@
         }
 
         // ================================================================
+        // FILTROS AVANZADOS
+        // ================================================================
+        var panelFiltrosOpen = false;
+
+        function toggleFiltros(e) {
+            if (e) e.stopPropagation();
+            panelFiltrosOpen = !panelFiltrosOpen;
+            var panel = document.getElementById('panelFiltros');
+            var btn = document.getElementById('btnFiltros');
+            if (panelFiltrosOpen) {
+                renderFiltrosPanel();
+                panel.classList.remove('d-none');
+                btn.classList.add('active');
+            } else {
+                panel.classList.add('d-none');
+                btn.classList.remove('active');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!panelFiltrosOpen) return;
+            var panel = document.getElementById('panelFiltros');
+            var btn = document.getElementById('btnFiltros');
+            if (!panel.contains(e.target) && !btn.contains(e.target)) {
+                panelFiltrosOpen = false;
+                panel.classList.add('d-none');
+                btn.classList.remove('active');
+            }
+        });
+
+        function renderFiltrosPanel() {
+            var cat = categoriaActiva;
+            var content = document.getElementById('panelFiltrosContent');
+            if (!content) return;
+            var html = '';
+
+            if (cat === 'accesorios') {
+                var marcas = uniqueSorted(invAllItems.map(function(p) { return p.marca_nombre; }));
+                if (marcas.length) html += renderFiltroSeccion('Marca', 'marca', marcas, filtrosActivos.marcas);
+                var subs = uniqueSorted(invAllItems.map(function(p) { return p.subcategoria_nombre; }));
+                if (subs.length) html += renderFiltroSeccion('Subcategoría', 'subcategoria', subs, filtrosActivos.subcategorias);
+                var colores = uniqueSorted(invAllItems.map(function(p) { return p.color_nombre; }));
+                if (colores.length) html += renderFiltroSeccion('Color', 'color', colores, filtrosActivos.colores);
+            } else if (cat === 'baterias') {
+                var marcas = uniqueSorted(invAllItems.map(function(p) { return p.marca; }));
+                if (marcas.length) html += renderFiltroSeccion('Marca', 'marca', marcas, filtrosActivos.marcas);
+                var calidades = uniqueSorted(invAllItems.map(function(p) { return p.calidad; }));
+                if (calidades.length) html += renderFiltroSeccion('Calidad', 'subcategoria', calidades, filtrosActivos.subcategorias);
+            } else if (cat === 'pantallas') {
+                var calidades = uniqueSorted(invAllItems.map(function(p) { return p.calidad; }));
+                if (calidades.length) html += renderFiltroSeccion('Calidad', 'subcategoria', calidades, filtrosActivos.subcategorias);
+            } else if (cat === 'servicios') {
+                var subcats = uniqueSorted(invAllItems.map(function(p) { return p.subcategoria; }));
+                if (subcats.length) html += renderFiltroSeccion('Subcategoría', 'subcategoria', subcats, filtrosActivos.subcategorias);
+                var gamas = uniqueSorted(invAllItems.map(function(p) { return p.gama; }));
+                if (gamas.length) html += renderFiltroSeccion('Gama', 'marca', gamas, filtrosActivos.marcas);
+            }
+
+            // Stock (solo categorías con campo stock)
+            if (cat === 'accesorios' || cat === 'baterias') {
+                var stockOpts = [
+                    { val: 'todos', label: 'Todos' },
+                    { val: 'disponible', label: 'En stock (≥1)' },
+                    { val: 'bajo', label: 'Stock bajo (<3)' }
+                ];
+                var stockChips = stockOpts.map(function(o) {
+                    var sel = filtrosActivos.stock === o.val ? ' selected' : '';
+                    return '<span class="inv-filter-chip' + sel + '" data-tipo="stock" data-val="' + o.val + '" onclick="selectStockFiltro(this)">' + o.label + '</span>';
+                }).join('');
+                html += '<div class="inv-filter-seccion"><div class="inv-filter-seccion-titulo">Stock</div><div class="inv-filter-chips">' + stockChips + '</div></div>';
+            }
+
+            // Precio
+            html += '<div class="inv-filter-seccion">' +
+                '<div class="inv-filter-seccion-titulo">Precio</div>' +
+                '<div class="inv-filter-precio-row">' +
+                '<input type="number" id="filtroPrecioMin" class="form-control form-control-sm" placeholder="Mín $" min="0" value="' + escapeHtml(filtrosActivos.precioMin) + '">' +
+                '<span class="text-muted small">—</span>' +
+                '<input type="number" id="filtroPrecioMax" class="form-control form-control-sm" placeholder="Máx $" min="0" value="' + escapeHtml(filtrosActivos.precioMax) + '">' +
+                '</div></div>';
+
+            content.innerHTML = html;
+        }
+
+        function uniqueSorted(arr) {
+            return arr.filter(Boolean).filter(function(v, i, a) { return a.indexOf(v) === i; }).sort();
+        }
+
+        function renderFiltroSeccion(label, tipo, opciones, activas) {
+            var chips = opciones.map(function(op) {
+                var sel = activas.indexOf(op) !== -1 ? ' selected' : '';
+                return '<span class="inv-filter-chip' + sel + '" data-tipo="' + tipo + '" data-val="' + escapeHtml(op) + '" onclick="toggleFiltroChip(this)">' + escapeHtml(op) + '</span>';
+            }).join('');
+            return '<div class="inv-filter-seccion"><div class="inv-filter-seccion-titulo">' + label + '</div><div class="inv-filter-chips">' + chips + '</div></div>';
+        }
+
+        function toggleFiltroChip(el) {
+            el.classList.toggle('selected');
+        }
+
+        function selectStockFiltro(el) {
+            el.closest('.inv-filter-chips').querySelectorAll('.inv-filter-chip').forEach(function(c) { c.classList.remove('selected'); });
+            el.classList.add('selected');
+        }
+
+        function aplicarFiltros() {
+            var content = document.getElementById('panelFiltrosContent');
+            if (!content) return;
+            filtrosActivos.marcas = [];
+            filtrosActivos.subcategorias = [];
+            filtrosActivos.colores = [];
+            content.querySelectorAll('.inv-filter-chip.selected').forEach(function(chip) {
+                var tipo = chip.getAttribute('data-tipo');
+                var val = chip.getAttribute('data-val');
+                if (tipo === 'marca') filtrosActivos.marcas.push(val);
+                else if (tipo === 'subcategoria') filtrosActivos.subcategorias.push(val);
+                else if (tipo === 'color') filtrosActivos.colores.push(val);
+                else if (tipo === 'stock') filtrosActivos.stock = val;
+            });
+            var minEl = document.getElementById('filtroPrecioMin');
+            var maxEl = document.getElementById('filtroPrecioMax');
+            filtrosActivos.precioMin = minEl ? minEl.value : '';
+            filtrosActivos.precioMax = maxEl ? maxEl.value : '';
+            actualizarBadgeFiltros();
+            applyLocalFilter(document.getElementById('searchInput').value.trim());
+            // Cerrar panel
+            panelFiltrosOpen = false;
+            document.getElementById('panelFiltros').classList.add('d-none');
+        }
+
+        function limpiarFiltros() {
+            filtrosActivos = { marcas: [], subcategorias: [], colores: [], stock: 'todos', precioMin: '', precioMax: '' };
+            renderFiltrosPanel();
+            actualizarBadgeFiltros();
+            applyLocalFilter(document.getElementById('searchInput').value.trim());
+        }
+
+        function actualizarBadgeFiltros() {
+            var badge = document.getElementById('filtrosBadge');
+            var btn = document.getElementById('btnFiltros');
+            if (!badge || !btn) return;
+            var f = filtrosActivos;
+            var count = f.marcas.length + f.subcategorias.length + f.colores.length +
+                (f.stock !== 'todos' ? 1 : 0) +
+                (f.precioMin !== '' ? 1 : 0) +
+                (f.precioMax !== '' ? 1 : 0);
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('d-none');
+                btn.classList.add('has-filters');
+            } else {
+                badge.classList.add('d-none');
+                btn.classList.remove('has-filters');
+            }
+        }
+
+        // ================================================================
         // CAMBIAR CATEGORÍA (función principal)
         // ================================================================
         function cambiarCategoria(cat, btn) {
             if (cat === categoriaActiva && invAllItems.length > 0) return;
             categoriaActiva = cat;
+            filtrosActivos = { marcas: [], subcategorias: [], colores: [], stock: 'todos', precioMin: '', precioMax: '' };
+            actualizarBadgeFiltros();
 
             // Activar chip visual
             document.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });

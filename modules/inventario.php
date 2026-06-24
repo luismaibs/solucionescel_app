@@ -129,10 +129,27 @@ include_once '../includes/fragment_helper.php';
                 </span>
             </div>
 
-            <!-- Buscador -->
-            <div class="position-relative flex-shrink-0 w-100" style="max-width: 300px;">
-                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                <input type="text" id="searchInput" class="form-control search-bar" placeholder="Buscar...">
+            <!-- Buscador + Filtros -->
+            <div class="inv-search-filter-wrap flex-shrink-0">
+                <button id="btnFiltros" type="button" class="inv-filter-btn" onclick="toggleFiltros(event)" title="Filtros avanzados">
+                    <i class="bi bi-sliders2"></i>
+                    <span id="filtrosBadge" class="inv-filter-badge d-none">0</span>
+                </button>
+                <div class="position-relative flex-grow-1">
+                    <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="pointer-events:none;z-index:2;"></i>
+                    <input type="text" id="searchInput" class="form-control search-bar" placeholder="Buscar...">
+                </div>
+                <div id="panelFiltros" class="inv-filter-panel d-none" onclick="event.stopPropagation()">
+                    <div id="panelFiltrosContent"></div>
+                    <div class="inv-filter-actions">
+                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="limpiarFiltros()">
+                            <i class="bi bi-x-circle me-1"></i>Limpiar
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="aplicarFiltros()">
+                            Aplicar
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
