@@ -45,6 +45,10 @@
             return '--inv-subcat-hue:' + hue + ';' +
                 '--inv-subcat-bg:hsla(' + hue + ',82%,62%,0.13);' +
                 '--inv-subcat-bg-strong:hsla(' + hue + ',82%,62%,0.24);' +
+                '--inv-subcat-solid:hsl(' + hue + ',34%,18%);' +
+                '--inv-subcat-solid-strong:hsl(' + hue + ',42%,23%);' +
+                '--inv-subcat-solid-light:hsl(' + hue + ',88%,96%);' +
+                '--inv-subcat-solid-light-strong:hsl(' + hue + ',88%,91%);' +
                 '--inv-subcat-border:hsla(' + hue + ',82%,62%,0.38);' +
                 '--inv-subcat-text:hsl(' + hue + ',88%,80%);' +
                 '--inv-subcat-text-light:hsl(' + hue + ',68%,34%);';

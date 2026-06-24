@@ -76,7 +76,18 @@
             overflow: hidden;
         }
 
+        @media (min-width: 992px) {
+            .table-container .table-responsive {
+                max-height: calc(100vh - var(--topbar-height, 64px) - var(--subheader-height, 58px) - 190px);
+                overflow-y: auto;
+            }
+        }
+
         /* Filas compactas solo en inventario */
+        #invTable {
+            --inv-table-head-height: 38px;
+        }
+
         #invTable td {
             padding: 0.55rem 0.75rem;
             font-size: 0.875rem;
@@ -84,6 +95,9 @@
         }
 
         #invTable th {
+            position: sticky;
+            top: 0;
+            z-index: 8;
             padding: 0.55rem 0.75rem;
         }
 
@@ -93,26 +107,22 @@
 
         #invTable .inv-subcat-group td {
             position: sticky;
-            top: 0;
-            z-index: 6;
+            top: var(--inv-table-head-height);
+            z-index: 7;
             padding: 0.55rem 1.25rem !important;
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(30, 41, 59, 0.96) 62%) !important;
+            background: var(--inv-subcat-solid-strong) !important;
             border-top: 1px solid var(--inv-subcat-border);
             border-bottom: 1px solid var(--inv-subcat-border);
             box-shadow: 0 8px 22px rgba(2, 6, 23, 0.22);
-            backdrop-filter: blur(18px);
         }
 
         #invTable .inv-subcat-item td {
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg), rgba(255, 255, 255, 0) 58%) !important;
+            background: var(--inv-subcat-solid) !important;
             border-bottom-color: rgba(255, 255, 255, 0.045);
         }
 
         #invTable .inv-subcat-item:hover td {
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(255, 255, 255, 0.025) 62%) !important;
+            background: var(--inv-subcat-solid-strong) !important;
         }
 
         .inv-subcat-heading {
@@ -159,15 +169,12 @@
             padding: 0.65rem 0.9rem;
             border: 1px solid var(--inv-subcat-border);
             border-radius: 10px;
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(30, 41, 59, 0.96) 70%);
+            background: var(--inv-subcat-solid-strong);
             box-shadow: 0 8px 22px rgba(2, 6, 23, 0.2);
-            backdrop-filter: blur(18px);
         }
 
         .app-mobile-card.inv-subcat-card {
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg), var(--glass-bg) 76%);
+            background: var(--inv-subcat-solid);
             border-color: var(--inv-subcat-border);
         }
 
@@ -213,18 +220,15 @@
         [data-bs-theme="light"] .inv-producto-name { color: #0f172a; }
         [data-bs-theme="light"] .inv-meta-line { color: #94a3b8; }
         [data-bs-theme="light"] #invTable .inv-subcat-group td {
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(255, 255, 255, 0.96) 62%) !important;
+            background: var(--inv-subcat-solid-light-strong) !important;
             box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
         }
         [data-bs-theme="light"] #invTable .inv-subcat-item td {
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg), rgba(255, 255, 255, 0) 58%) !important;
+            background: var(--inv-subcat-solid-light) !important;
             border-bottom-color: rgba(15, 23, 42, 0.055);
         }
         [data-bs-theme="light"] #invTable .inv-subcat-item:hover td {
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(15, 23, 42, 0.025) 62%) !important;
+            background: var(--inv-subcat-solid-light-strong) !important;
         }
         [data-bs-theme="light"] .inv-subcat-heading {
             color: var(--inv-subcat-text-light);
@@ -233,13 +237,11 @@
             color: rgba(71, 85, 105, 0.75);
         }
         [data-bs-theme="light"] .inv-mobile-subcat-group {
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg-strong), rgba(255, 255, 255, 0.96) 70%);
+            background: var(--inv-subcat-solid-light-strong);
             box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
         }
         [data-bs-theme="light"] .app-mobile-card.inv-subcat-card {
-            background:
-                linear-gradient(90deg, var(--inv-subcat-bg), rgba(255, 255, 255, 0.82) 76%);
+            background: var(--inv-subcat-solid-light);
         }
 
         /* ================================================================
