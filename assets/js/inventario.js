@@ -35,70 +35,16 @@
         }
 
         function getStableSubcategoriaStyle(nombre) {
-            var hash = 0;
-            var text = String(nombre || 'Sin subcategoría');
-            for (var i = 0; i < text.length; i++) {
-                hash = ((hash << 5) - hash) + text.charCodeAt(i);
-                hash |= 0;
-            }
-            var shades = [
-                {
-                    bg: '#142033',
-                    strong: '#1d3352',
-                    light: '#eff6ff',
-                    lightStrong: '#dbeafe',
-                    border: 'rgba(96, 165, 250, 0.32)',
-                    text: '#bfdbfe',
-                    textLight: '#1d4ed8'
-                },
-                {
-                    bg: '#17263d',
-                    strong: '#24446d',
-                    light: '#eaf3ff',
-                    lightStrong: '#cfe6ff',
-                    border: 'rgba(59, 130, 246, 0.36)',
-                    text: '#93c5fd',
-                    textLight: '#2563eb'
-                },
-                {
-                    bg: '#1e293b',
-                    strong: '#28476b',
-                    light: '#f0f7ff',
-                    lightStrong: '#d8ecff',
-                    border: 'rgba(96, 165, 250, 0.28)',
-                    text: '#dbeafe',
-                    textLight: '#1e40af'
-                },
-                {
-                    bg: '#10243f',
-                    strong: '#1e3a5f',
-                    light: '#edf7ff',
-                    lightStrong: '#d4ebff',
-                    border: 'rgba(59, 130, 246, 0.3)',
-                    text: '#bae6fd',
-                    textLight: '#0369a1'
-                },
-                {
-                    bg: '#162b48',
-                    strong: '#214d7a',
-                    light: '#eef8ff',
-                    lightStrong: '#d9f0ff',
-                    border: 'rgba(96, 165, 250, 0.34)',
-                    text: '#bfdbfe',
-                    textLight: '#075985'
-                }
-            ];
-            var shade = shades[Math.abs(hash) % shades.length];
             return '--inv-subcat-hue:213;' +
                 '--inv-subcat-bg:rgba(96, 165, 250, 0.12);' +
                 '--inv-subcat-bg-strong:rgba(59, 130, 246, 0.2);' +
-                '--inv-subcat-solid:' + shade.bg + ';' +
-                '--inv-subcat-solid-strong:' + shade.strong + ';' +
-                '--inv-subcat-solid-light:' + shade.light + ';' +
-                '--inv-subcat-solid-light-strong:' + shade.lightStrong + ';' +
-                '--inv-subcat-border:' + shade.border + ';' +
-                '--inv-subcat-text:' + shade.text + ';' +
-                '--inv-subcat-text-light:' + shade.textLight + ';';
+                '--inv-subcat-solid:#17263d;' +
+                '--inv-subcat-solid-strong:#24446d;' +
+                '--inv-subcat-solid-light:#eaf3ff;' +
+                '--inv-subcat-solid-light-strong:#cfe6ff;' +
+                '--inv-subcat-border:rgba(59, 130, 246, 0.36);' +
+                '--inv-subcat-text:#93c5fd;' +
+                '--inv-subcat-text-light:#2563eb;';
         }
 
         function getSubcategoriaCounts(items) {
