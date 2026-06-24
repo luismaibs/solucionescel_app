@@ -108,17 +108,21 @@
                 }
             },
             accesorios: {
-                thead: ['Subcategoría', 'Marca', 'Código', 'Producto', 'Stock', 'Precio', 'Color', ''],
+                thead: ['Marca', 'Producto', 'Stock', 'Precio', ''],
                 row: function (p) {
                     var stock = parseInt(p.stock || 0, 10);
-                    var stockClass = stock < 3 ? 'text-danger fw-bold' : 'text-success';
-                    return '<td class="ps-4"><span class="badge-cat cat-accesorios">' + escapeHtml(p.subcategoria_nombre || '—') + '</span></td>' +
-                        '<td class="fw-semibold text-white">' + escapeHtml(p.marca_nombre || '—') + '</td>' +
-                        '<td class="text-muted">' + escapeHtml(p.codigo) + '</td>' +
-                        '<td class="fw-bold text-white">' + escapeHtml(p.nombre_producto) + '</td>' +
-                        '<td><span class="' + stockClass + '">' + stock + ' u.</span></td>' +
-                        '<td><span class="price-tag">$' + parseFloat(p.precio || 0).toFixed(2) + '</span></td>' +
-                        '<td><span class="text-muted">' + escapeHtml(p.color_nombre || '—') + '</span></td>';
+                    var stockClass = stock < 3 ? 'text-danger fw-bold' : 'text-success fw-semibold';
+                    var color = escapeHtml(p.color_nombre || '—');
+                    return '<td class="ps-4 inv-marca-cell">' +
+                                '<div class="inv-marca-name">' + escapeHtml(p.marca_nombre || '—') + '</div>' +
+                                '<span class="badge-cat cat-accesorios inv-sub-badge">' + escapeHtml(p.subcategoria_nombre || '—') + '</span>' +
+                            '</td>' +
+                            '<td class="inv-producto-cell">' +
+                                '<div class="inv-producto-name">' + escapeHtml(p.nombre_producto) + '</div>' +
+                                '<span class="inv-meta-line">' + escapeHtml(p.codigo) + (color !== '—' ? ' · ' + color : '') + '</span>' +
+                            '</td>' +
+                            '<td><span class="' + stockClass + '">' + stock + ' u.</span></td>' +
+                            '<td><span class="price-tag">$' + parseFloat(p.precio || 0).toFixed(2) + '</span></td>';
                 },
                 card: function (p) {
                     var stock = parseInt(p.stock || 0, 10);
