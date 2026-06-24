@@ -80,7 +80,7 @@ include_once '../includes/fragment_helper.php';
         </div>
     </div>
 
-    <div class="container-xl main-content-push with-subheader with-subfooter" style="max-width: 1440px;">
+    <div class="container-xl main-content-push with-subheader with-filters-bar with-subfooter" style="max-width: 1440px;">
 
         <!-- Subheader: título + KPI chips + Nuevo Producto (izquierda) + acciones (derecha) -->
         <div class="module-subheader">
@@ -111,12 +111,11 @@ include_once '../includes/fragment_helper.php';
             </div>
         </div>
 
-        <!-- Filtros de Categoría (navegación principal) + Búsqueda -->
-        <div
-            class="filters-row-wrap d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between mb-4 gap-3">
+        <!-- Filtros de Categoría (navegación principal) + Búsqueda — barra fija sub-subheader -->
+        <div class="filters-row-wrap module-filters-bar">
 
-            <!-- Filtros — 4 categorías (ordenados alfabéticamente) -->
-            <div class="d-flex gap-2 overflow-x-auto hide-scrollbar pb-1 pb-lg-0 w-100">
+            <!-- Filtros — 4 categorías -->
+            <div class="d-flex gap-2 overflow-x-auto hide-scrollbar" style="flex:1 1 0;min-width:0;">
                 <span class="filter-chip active flex-shrink-0" data-cat="accesorios" onclick="cambiarCategoria('accesorios', this)">
                     <i class="bi bi-headphones me-1"></i> Accesorios
                 </span>

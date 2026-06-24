@@ -48,11 +48,6 @@
             margin-bottom: 0.8rem;
         }
 
-        /* Filtros Scrollables - sin blur */
-        .filters-row-wrap {
-            backdrop-filter: none;
-            background: transparent;
-        }
         /* filter-chip: centralizado en app.css */
 
         .hide-scrollbar::-webkit-scrollbar {

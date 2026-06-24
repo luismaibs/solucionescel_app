@@ -775,19 +775,23 @@
         var tablaContainer = document.getElementById('viewTablaContainer');
         var pipelineContainer = document.getElementById('viewPipelineContainer');
         var filtrosContainer = document.getElementById('filtrosEstadosContainer');
-        var viewTabla = document.getElementById('viewTabla');
-        var viewPipeline = document.getElementById('viewPipeline');
+        var subfooter = document.getElementById('repSubfooter');
+        var content = document.getElementById('panelEquiposContent');
         if (!tablaContainer || !pipelineContainer) return;
         if (mode === 'pipeline') {
             tablaContainer.style.display = 'none';
             pipelineContainer.style.display = 'block';
             if (filtrosContainer) filtrosContainer.style.display = 'none';
+            if (subfooter) subfooter.style.display = 'none';
+            if (content) content.classList.remove('with-filters-bar');
             loadReparacionesPipeline();
             setTimeout(function () { syncPipelineScrollBar(); }, 100);
         } else {
             tablaContainer.style.display = 'block';
             pipelineContainer.style.display = 'none';
-            if (filtrosContainer) filtrosContainer.style.display = 'flex';
+            if (filtrosContainer) filtrosContainer.style.display = '';
+            if (subfooter) subfooter.style.display = 'flex';
+            if (content) content.classList.add('with-filters-bar');
             loadReparaciones(repCurrentPage);
         }
         try { localStorage.setItem(PIPELINE_STORAGE_KEY, mode); } catch (e) { }

@@ -122,7 +122,7 @@ include_once '../includes/fragment_helper.php';
 
     <div class="container-xl main-content-push with-subheader with-subfooter" style="max-width: 1440px;">
 
-        <!-- Subheader -->
+        <!-- Subheader con búsqueda integrada -->
         <div class="module-subheader">
             <div class="module-subheader-kpis">
                 <span class="module-subheader-title">Clientes</span>
@@ -132,19 +132,15 @@ include_once '../includes/fragment_helper.php';
                     <span class="kpi-label">Total</span>
                 </span>
             </div>
+            <div class="position-relative" style="flex:1 1 0;min-width:100px;max-width:340px;">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="pointer-events:none;z-index:2;"></i>
+                <input type="text" id="searchClientes" class="form-control search-bar"
+                       placeholder="Buscar por nombre, teléfono o correo...">
+            </div>
             <div class="module-subheader-actions">
                 <button class="btn btn-primary" onclick="abrirCrearCliente()">
                     <i class="bi bi-person-plus-fill"></i> Nuevo Cliente
                 </button>
-            </div>
-        </div>
-
-        <!-- Búsqueda -->
-        <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
-            <div class="position-relative flex-grow-1" style="max-width: 400px;">
-                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                <input type="text" id="searchClientes" class="form-control search-bar"
-                       placeholder="Buscar por nombre, teléfono o correo...">
             </div>
         </div>
 

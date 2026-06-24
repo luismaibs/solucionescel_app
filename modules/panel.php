@@ -132,11 +132,11 @@ if ($panelError !== null) {
         </div>
     </div>
 
-    <div id="panelEquiposContent" class="container-xl main-content-push with-subheader with-subfooter" style="max-width: 1440px;">
+    <div id="panelEquiposContent" class="container-xl main-content-push with-subheader with-filters-bar with-subfooter" style="max-width: 1440px;">
 
-        <!-- Filtros (solo visibles en modo tabla) -->
-        <div id="filtrosEstadosContainer" class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between mb-4 gap-3">
-            <div class="d-flex gap-2 overflow-x-auto hide-scrollbar pb-1 pb-lg-0 w-100" id="filtrosChips">
+        <!-- Filtros (barra fija sub-subheader, oculta en modo pipeline) -->
+        <div id="filtrosEstadosContainer" class="module-filters-bar">
+            <div class="d-flex gap-2 overflow-x-auto hide-scrollbar" id="filtrosChips" style="flex:1 1 0;min-width:0;">
                 <span class="filter-chip active flex-shrink-0" onclick="filterTable('all', this)">Todos <span class="opacity-50 ms-1"><?= $total_activos ?></span></span>
                 <span class="filter-chip flex-shrink-0" onclick="filterTable('en_taller', this)">Laboratorio</span>
                 <span class="filter-chip flex-shrink-0" onclick="filterTable('listo', this)">Listos</span>
@@ -212,6 +212,18 @@ if ($panelError !== null) {
             </div>
         </div>
 
+        <!-- Subfooter fijo: paginación (oculto en vista pipeline) -->
+        <div id="repSubfooter" class="module-subfooter">
+            <small class="text-muted" id="repPaginationInfo" style="font-size: 0.8rem;">Cargando reparaciones...</small>
+            <div class="d-flex gap-2 ms-auto">
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" id="btnRepPrevPage" onclick="changeRepPage(-1)" disabled>
+                    <i class="bi bi-chevron-left me-1"></i> Anterior
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" id="btnRepNextPage" onclick="changeRepPage(1)" disabled>
+                    Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Subheader: Configuración de Estados (oculto por defecto) -->
