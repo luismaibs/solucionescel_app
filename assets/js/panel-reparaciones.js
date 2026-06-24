@@ -774,14 +774,14 @@
     function switchViewMode(mode) {
         var tablaContainer = document.getElementById('viewTablaContainer');
         var pipelineContainer = document.getElementById('viewPipelineContainer');
-        var filtrosContainer = document.getElementById('filtrosEstadosContainer');
+        var filtrosChips = document.getElementById('filtrosChips');
         var subfooter = document.getElementById('repSubfooter');
         var content = document.getElementById('panelEquiposContent');
         if (!tablaContainer || !pipelineContainer) return;
         if (mode === 'pipeline') {
             tablaContainer.style.display = 'none';
             pipelineContainer.style.display = 'block';
-            if (filtrosContainer) filtrosContainer.style.display = 'none';
+            if (filtrosChips) filtrosChips.style.display = 'none';
             if (subfooter) subfooter.style.display = 'none';
             if (content) content.classList.remove('with-filters-bar');
             loadReparacionesPipeline();
@@ -789,7 +789,7 @@
         } else {
             tablaContainer.style.display = 'block';
             pipelineContainer.style.display = 'none';
-            if (filtrosContainer) filtrosContainer.style.display = '';
+            if (filtrosChips) filtrosChips.style.display = '';
             if (subfooter) subfooter.style.display = 'flex';
             if (content) content.classList.add('with-filters-bar');
             loadReparaciones(repCurrentPage);
