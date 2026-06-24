@@ -1180,7 +1180,7 @@ body.app-mobile-nav-open {
 .search-bar {
     border-radius: 50px;
     background: rgba(30, 41, 59, 0.6);
-    padding-left: 2.5rem;
+    padding-left: 2.75rem !important;
 }
 
 /* Listas panel taller e inventario: fondo azul del tema (no negro) */

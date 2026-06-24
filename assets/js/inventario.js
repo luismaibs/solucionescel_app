@@ -48,6 +48,8 @@
         const invPerPage = 50;
         let invTotalItems = 0;
         let invLastItems = [];
+        let invAllItems = [];
+        let invFilteredItems = [];
 
         // ================================================================
         // DEFINICIONES DE COLUMNAS POR CATEGORÍA
@@ -255,25 +257,29 @@
         }
 
         function changeInvPage(delta) {
-            if (ragSearchActive) return;
             var totalPages = Math.ceil(invTotalItems / invPerPage) || 1;
             var target = invCurrentPage + delta;
             if (target < 1) target = 1;
             if (target > totalPages) target = totalPages;
             if (target === invCurrentPage) return;
-            loadCategoria(categoriaActiva, target);
+            invCurrentPage = target;
+            invLastItems = invFilteredItems.slice((invCurrentPage - 1) * invPerPage, invCurrentPage * invPerPage);
+            if (window.innerWidth < 992) {
+                renderMobileCards(categoriaActiva, invLastItems);
+            } else {
+                renderTableRows(categoriaActiva, invLastItems);
+            }
+            updateInvPaginationInfo();
         }
 
         // ================================================================
         // CARGA PRINCIPAL POR CATEGORÍA
         // ================================================================
-        async function loadCategoria(cat, page) {
-            if (page === undefined) page = 1;
+        async function loadCategoria(cat) {
             var tbody = document.getElementById('invTableBody');
             var cardsContainer = document.getElementById('invCardsContainer');
             var isMobile = window.innerWidth < 992;
 
-            // Skeleton loading
             renderTableHead(cat);
             var colSpan = (columnDefs[cat] || { thead: [] }).thead.length;
             if (tbody && !isMobile) {
@@ -284,23 +290,15 @@
             }
 
             try {
-                var resp = await fetch('../api/inventario/categoria?categoria=' + cat + '&page=' + page + '&per_page=' + invPerPage);
+                var resp = await fetch('../api/inventario/categoria?categoria=' + cat + '&page=1&per_page=9999');
                 var data = await resp.json();
 
                 if (!data.ok) throw new Error(data.message || 'Error');
 
-                invCurrentPage = data.page || 1;
-                invTotalItems = data.total || 0;
-                invLastItems = data.items || [];
-
-                if (window.innerWidth < 992) {
-                    renderMobileCards(cat, invLastItems);
-                    if (tbody) tbody.innerHTML = '';
-                } else {
-                    renderTableRows(cat, invLastItems);
-                    if (cardsContainer) cardsContainer.innerHTML = '';
-                }
-                updateInvPaginationInfo();
+                invAllItems = data.items || [];
+                var searchEl = document.getElementById('searchInput');
+                if (searchEl) searchEl.value = '';
+                applyLocalFilter('');
             } catch (err) {
                 if (tbody && !isMobile) {
                     tbody.innerHTML = '<tr><td colspan="' + colSpan + '" class="text-center py-5 text-danger">Error al cargar datos.</td></tr>';
@@ -312,29 +310,77 @@
             }
         }
 
+        function applyLocalFilter(query) {
+            var q = (query || '').toLowerCase().trim();
+
+            invFilteredItems = q
+                ? invAllItems.filter(function(p) {
+                    return getItemSearchText(p, categoriaActiva).indexOf(q) !== -1;
+                })
+                : invAllItems.slice();
+
+            invTotalItems = invFilteredItems.length;
+            invCurrentPage = 1;
+            invLastItems = invFilteredItems.slice(0, invPerPage);
+
+            var isMobile = window.innerWidth < 992;
+            var tbody = document.getElementById('invTableBody');
+            var cardsEl = document.getElementById('invCardsContainer');
+
+            if (isMobile) {
+                renderMobileCards(categoriaActiva, invLastItems);
+                if (tbody) tbody.innerHTML = '';
+            } else {
+                renderTableRows(categoriaActiva, invLastItems);
+                if (cardsEl) cardsEl.innerHTML = '';
+            }
+
+            var paginationInfo = document.getElementById('invPaginationInfo');
+            updateInvPaginationInfo();
+            if (q && paginationInfo) {
+                paginationInfo.textContent = invFilteredItems.length + ' resultado(s) para "' + query + '"';
+                var btnPrev = document.getElementById('btnPrevPage');
+                var btnNext = document.getElementById('btnNextPage');
+                if (btnPrev) btnPrev.disabled = true;
+                if (btnNext) btnNext.disabled = true;
+            }
+        }
+
+        function getItemSearchText(p, cat) {
+            var fields;
+            switch (cat) {
+                case 'accesorios':
+                    fields = [p.nombre_producto, p.codigo, p.marca_nombre, p.subcategoria_nombre, p.color_nombre];
+                    break;
+                case 'baterias':
+                    fields = [p.marca, p.modelo_bateria, p.calidad, p.tipo];
+                    break;
+                case 'pantallas':
+                    fields = [p.modelo_nombre, p.modelo_tecnico_nombre, p.calidad];
+                    break;
+                case 'servicios':
+                    fields = [p.subcategoria, p.gama, p.sistemas_operativos || '', (p.acciones_lista || '').replace(/\|\|/g, ' ')];
+                    break;
+                default:
+                    return JSON.stringify(p).toLowerCase();
+            }
+            return fields.filter(Boolean).join(' ').toLowerCase();
+        }
+
         // ================================================================
         // CAMBIAR CATEGORÍA (función principal)
         // ================================================================
         function cambiarCategoria(cat, btn) {
-            if (cat === categoriaActiva && invLastItems.length > 0 && !ragSearchActive) return;
+            if (cat === categoriaActiva && invAllItems.length > 0) return;
             categoriaActiva = cat;
-            ragSearchActive = false;
-            ragSearchResults = [];
 
             // Activar chip visual
             document.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
             if (btn) btn.classList.add('active');
 
-            // Limpiar buscador
-            var search = document.getElementById('searchInput');
-            if (search) search.value = '';
-
-            // Resetear paginación
-            invCurrentPage = 1;
-
             // Recargar KPIs y tabla en paralelo
             loadKpis(cat);
-            loadCategoria(cat, 1);
+            loadCategoria(cat);
         }
 
         // ================================================================
@@ -351,7 +397,7 @@
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
                         if (data.ok) {
-                            loadCategoria(categoriaActiva, invCurrentPage);
+                            loadCategoria(categoriaActiva);
                             loadKpis(categoriaActiva);
                             document.getElementById('toastMsg').innerText = data.message || 'Registro eliminado';
                             toastSuccess.show();
@@ -384,193 +430,20 @@
         // ================================================================
         // BÚSQUEDA SEMÁNTICA RAG
         // ================================================================
-        var ragSearchTimer = null;
-        var ragSearchActive = false;
-        var ragSearchResults = [];
+        var searchDebounceTimer = null;
 
-        document.getElementById('searchInput').addEventListener('keyup', function () {
+        document.getElementById('searchInput').addEventListener('input', function () {
             var query = this.value.trim();
-            clearTimeout(ragSearchTimer);
-
-            if (query.length < 2) {
-                ragSearchActive = false;
-                ragSearchResults = [];
-                if (query === '') {
-                    resetToCategoryView();
-                }
-                return;
-            }
-
-            ragSearchTimer = setTimeout(function () {
-                executeRagSearch(query);
-            }, 400);
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(function () {
+                applyLocalFilter(query);
+            }, 200);
         });
 
-        async function executeRagSearch(query) {
-            var tbody = document.getElementById('invTableBody');
-            var cardsContainer = document.getElementById('invCardsContainer');
-            var paginationInfo = document.getElementById('invPaginationInfo');
-            var isMobile = window.innerWidth < 992;
-
-            if (isMobile) {
-                if (cardsContainer) cardsContainer.innerHTML = '<div class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Buscando...</div>';
-            } else {
-                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Buscando...</td></tr>';
-            }
-            if (paginationInfo) paginationInfo.textContent = '';
-
-            try {
-                var resp = await fetch('../api/inventario/buscar?q=' + encodeURIComponent(query) + '&limite=15');
-                var data = await resp.json();
-
-                if (!data.ok) throw new Error(data.error || 'Error de busqueda');
-
-                ragSearchResults = data.resultados || [];
-                ragSearchActive = true;
-
-                renderRagResults(query, ragSearchResults);
-
-            } catch (err) {
-                if (isMobile) {
-                    if (cardsContainer) cardsContainer.innerHTML = '<div class="text-center py-5 text-danger">Error: ' + escapeHtml(err.message) + '</div>';
-                } else {
-                    if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-danger">Error: ' + escapeHtml(err.message) + '</td></tr>';
-                }
-            }
-        }
-
-        function renderRagResults(query, resultados) {
-            var tbody = document.getElementById('invTableBody');
-            var cardsContainer = document.getElementById('invCardsContainer');
-            var tableHead = document.getElementById('invTableHead');
-            var paginationInfo = document.getElementById('invPaginationInfo');
-            var isMobile = window.innerWidth < 992;
-
-            if (isMobile) {
-                renderRagMobileCards(query, resultados);
-                if (tbody) tbody.innerHTML = '';
-                return;
-            }
-
-            if (!tbody) return;
-
-            if (tableHead) {
-                tableHead.innerHTML = '<tr>' +
-                    '<th style="width:100px">Categoria</th>' +
-                    '<th>Producto</th>' +
-                    '<th>Detalle</th>' +
-                    '<th>Precio</th>' +
-                    '<th style="width:80px">Stock</th>' +
-                    '<th style="width:60px"></th>' +
-                '</tr>';
-            }
-
-            if (!resultados || resultados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">Sin resultados para "' + escapeHtml(query) + '"</td></tr>';
-                if (paginationInfo) paginationInfo.textContent = '';
-                return;
-            }
-
-            var catIcons = {
-                accesorios: 'bi-headphones',
-                baterias: 'bi-battery-charging',
-                pantallas: 'bi-phone',
-                servicios: 'bi-gear-wide-connected'
-            };
-            var catLabels = {
-                accesorios: 'Accesorio',
-                baterias: 'Bateria',
-                pantallas: 'Pantalla',
-                servicios: 'Servicio'
-            };
-
-            var rows = resultados.map(function (r) {
-                var p = r.producto || {};
-                var cat = r.categoria;
-                var catLabel = catLabels[cat] || cat;
-                var catIcon = catIcons[cat] || 'bi-box';
-                var scoreClass = r.score >= 0.7 ? 'text-success' : (r.score >= 0.4 ? 'text-warning' : 'text-muted');
-                var scorePct = Math.round(r.score * 100);
-
-                var nombre = p.nombre_producto || p.modelo_bateria || p._modelo || p.subcategoria || p.marca || '';
-                var precio = parseFloat(p.precio || 0);
-                var stock = parseInt(p.stock || 0);
-
-                var detalle = '';
-                switch (cat) {
-                    case 'accesorios':
-                        detalle = [p._subcategoria || '', p._marca || '', p._color || '', p.codigo || ''].filter(Boolean).join(' | ');
-                        break;
-                    case 'baterias':
-                        detalle = [p.marca || '', p.calidad || '', p.tipo || ''].filter(Boolean).join(' | ');
-                        break;
-                    case 'pantallas':
-                        detalle = [p._modelo_tecnico || '', p.calidad || '', p.tiempo || ''].filter(Boolean).join(' | ');
-                        break;
-                    case 'servicios':
-                        detalle = [p.gama || '', p.sistemas_operativos || '', p.tiempo_entrega || ''].filter(Boolean).join(' | ');
-                        break;
-                }
-
-                return '<tr>' +
-                    '<td><span class="badge bg-white bg-opacity-10 text-white"><i class="bi ' + catIcon + ' me-1"></i>' + escapeHtml(catLabel) + '</span></td>' +
-                    '<td class="fw-medium">' + escapeHtml(nombre) + '</td>' +
-                    '<td class="text-muted small">' + escapeHtml(detalle) + '</td>' +
-                    '<td class="fw-semibold">$' + precio.toFixed(2) + '</td>' +
-                    '<td>' + stock + '</td>' +
-                    '<td class="text-end pe-2"><span class="badge ' + scoreClass + ' bg-opacity-10" style="font-size:0.65rem" title="Relevancia">' + scorePct + '%</span></td>' +
-                '</tr>';
-            }).join('');
-
-            tbody.innerHTML = rows;
-
-            if (paginationInfo) paginationInfo.textContent = resultados.length + ' resultados para "' + escapeHtml(query) + '"';
-        }
-
-        function renderRagMobileCards(query, resultados) {
-            var container = document.getElementById('invCardsContainer');
-            if (!container) return;
-
-            if (!resultados || resultados.length === 0) {
-                container.innerHTML = '<div class="text-center py-5 text-muted">Sin resultados para "' + escapeHtml(query) + '"</div>';
-                return;
-            }
-
-            var catLabels = { accesorios: 'Accesorio', baterias: 'Bateria', pantallas: 'Pantalla', servicios: 'Servicio' };
-            var catColors = { accesorios: '#6366f1', baterias: '#f59e0b', pantallas: '#10b981', servicios: '#3b82f6' };
-
-            var cards = resultados.map(function (r) {
-                var p = r.producto || {};
-                var cat = r.categoria;
-                var catLabel = catLabels[cat] || cat;
-                var catColor = catColors[cat] || '#64748b';
-                var nombre = p.nombre_producto || p.modelo_bateria || p._modelo || p.subcategoria || p.marca || '';
-                var precio = parseFloat(p.precio || 0);
-                var stock = parseInt(p.stock || 0);
-                var scorePct = Math.round(r.score * 100);
-
-                return '<div class="app-mobile-card d-flex align-items-start gap-2" style="border-left: 3px solid ' + catColor + '">' +
-                    '<div class="flex-grow-1 min-w-0">' +
-                        '<div class="d-flex justify-content-between align-items-center mb-1">' +
-                            '<span class="badge" style="background:' + catColor + '20;color:' + catColor + ';font-size:0.7rem">' + escapeHtml(catLabel) + '</span>' +
-                            '<small class="text-muted" style="font-size:0.65rem">' + scorePct + '% relevancia</small>' +
-                        '</div>' +
-                        '<div class="fw-medium text-white small">' + escapeHtml(nombre) + '</div>' +
-                        '<div class="d-flex gap-3 mt-1">' +
-                            '<span class="fw-semibold text-white" style="font-size:0.85rem">$' + precio.toFixed(2) + '</span>' +
-                            '<span class="text-muted" style="font-size:0.75rem">Stock: ' + stock + '</span>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-            }).join('');
-
-            container.innerHTML = cards;
-        }
-
         function resetToCategoryView() {
-            ragSearchActive = false;
-            ragSearchResults = [];
-            loadCategoria(categoriaActiva, invCurrentPage);
+            var searchEl = document.getElementById('searchInput');
+            if (searchEl) searchEl.value = '';
+            applyLocalFilter('');
         }
 
         // ================================================================
@@ -783,7 +656,7 @@
                             hideFeedback(feedbackId);
                             if (onSuccess) onSuccess();
                             // Recargar tabla y KPIs de la categoría activa
-                            loadCategoria(categoriaActiva, invCurrentPage);
+                            loadCategoria(categoriaActiva);
                             loadKpis(categoriaActiva);
                             document.getElementById('toastMsg').innerText = successMsg;
                             toastSuccess.show();
@@ -1456,7 +1329,7 @@
                     if (allErrors.length > 0) {
                         resultadoEl.innerHTML += '<ul class="mb-0 mt-2 small">' + allErrors.map(function (e) { return '<li>' + escapeHtml(e); }).join('') + '</ul>';
                     }
-                    loadCategoria(categoriaActiva, invCurrentPage);
+                    loadCategoria(categoriaActiva);
                     loadKpis(categoriaActiva);
                     if (document.getElementById('toastMsg')) {
                         document.getElementById('toastMsg').innerText = 'Importacion completada: ' + totalImported + '/' + total + ' registros.';
@@ -1527,8 +1400,7 @@
             if (rtRefreshTimer) clearTimeout(rtRefreshTimer);
             rtRefreshTimer = setTimeout(function () {
                 rtRefreshTimer = null;
-                if (ragSearchActive) return;
-                loadCategoria(categoriaActiva, invCurrentPage);
+                loadCategoria(categoriaActiva);
                 loadKpis(categoriaActiva);
             }, 500);
         });
