@@ -52,56 +52,29 @@ function generarSlugNotif(string $titulo): string {
     return 'notif_' . $slug;
 }
 
-function buscarOCrearPlantillaNotif(string $titulo): ?int {
+function buscarOCrearCarpetaPlantillasNotif(string $nombreCarpeta): ?int {
     global $supabase, $tid;
-    $nombreCarpeta = 'Notificaciones';
 
     $carpetaResult = $supabase->get('whatsapp_template_carpetas', [
         'select' => 'id',
         'tenant_id' => 'eq.' . $tid,
         'nombre' => 'eq.' . $nombreCarpeta,
         'limit' => '1',
-    ], getJwt());
+    ], null, true);
 
-    $carpetaId = null;
     if ($carpetaResult['ok'] && !empty($carpetaResult['data'])) {
-        $carpetaId = (int) $carpetaResult['data'][0]['id'];
-    } else {
-        $createCarpeta = $supabase->post('whatsapp_template_carpetas', [
-            'nombre' => $nombreCarpeta,
-            'tenant_id' => $tid,
-        ], getJwt());
-        if ($createCarpeta['ok'] && !empty($createCarpeta['data'])) {
-            $carpetaId = (int) $createCarpeta['data'][0]['id'];
-        }
+        return (int) $carpetaResult['data'][0]['id'];
     }
 
-    $body = json_encode([
-        'title' => 'Notificación: ' . $titulo,
-        'content' => 'Notificación automática: ' . $titulo,
-        'carpeta_id' => $carpetaId,
-    ], JSON_UNESCAPED_UNICODE);
+    $createCarpeta = $supabase->post('whatsapp_template_carpetas', [
+        'nombre' => $nombreCarpeta,
+        'tenant_id' => $tid,
+    ], null, true);
 
-    $ch = curl_init(rtrim(getenv('SUPABASE_URL'), '/') . '/rest/v1/whatsapp_templates');
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'apikey: ' . getenv('SUPABASE_ANON_KEY'),
-        'Authorization: Bearer ' . (getJwt() ?: getenv('SUPABASE_SERVICE_ROLE_KEY')),
-        'Prefer: return=representation',
-    ]);
-    $raw = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($code >= 200 && $code < 300) {
-        $data = json_decode($raw, true);
-        if (!empty($data[0]['id'])) {
-            return (int) $data[0]['id'];
-        }
+    if ($createCarpeta['ok'] && !empty($createCarpeta['data'])) {
+        return (int) $createCarpeta['data'][0]['id'];
     }
+
     return null;
 }
 
@@ -186,10 +159,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // ── LIST_TEMPLATES ──
     if ($action === 'list_templates') {
+        $carpetaId = buscarOCrearCarpetaPlantillasNotif('Notificaciones');
+        if ($carpetaId === null) {
+            jsonOk(['templates' => []]);
+        }
+
         $result = $supabase->get('whatsapp_templates', [
             'select' => 'id,title,carpeta_id',
+            'carpeta_id' => 'eq.' . $carpetaId,
             'order' => 'title.asc',
-        ], getJwt());
+        ], null, true);
         $templates = $result['ok'] ? ($result['data'] ?? []) : [];
         jsonOk(['templates' => $templates]);
     }
@@ -231,6 +210,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($titulo === '') jsonError('El título es requerido');
         if (!in_array($tipo, ['info', 'warning', 'error', 'success'])) jsonError('Tipo inválido');
 
+        if ($plantillaId !== null) {
+            $carpetaId = buscarOCrearCarpetaPlantillasNotif('Notificaciones');
+            $tplResult = $supabase->get('whatsapp_templates', [
+                'select' => 'id',
+                'id' => 'eq.' . $plantillaId,
+                'carpeta_id' => 'eq.' . $carpetaId,
+                'limit' => '1',
+            ], null, true);
+
+            if (!$tplResult['ok'] || empty($tplResult['data'])) {
+                jsonError('Selecciona una plantilla de la carpeta Notificaciones');
+            }
+        }
+
         $data = [
             'tenant_id' => $tid,
             'titulo' => $titulo,
@@ -241,9 +234,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'grupo_id' => $grupoId,
         ];
 
-        if ($plantillaId === null && $titulo !== '') {
-            $plantillaId = buscarOCrearPlantillaNotif($titulo);
-        }
         $data['plantilla_id'] = $plantillaId;
 
         if ($id) {

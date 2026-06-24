@@ -430,9 +430,9 @@ if ($panelError !== null) {
                 <div class="mb-4">
                     <label class="form-label text-muted small ps-2">Plantilla vinculada</label>
                     <select id="ef_plantilla_id" class="form-select bg-dark text-white border-secondary">
-                        <option value="">Crear automáticamente al guardar</option>
+                        <option value="">Sin plantilla</option>
                     </select>
-                    <small class="text-muted">Si no seleccionas ninguna, se creará una plantilla automática en "Automatizaciones de Estados".</small>
+                    <small class="text-muted">Solo se muestran plantillas de la carpeta "Estados".</small>
                 </div>
                 <div id="ef_error" class="alert alert-danger d-none py-2 mb-0" style="font-size: 0.85rem;"></div>
                 <div class="d-grid mt-5">
@@ -542,9 +542,9 @@ if ($panelError !== null) {
                 <div class="mb-4">
                     <label class="form-label text-muted small ps-2">Plantilla vinculada</label>
                     <select id="nf_plantilla_id" name="plantilla_id" class="form-select bg-dark text-white border-secondary">
-                        <option value="">Crear automáticamente al guardar</option>
+                        <option value="">Sin plantilla</option>
                     </select>
-                    <small class="text-muted">Si no seleccionas ninguna, se creará una plantilla automática en "Automatizaciones de Notificaciones".</small>
+                    <small class="text-muted">Solo se muestran plantillas de la carpeta "Notificaciones".</small>
                 </div>
                 <div class="mb-4">
                     <label class="form-label text-muted small ps-2">Grupo</label>

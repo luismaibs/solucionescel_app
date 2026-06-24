@@ -263,7 +263,7 @@ include_once '../includes/fragment_helper.php';
         <div class="mobile-layout" style="display:none;">
             <!-- Folder chips -->
             <div class="d-flex gap-2 flex-wrap align-items-center mb-3" id="mobileFolderChips">
-                <span class="filter-chip active" data-carpeta="" onclick="filterByCarpeta(null, this)">Todas</span>
+                <span class="filter-chip active" data-carpeta="" onclick="filterByCarpeta(null)">Todas</span>
             </div>
             <!-- Templates as cards -->
             <div id="mobileTemplateCards" class="d-flex flex-column gap-2">
@@ -292,8 +292,8 @@ include_once '../includes/fragment_helper.php';
                     </div>
                     <!-- Folder filter chips -->
                     <div class="p-2 border-bottom border-white border-opacity-10">
-                        <div class="d-flex gap-1 flex-wrap" id="folderChips">
-                            <span class="filter-chip active" data-carpeta="" onclick="filterByCarpeta(null, this)">Todas</span>
+                        <div class="d-flex gap-2 flex-wrap align-items-center" id="folderChips">
+                            <span class="filter-chip active" data-carpeta="" onclick="filterByCarpeta(null)">Todas</span>
                         </div>
                     </div>
                     <!-- Template list -->
@@ -513,14 +513,26 @@ include_once '../includes/fragment_helper.php';
     }
 
     function renderFolderChips() {
-        const allChip = '<span class="filter-chip ' + (currentCarpetaId === null ? 'active' : '') + '" data-carpeta="" onclick="filterByCarpeta(null, this)">Todas</span>';
-        const chips = carpetas.map(c =>
-            '<span class="filter-chip ' + (currentCarpetaId === c.id ? 'active' : '') + '" data-carpeta="' + c.id + '" onclick="filterByCarpeta(' + c.id + ', this)">' +
-            '<i class="bi bi-folder2 me-1"></i>' + escapeHtml(c.nombre) +
-            '</span>'
-        ).join('');
-        document.getElementById('folderChips').innerHTML = allChip + chips;
-        document.getElementById('mobileFolderChips').innerHTML = allChip + chips;
+        const selectedFolder = carpetas.find(c => Number(c.id) === Number(currentCarpetaId));
+        const allChip = '<span class="filter-chip ' + (currentCarpetaId === null ? 'active' : '') + '" data-carpeta="" onclick="filterByCarpeta(null)">Todas</span>';
+        const menuLabel = selectedFolder ? escapeHtml(selectedFolder.nombre) : 'Carpetas';
+        const menuItems = carpetas.length
+            ? carpetas.map(c => {
+                const activeClass = Number(c.id) === Number(currentCarpetaId) ? ' active' : '';
+                return '<button class="dropdown-item d-flex align-items-center gap-2' + activeClass + '" type="button" onclick="filterByCarpeta(' + Number(c.id) + ')">' +
+                    '<i class="bi bi-folder2"></i><span>' + escapeHtml(c.nombre) + '</span>' +
+                    '</button>';
+            }).join('')
+            : '<span class="dropdown-item-text text-muted small">Sin carpetas</span>';
+        const folderMenu =
+            '<div class="dropdown">' +
+                '<button class="filter-chip ' + (selectedFolder ? 'active' : '') + ' dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">' +
+                    '<i class="bi bi-folder2 me-1"></i>' + menuLabel +
+                '</button>' +
+                '<div class="dropdown-menu dropdown-menu-dark shadow border-secondary p-1">' + menuItems + '</div>' +
+            '</div>';
+        document.getElementById('folderChips').innerHTML = allChip + folderMenu;
+        document.getElementById('mobileFolderChips').innerHTML = allChip + folderMenu;
     }
 
     function renderCarpetaSelects() {
@@ -530,10 +542,9 @@ include_once '../includes/fragment_helper.php';
         document.getElementById('mInputCarpeta').innerHTML = opts;
     }
 
-    function filterByCarpeta(id, el) {
+    function filterByCarpeta(id) {
         currentCarpetaId = id;
-        document.querySelectorAll('#folderChips .filter-chip, #mobileFolderChips .filter-chip').forEach(c => c.classList.remove('active'));
-        if (el) el.classList.add('active');
+        renderFolderChips();
         loadTemplates();
     }
 

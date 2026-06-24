@@ -56,11 +56,9 @@ function generarSlug(string $nombre, ?string $parentId = null): string {
     return ($parentId ? 'sub_' : '') . $slug;
 }
 
-function buscarOCrearPlantilla(string $nombre): ?int {
+function buscarOCrearCarpetaPlantillas(string $nombreCarpeta): ?int {
     global $supabase, $tid;
-    $nombreCarpeta = 'Estados';
 
-    // Buscar carpeta "Estados" para este tenant
     $carpetaResult = $supabase->get('whatsapp_template_carpetas', [
         'select' => 'id',
         'tenant_id' => 'eq.' . $tid,
@@ -68,30 +66,19 @@ function buscarOCrearPlantilla(string $nombre): ?int {
         'limit' => '1',
     ], null, true);
 
-    $carpetaId = null;
     if ($carpetaResult['ok'] && !empty($carpetaResult['data'])) {
-        $carpetaId = (int) $carpetaResult['data'][0]['id'];
-    } else {
-        $createCarpeta = $supabase->post('whatsapp_template_carpetas', [
-            'nombre' => $nombreCarpeta,
-            'tenant_id' => $tid,
-        ], null, true);
-        if ($createCarpeta['ok'] && !empty($createCarpeta['data'])) {
-            $carpetaId = (int) $createCarpeta['data'][0]['id'];
-        }
+        return (int) $carpetaResult['data'][0]['id'];
     }
 
-    // Crear plantilla con contenido base (whatsapp_templates no tiene tenant_id, la FK carpeta_id ya aísla por tenant)
-    $result = $supabase->post('whatsapp_templates', [
-        'title'      => 'Estado: ' . $nombre,
-        'content'    => 'Tu equipo ahora está en estado: *' . $nombre . '*.',
-        'carpeta_id' => $carpetaId,
+    $createCarpeta = $supabase->post('whatsapp_template_carpetas', [
+        'nombre' => $nombreCarpeta,
+        'tenant_id' => $tid,
     ], null, true);
 
-    if ($result['ok'] && !empty($result['data'])) {
-        return (int) $result['data'][0]['id'];
+    if ($createCarpeta['ok'] && !empty($createCarpeta['data'])) {
+        return (int) $createCarpeta['data'][0]['id'];
     }
-    error_log('buscarOCrearPlantilla: falló creación de plantilla — ' . ($result['error'] ?? 'sin detalle'));
+
     return null;
 }
 
@@ -176,9 +163,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // ── LIST_TEMPLATES ──
     if ($action === 'list_templates') {
+        $carpetaId = buscarOCrearCarpetaPlantillas('Estados');
+        if ($carpetaId === null) {
+            jsonOk(['templates' => []]);
+        }
+
         $result = $supabase->get('whatsapp_templates', [
             'select'    => 'id,title,carpeta_id',
-            'tenant_id' => 'eq.' . $tid,
+            'carpeta_id' => 'eq.' . $carpetaId,
             'order'     => 'title.asc',
         ], null, true);
         $templates = $result['ok'] ? ($result['data'] ?? []) : [];
@@ -213,6 +205,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!preg_match('/^#[0-9a-fA-F]{6}$/', $color)) jsonError('Color inválido (formato #RRGGBB)');
         if (!in_array($tipo, ['primer_ingreso', 're_ingreso'])) jsonError('Tipo inválido');
 
+        if ($plantillaId !== null) {
+            $carpetaId = buscarOCrearCarpetaPlantillas('Estados');
+            $tplResult = $supabase->get('whatsapp_templates', [
+                'select' => 'id',
+                'id' => 'eq.' . $plantillaId,
+                'carpeta_id' => 'eq.' . $carpetaId,
+                'limit' => '1',
+            ], null, true);
+
+            if (!$tplResult['ok'] || empty($tplResult['data'])) {
+                jsonError('Selecciona una plantilla de la carpeta Estados');
+            }
+        }
+
         // Subestado hereda tipo y color del padre
         if ($parentId) {
             $padre = $supabase->get('estados_config', [
@@ -244,10 +250,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'parent_id'           => $parentId,
         ];
 
-        // Auto-crear plantilla al crear un estado nuevo
-        if ($plantillaId === null && $nombre !== '') {
-            $plantillaId = buscarOCrearPlantilla($nombre);
-        }
         $data['plantilla_id'] = $plantillaId;
 
         if ($id) {

@@ -213,13 +213,13 @@
             .then(function (data) {
                 var sel = document.getElementById('ef_plantilla_id');
                 if (!sel) return;
-                sel.innerHTML = '<option value="">Crear automáticamente al guardar</option>';
+                sel.innerHTML = '<option value="">Sin plantilla</option>';
                 var templates = (data.templates || []);
                 if (!templates.length) {
                     var opt = document.createElement('option');
                     opt.value = '';
                     opt.disabled = true;
-                    opt.textContent = 'No hay plantillas disponibles';
+                    opt.textContent = 'No hay plantillas en Estados';
                     sel.appendChild(opt);
                     return;
                 }
