@@ -33,29 +33,6 @@ $rows = $input['rows'];
 $imported = 0;
 $columnErrors = [];
 
-function normalizarCalidadPantallaImportParaDb(string $calidad): string
-{
-    $map = [
-        'C1' => 'Generico',
-        'C2' => 'Intermedio',
-        'C3' => 'Original',
-    ];
-    return $map[$calidad] ?? $calidad;
-}
-
-function normalizarTiempoPantallaImportParaDb(string $tiempo): string
-{
-    $map = [
-        '1' => 'Instalacion inmediata 4hrs',
-        '2' => '2-3 dias full',
-        '3' => '3-5 dias estandar',
-        '4' => 'Envio internacional 20-30 dias',
-    ];
-    if (preg_match('/^(TAD|TAP|OTR)\s*([1-4])$/i', $tiempo, $match)) {
-        return $map[$match[2]] ?? $tiempo;
-    }
-    return $tiempo;
-}
 
 switch ($categoria) {
     case 'servicios':
@@ -210,27 +187,27 @@ switch ($categoria) {
                 continue;
             }
             try {
-                // Resolver o crear modelo (tabla compartida)
+                // Resolver o crear modelo
                 $modeloResult = $supabase->get('modelos', [
                     'select' => 'id', 'tenant_id' => 'eq.' . $tenantId,
-                    'nombre' => 'ilike.' . $modeloNombre, 'activo' => 'is.true', 'limit' => '1',
+                    'nombre' => 'ilike.' . $modeloNombre, 'tipo' => 'eq.modelo', 'activo' => 'is.true', 'limit' => '1',
                 ]);
                 if (!empty($modeloResult['data'])) {
                     $modeloId = (int) $modeloResult['data'][0]['id'];
                 } else {
-                    $create = $supabase->post('modelos', ['tenant_id' => $tenantId, 'nombre' => $modeloNombre]);
+                    $create = $supabase->post('modelos', ['tenant_id' => $tenantId, 'nombre' => $modeloNombre, 'tipo' => 'modelo']);
                     $modeloId = (int) ($create['data'][0]['id'] ?? 0);
                 }
 
-                // Resolver o crear modelo tecnico (tabla compartida)
+                // Resolver o crear modelo tecnico
                 $tecResult = $supabase->get('modelos', [
                     'select' => 'id', 'tenant_id' => 'eq.' . $tenantId,
-                    'nombre' => 'ilike.' . $modeloTecnicoNombre, 'activo' => 'is.true', 'limit' => '1',
+                    'nombre' => 'ilike.' . $modeloTecnicoNombre, 'tipo' => 'eq.modelo_tecnico', 'activo' => 'is.true', 'limit' => '1',
                 ]);
                 if (!empty($tecResult['data'])) {
                     $modeloTecId = (int) $tecResult['data'][0]['id'];
                 } else {
-                    $create = $supabase->post('modelos', ['tenant_id' => $tenantId, 'nombre' => $modeloTecnicoNombre]);
+                    $create = $supabase->post('modelos', ['tenant_id' => $tenantId, 'nombre' => $modeloTecnicoNombre, 'tipo' => 'modelo_tecnico']);
                     $modeloTecId = (int) ($create['data'][0]['id'] ?? 0);
                 }
 
@@ -238,9 +215,9 @@ switch ($categoria) {
                     'tenant_id' => $tenantId,
                     'modelo_id' => $modeloId,
                     'modelo_tecnico_id' => $modeloTecId,
-                    'calidad' => normalizarCalidadPantallaImportParaDb($calidad),
+                    'calidad' => $calidad,
                     'precio' => (float) $precio,
-                    'tiempo' => normalizarTiempoPantallaImportParaDb($tiempo),
+                    'tiempo' => $tiempo,
                     'nota' => trim($row['nota'] ?? '') ?: null,
                 ]);
                 if (!$createPantalla['ok']) {

@@ -1443,8 +1443,8 @@
             document.getElementById('panTiempoSection').classList.add('d-none');
             actualizarEtiquetasTiempo('');
             hideFeedback('panFeedback');
-            cargarCatalogo(apiUrl('catalogos?tipo=modelos&action=listar'), 'panModelo');
-            cargarCatalogo(apiUrl('catalogos?tipo=modelos&action=listar'), 'panModeloTecnico');
+            cargarCatalogo(apiUrl('catalogos?tipo=modelos&action=listar'),          'panModelo');
+            cargarCatalogo(apiUrl('catalogos?tipo=modelos_tecnicos&action=listar'), 'panModeloTecnico');
             offcanvasPantalla.show();
         }
 
@@ -1549,7 +1549,7 @@
             'acc_marca':           { listUrl: apiUrl('catalogos?tipo=marcas&action=listar'),           addTipo: 'marcas',           selectId: 'accMarca' },
             'acc_color':           { listUrl: apiUrl('catalogos?tipo=colores&action=listar'),          addTipo: 'colores',          selectId: 'accColor' },
             'pan_modelo':          { listUrl: apiUrl('catalogos?tipo=modelos&action=listar'),          addTipo: 'modelos',          selectId: 'panModelo' },
-            'pan_modelo_tecnico':  { listUrl: apiUrl('catalogos?tipo=modelos&action=listar'),          addTipo: 'modelos',          selectId: 'panModeloTecnico' },
+            'pan_modelo_tecnico':  { listUrl: apiUrl('catalogos?tipo=modelos_tecnicos&action=listar'), addTipo: 'modelos_tecnicos', selectId: 'panModeloTecnico' },
         };
 
         var catalogoActual = null;

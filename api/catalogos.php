@@ -12,11 +12,11 @@ require_once __DIR__ . '/../src/Shared/TenantContext.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $TIPOS_VALIDOS = [
-    'colores'       => ['table' => 'colores',       'label' => 'Color'],
-    'marcas'        => ['table' => 'marcas',         'label' => 'Marca'],
-    'subcategorias' => ['table' => 'subcategorias',  'label' => 'Subcategoría'],
-    'modelos'       => ['table' => 'modelos',         'label' => 'Modelo'],
-    'modelos_tecnicos' => ['table' => 'modelos',      'label' => 'Modelo técnico'],
+    'colores'          => ['table' => 'colores',       'label' => 'Color'],
+    'marcas'           => ['table' => 'marcas',        'label' => 'Marca'],
+    'subcategorias'    => ['table' => 'subcategorias', 'label' => 'Subcategoría'],
+    'modelos'          => ['table' => 'modelos',       'label' => 'Modelo',          'tipo' => 'modelo'],
+    'modelos_tecnicos' => ['table' => 'modelos',       'label' => 'Modelo técnico',  'tipo' => 'modelo_tecnico'],
 ];
 
 $tipo = trim($_GET['tipo'] ?? $_POST['tipo'] ?? '');
@@ -40,6 +40,9 @@ if ($action === 'listar' || $_SERVER['REQUEST_METHOD'] === 'GET') {
             'order' => 'nombre.asc',
         ];
         $query['activo'] = 'eq.true';
+        if (!empty($cfg['tipo'])) {
+            $query['tipo'] = 'eq.' . $cfg['tipo'];
+        }
         $result = $supabase->get($table, $query);
         $items = ($result['ok'] && !empty($result['data'])) ? $result['data'] : [];
         echo json_encode(['ok' => true, 'items' => $items]);
@@ -69,6 +72,9 @@ if ($action === 'agregar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $tenantId = TenantContext::requireTenant();
         $data = ['tenant_id' => $tenantId, 'nombre' => $nombre];
+        if (!empty($cfg['tipo'])) {
+            $data['tipo'] = $cfg['tipo'];
+        }
         $result = $supabase->post($table, $data);
         if ($result['ok'] && !empty($result['data'])) {
             $id = (int) $result['data'][0]['id'];

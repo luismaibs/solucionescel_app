@@ -40,16 +40,14 @@ try {
         throw new InvalidArgumentException('Tiempo de entrega no válido.');
     }
 
-    $calidadDb = normalizarCalidadPantallaParaDb($calidad);
-    $tiempoDb = normalizarTiempoPantallaParaDb($tiempo);
-
     $tenantId = TenantContext::requireTenant();
 
-    // Verificar FKs (ambos apuntan a la tabla compartida modelos)
+    // Verificar FKs filtrando por tipo para garantizar aislamiento
     $check = $supabase->get('modelos', [
         'select' => 'id',
         'tenant_id' => 'eq.' . $tenantId,
         'id' => 'eq.' . $modelo_id,
+        'tipo' => 'eq.modelo',
         'activo' => 'eq.true',
         'limit' => '1',
     ]);
@@ -59,6 +57,7 @@ try {
         'select' => 'id',
         'tenant_id' => 'eq.' . $tenantId,
         'id' => 'eq.' . $modelo_tecnico_id,
+        'tipo' => 'eq.modelo_tecnico',
         'activo' => 'eq.true',
         'limit' => '1',
     ]);
@@ -68,9 +67,9 @@ try {
         'tenant_id'         => $tenantId,
         'modelo_id'         => $modelo_id,
         'modelo_tecnico_id' => $modelo_tecnico_id,
-        'calidad'           => $calidadDb,
+        'calidad'           => $calidad,
         'precio'            => $precio,
-        'tiempo'            => $tiempoDb,
+        'tiempo'            => $tiempo,
         'nota'              => $nota,
     ]);
 
@@ -84,8 +83,8 @@ try {
     }
 
     indexarEmbeddingSiDisponible($tenantId, 'pantallas', $newId, [
-        'calidad' => $calidadDb,
-        'tiempo' => $tiempoDb,
+        'calidad' => $calidad,
+        'tiempo'  => $tiempo,
     ]);
 
     echo json_encode([
