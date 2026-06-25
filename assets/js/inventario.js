@@ -108,8 +108,8 @@
             return '--inv-subcat-hue:213;' +
                 '--inv-subcat-bg:rgba(96, 165, 250, 0.12);' +
                 '--inv-subcat-bg-strong:rgba(59, 130, 246, 0.2);' +
-                '--inv-subcat-solid:#17263d;' +
-                '--inv-subcat-solid-strong:#24446d;' +
+                '--inv-subcat-solid:#0f172a;' +
+                '--inv-subcat-solid-strong:#0f172a;' +
                 '--inv-subcat-solid-light:#eaf3ff;' +
                 '--inv-subcat-solid-light-strong:#cfe6ff;' +
                 '--inv-subcat-border:rgba(59, 130, 246, 0.36);' +
@@ -277,32 +277,76 @@
             purple:  { bg: 'bg-purple',  text: 'text-purple' },
         };
 
-        async function loadKpis(cat) {
+        function kpiNumFmt(n) {
+            return Math.round(n).toLocaleString('es-MX');
+        }
+
+        function renderKpisFromData(cat) {
             var container = document.getElementById('kpiCards');
-            container.style.opacity = '0.4';
-            container.style.transition = 'opacity 0.2s ease';
+            if (!container) return;
+            var items = invAllItems;
+            var kpis = [];
 
-            try {
-                var resp = await fetch(apiUrl('inventario/kpis?categoria=' + encodeURIComponent(cat)));
-                var data = await resp.json();
-
-                if (!data.ok || !data.kpis) throw new Error('KPI error');
-
-                var html = data.kpis.map(function (k) {
-                    var colors = kpiColorMap[k.color] || kpiColorMap.primary;
-                    return '<span class="module-kpi-chip">' +
-                        '<i class="bi ' + escapeHtml(k.icon) + ' kpi-icon ' + colors.text + '"></i>' +
-                        '<span class="kpi-value">' + escapeHtml(String(k.value)) + '</span>' +
-                        '<span class="kpi-label">' + escapeHtml(k.label).toUpperCase() + '</span>' +
-                        '</span>';
-                }).join('');
-
-                container.innerHTML = html;
-                setTimeout(function () { container.style.opacity = '1'; }, 50);
-            } catch (e) {
-                container.innerHTML = '<span class="module-kpi-chip"><i class="bi bi-exclamation-triangle kpi-icon text-danger"></i><span class="kpi-label">Error al cargar KPIs</span></span>';
-                container.style.opacity = '1';
+            if (cat === 'accesorios') {
+                var total = items.length;
+                var valorStock = items.reduce(function(s, p) {
+                    return s + parseFloat(p.precio || 0) * parseInt(p.stock || 0, 10);
+                }, 0);
+                var stockBajo = items.filter(function(p) { return parseInt(p.stock || 0, 10) < 3; }).length;
+                kpis = [
+                    { label: 'Total Productos', value: total, icon: 'bi-headphones', color: 'purple' },
+                    { label: 'Valor en Stock', value: '$' + kpiNumFmt(valorStock), icon: 'bi-currency-dollar', color: 'success' },
+                    { label: 'Stock Bajo', value: stockBajo, icon: 'bi-exclamation-triangle', color: 'warning' }
+                ];
+            } else if (cat === 'baterias') {
+                var total = items.length;
+                var unidades = items.reduce(function(s, p) { return s + parseInt(p.stock || 0, 10); }, 0);
+                var valorStock = items.reduce(function(s, p) {
+                    return s + parseFloat(p.precio || 0) * parseInt(p.stock || 0, 10);
+                }, 0);
+                kpis = [
+                    { label: 'Total Baterias', value: total, icon: 'bi-battery-charging', color: 'success' },
+                    { label: 'Unidades en stock', value: unidades, icon: 'bi-box-seam', color: 'info' },
+                    { label: 'Valor en stock', value: '$' + kpiNumFmt(valorStock), icon: 'bi-currency-dollar', color: 'warning' }
+                ];
+            } else if (cat === 'pantallas') {
+                var total = items.length;
+                var precios = items.map(function(p) { return parseFloat(p.precio || 0); }).filter(function(v) { return v > 0; });
+                var precioMin = precios.length ? Math.min.apply(null, precios) : 0;
+                var precioMax = precios.length ? Math.max.apply(null, precios) : 0;
+                var modelosUnicos = {};
+                items.forEach(function(p) { if (p.modelo_id) modelosUnicos[p.modelo_id] = true; });
+                kpis = [
+                    { label: 'Total Pantallas', value: total, icon: 'bi-phone', color: 'info' },
+                    { label: 'Rango Precios', value: '$' + kpiNumFmt(precioMin) + ' — $' + kpiNumFmt(precioMax), icon: 'bi-cash-stack', color: 'success' },
+                    { label: 'Modelos', value: Object.keys(modelosUnicos).length, icon: 'bi-collection', color: 'warning' }
+                ];
+            } else if (cat === 'servicios') {
+                var total = items.length;
+                var precios = items.map(function(p) { return parseFloat(p.precio || 0); }).filter(function(v) { return v > 0; });
+                var precioMin = precios.length ? Math.min.apply(null, precios) : 0;
+                var precioMax = precios.length ? Math.max.apply(null, precios) : 0;
+                var conGarantia = items.filter(function(p) { return p.garantia === 'SI'; }).length;
+                kpis = [
+                    { label: 'Total Servicios', value: total, icon: 'bi-gear-wide-connected', color: 'primary' },
+                    { label: 'Rango Precios', value: '$' + kpiNumFmt(precioMin) + ' — $' + kpiNumFmt(precioMax), icon: 'bi-cash-stack', color: 'success' },
+                    { label: 'Con Garantia', value: conGarantia, icon: 'bi-shield-check', color: 'info' }
+                ];
             }
+
+            if (!kpis.length) return;
+
+            var html = kpis.map(function(k) {
+                var colors = kpiColorMap[k.color] || kpiColorMap.primary;
+                return '<span class="module-kpi-chip">' +
+                    '<i class="bi ' + escapeHtml(k.icon) + ' kpi-icon ' + colors.text + '"></i>' +
+                    '<span class="kpi-value">' + escapeHtml(String(k.value)) + '</span>' +
+                    '<span class="kpi-label">' + escapeHtml(k.label).toUpperCase() + '</span>' +
+                    '</span>';
+            }).join('');
+
+            container.innerHTML = html;
+            container.style.opacity = '1';
         }
 
         // ================================================================
@@ -481,6 +525,7 @@
                 invAllItems = data.items || [];
                 var searchEl = document.getElementById('searchInput');
                 if (searchEl) searchEl.value = '';
+                renderKpisFromData(cat);
                 applyLocalFilter('');
             } catch (err) {
                 if (tbody && !isMobile) {
@@ -924,8 +969,6 @@
             document.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
             if (btn) btn.classList.add('active');
 
-            // Recargar KPIs y tabla en paralelo
-            loadKpis(cat);
             loadCategoria(cat);
         }
 
@@ -944,7 +987,6 @@
                     .then(function (data) {
                         if (data.ok) {
                             loadCategoria(categoriaActiva);
-                            loadKpis(categoriaActiva);
                             document.getElementById('toastMsg').innerText = data.message || 'Registro eliminado';
                             toastSuccess.show();
                         } else {
@@ -1166,7 +1208,7 @@
 
             submitFormAjax(fd, apiUrl('inventario/servicios_generales'), 'btnGuardarServicio', 'sgFeedback', 'Servicio creado correctamente.', function () {
                 offcanvasServicioGeneral.hide();
-            });
+            }, 'servicios');
         });
 
         // ================================================================
@@ -1185,7 +1227,20 @@
             el.textContent = '';
         }
 
-        function submitFormAjax(fd, url, btnId, feedbackId, successMsg, onSuccess) {
+        function refrescarCategoriaDespuesDeCrear(cat) {
+            var refreshCat = cat || categoriaActiva;
+            if (refreshCat !== categoriaActiva) {
+                categoriaActiva = refreshCat;
+                filtrosActivos = { marcas: [], subcategorias: [], colores: [], stock: 'todos', precioMin: '', precioMax: '' };
+                actualizarBadgeFiltros();
+                document.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
+                var chip = document.querySelector('.filter-chip[data-cat="' + refreshCat + '"]');
+                if (chip) chip.classList.add('active');
+            }
+            loadCategoria(refreshCat);
+        }
+
+        function submitFormAjax(fd, url, btnId, feedbackId, successMsg, onSuccess, categoriaRefresh) {
             hideFeedback(feedbackId);
             var btn = document.getElementById(btnId);
             var originalHTML = btn.innerHTML;
@@ -1203,8 +1258,7 @@
                             hideFeedback(feedbackId);
                             if (onSuccess) onSuccess();
                             // Recargar tabla y KPIs de la categoría activa
-                            loadCategoria(categoriaActiva);
-                            loadKpis(categoriaActiva);
+                            refrescarCategoriaDespuesDeCrear(categoriaRefresh);
                             document.getElementById('toastMsg').innerText = successMsg;
                             toastSuccess.show();
                         }, 800);
@@ -1264,7 +1318,7 @@
 
             submitFormAjax(fd, apiUrl('inventario/crear_bateria'), 'btnGuardarBateria', 'batFeedback', 'Batería creada correctamente.', function () {
                 offcanvasBateria.hide();
-            });
+            }, 'baterias');
         });
 
         // ================================================================
@@ -1360,7 +1414,7 @@
             } else {
                 submitFormAjax(fd, apiUrl('inventario/crear_accesorio'), 'btnGuardarAccesorio', 'accFeedback', 'Accesorio creado correctamente.', function () {
                     offcanvasAccesorio.hide();
-                });
+                }, 'accesorios');
             }
         });
 
@@ -1389,7 +1443,7 @@
 
         // Calidad — selección única
         document.querySelectorAll('.pan-calidad-opt').forEach(function (btn) {
-            btn.addEventListener('click', function () {
+            on(btn, 'click', function () {
                 document.querySelectorAll('.pan-calidad-opt').forEach(function (el) { el.classList.remove('active'); });
                 btn.classList.add('active');
                 document.getElementById('panCalidadHidden').value = btn.getAttribute('data-value');
@@ -1403,9 +1457,23 @@
             });
         }
 
+        function getPantallaPlataformaTiempoSeleccionada() {
+            var hidden = document.getElementById('panPlataformaTiempoHidden').value;
+            if (hidden) return hidden;
+            var btnActivo = document.querySelector('.pan-plataforma-opt.active');
+            return btnActivo ? btnActivo.getAttribute('data-prefix') : '';
+        }
+
+        function getPantallaTiempoSeleccionado() {
+            var prefix = getPantallaPlataformaTiempoSeleccionada();
+            var btnActivo = document.querySelector('.pan-tiempo-opt.active');
+            var idx = btnActivo ? btnActivo.getAttribute('data-time-index') : '';
+            return prefix && idx ? prefix + ' ' + idx : '';
+        }
+
         // Plataforma — muestra tiempos y etiqueta los códigos
         document.querySelectorAll('.pan-plataforma-opt').forEach(function (btn) {
-            btn.addEventListener('click', function () {
+            on(btn, 'click', function () {
                 document.querySelectorAll('.pan-plataforma-opt').forEach(function (el) { el.classList.remove('active'); });
                 btn.classList.add('active');
                 document.getElementById('panPlataformaTiempoHidden').value = btn.getAttribute('data-prefix');
@@ -1418,16 +1486,14 @@
 
         // Tiempo — selección única
         document.querySelectorAll('.pan-tiempo-opt').forEach(function (btn) {
-            btn.addEventListener('click', function () {
+            on(btn, 'click', function () {
                 document.querySelectorAll('.pan-tiempo-opt').forEach(function (el) { el.classList.remove('active'); });
                 btn.classList.add('active');
-                var prefix = document.getElementById('panPlataformaTiempoHidden').value;
-                var idx = btn.getAttribute('data-time-index');
-                document.getElementById('panTiempoHidden').value = prefix && idx ? prefix + ' ' + idx : '';
+                document.getElementById('panTiempoHidden').value = getPantallaTiempoSeleccionado();
             });
         });
 
-        document.getElementById('formPantalla').addEventListener('submit', function (e) {
+        on(document.getElementById('formPantalla'), 'submit', function (e) {
             e.preventDefault();
             hideFeedback('panFeedback');
 
@@ -1436,7 +1502,15 @@
             var calidad = document.getElementById('panCalidadHidden').value;
             var precio = document.getElementById('panPrecio').value;
             var plataformaTiempo = document.getElementById('panPlataformaTiempoHidden').value;
+            if (!plataformaTiempo) {
+                plataformaTiempo = getPantallaPlataformaTiempoSeleccionada();
+                document.getElementById('panPlataformaTiempoHidden').value = plataformaTiempo;
+            }
             var tiempo = document.getElementById('panTiempoHidden').value;
+            if (!tiempo) {
+                tiempo = getPantallaTiempoSeleccionado();
+                document.getElementById('panTiempoHidden').value = tiempo;
+            }
 
             if (!modeloId) { showFeedback('panFeedback', 'error', 'Selecciona un modelo.'); return; }
             if (!mtecnicoId) { showFeedback('panFeedback', 'error', 'Selecciona un modelo técnico.'); return; }
@@ -1455,7 +1529,7 @@
 
             submitFormAjax(fd, apiUrl('inventario/crear_pantalla'), 'btnGuardarPantalla', 'panFeedback', 'Pantalla creada correctamente.', function () {
                 offcanvasPantalla.hide();
-            });
+            }, 'pantallas');
         });
 
         // ================================================================
@@ -1953,7 +2027,6 @@
                         resultadoEl.innerHTML += '<ul class="mb-0 mt-2 small">' + allErrors.map(function (e) { return '<li>' + escapeHtml(e); }).join('') + '</ul>';
                     }
                     loadCategoria(categoriaActiva);
-                    loadKpis(categoriaActiva);
                     if (document.getElementById('toastMsg')) {
                         document.getElementById('toastMsg').innerText = 'Importacion completada: ' + totalImported + '/' + total + ' registros.';
                         toastSuccess.show();
@@ -2024,7 +2097,6 @@
             rtRefreshTimer = setTimeout(function () {
                 rtRefreshTimer = null;
                 loadCategoria(categoriaActiva);
-                loadKpis(categoriaActiva);
             }, 500);
         });
 
