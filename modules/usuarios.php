@@ -734,6 +734,7 @@ include_once '../includes/fragment_helper.php';
         function renderUsers(users) {
             const isMobile = window.innerWidth < 992;
             const tbody = document.getElementById('tableUsersBody');
+            if (!tbody) return;
             const cardsContainer = document.getElementById('usersCardsContainer');
             tbody.innerHTML = '';
             if (cardsContainer) cardsContainer.innerHTML = '';

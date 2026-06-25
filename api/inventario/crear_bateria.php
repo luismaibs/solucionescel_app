@@ -18,11 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // Validaciones
-    $marca_id  = (int) ($_POST['marca_id'] ?? 0);
-    $modelo_id = (int) ($_POST['modelo_id'] ?? 0);
-    if ($marca_id <= 0)  throw new InvalidArgumentException('Selecciona una marca.');
-    if ($modelo_id <= 0) throw new InvalidArgumentException('Selecciona un modelo.');
+    $marca         = trim($_POST['marca'] ?? '');
+    $modeloBateria = trim($_POST['modelo_bateria'] ?? '');
+    if ($marca === '')         throw new InvalidArgumentException('La marca es requerida.');
+    if ($modeloBateria === '') throw new InvalidArgumentException('El modelo de batería es requerido.');
 
     // Campos multi-valor (CSV)
     $calidadValidos = InventarioConstantes::CALIDADES_BATERIA;
@@ -52,42 +51,24 @@ try {
         throw new InvalidArgumentException('Selecciona al menos un tiempo de entrega.');
     }
 
-    $notas = trim($_POST['notas'] ?? '') ?: null;
+    $notas  = trim($_POST['notas'] ?? '') ?: null;
     $precio = isset($_POST['precio']) ? (float) $_POST['precio'] : 0.0;
-    $stock = isset($_POST['stock']) ? (int) $_POST['stock'] : 0;
+    $stock  = isset($_POST['stock'])  ? (int)   $_POST['stock']  : 0;
     $codigo = trim($_POST['codigo'] ?? '') ?: null;
 
     $tenantId = TenantContext::requireTenant();
 
-    $checkMarca = $supabase->get('marcas', [
-        'select' => 'id',
-        'tenant_id' => 'eq.' . $tenantId,
-        'id' => 'eq.' . $marca_id,
-        'activo' => 'eq.true',
-        'limit' => '1',
-    ]);
-    if (empty($checkMarca['data'])) throw new InvalidArgumentException('Marca no válida.');
-
-    $checkModelo = $supabase->get('modelos', [
-        'select' => 'id',
-        'tenant_id' => 'eq.' . $tenantId,
-        'id' => 'eq.' . $modelo_id,
-        'activo' => 'eq.true',
-        'limit' => '1',
-    ]);
-    if (empty($checkModelo['data'])) throw new InvalidArgumentException('Modelo no válido.');
-
     $result = $supabase->post('inv_baterias', [
-        'tenant_id' => $tenantId,
-        'marca_id'  => $marca_id,
-        'modelo_id' => $modelo_id,
-        'calidad'   => implode(',', $calidad),
-        'tipo'      => implode(',', $tipo),
-        'tiempo'    => implode(',', $tiempo),
-        'notas'     => $notas,
-        'precio'    => $precio,
-        'stock'     => $stock,
-        'codigo'    => $codigo,
+        'tenant_id'      => $tenantId,
+        'marca'          => $marca,
+        'modelo_bateria' => $modeloBateria,
+        'calidad'        => implode(',', $calidad),
+        'tipo'           => implode(',', $tipo),
+        'tiempo'         => implode(',', $tiempo),
+        'notas'          => $notas,
+        'precio'         => $precio,
+        'stock'          => $stock,
+        'codigo'         => $codigo,
     ]);
 
     $newId = (int) ($result['data'][0]['id'] ?? 0);

@@ -156,11 +156,11 @@
 
         #invTable .inv-subcat-group td {
             position: sticky;
-            top: var(--inv-table-head-height);
+            top: calc(var(--inv-table-head-height) - 1px);
             z-index: 7;
             padding: 0.55rem 1.25rem !important;
-            background: var(--inv-subcat-solid-strong) !important;
-            border-top: 1px solid var(--inv-subcat-border);
+            background: var(--inv-subcat-header-solid, var(--inv-subcat-solid-strong)) !important;
+            border-top: 1px solid var(--inv-subcat-header-solid, var(--inv-subcat-border));
             border-bottom: 1px solid var(--inv-subcat-border);
             box-shadow: 0 8px 22px rgba(2, 6, 23, 0.22);
         }
@@ -218,7 +218,7 @@
             padding: 0.65rem 0.9rem;
             border: 1px solid var(--inv-subcat-border);
             border-radius: 10px;
-            background: var(--inv-subcat-solid-strong);
+            background: var(--inv-subcat-header-solid, var(--inv-subcat-solid-strong));
             box-shadow: 0 8px 22px rgba(2, 6, 23, 0.2);
         }
 

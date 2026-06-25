@@ -33,6 +33,30 @@ $rows = $input['rows'];
 $imported = 0;
 $columnErrors = [];
 
+function normalizarCalidadPantallaImportParaDb(string $calidad): string
+{
+    $map = [
+        'C1' => 'Generico',
+        'C2' => 'Intermedio',
+        'C3' => 'Original',
+    ];
+    return $map[$calidad] ?? $calidad;
+}
+
+function normalizarTiempoPantallaImportParaDb(string $tiempo): string
+{
+    $map = [
+        '1' => 'Instalacion inmediata 4hrs',
+        '2' => '2-3 dias full',
+        '3' => '3-5 dias estandar',
+        '4' => 'Envio internacional 20-30 dias',
+    ];
+    if (preg_match('/^(TAD|TAP|OTR)\s*([1-4])$/i', $tiempo, $match)) {
+        return $map[$match[2]] ?? $tiempo;
+    }
+    return $tiempo;
+}
+
 switch ($categoria) {
     case 'servicios':
         $repo = new ServiciosGeneralesRepository($supabase);
@@ -87,15 +111,15 @@ switch ($categoria) {
         break;
 
     case 'baterias':
-        $validCalidades = ['Original', 'Generico'];
+        $validCalidades = InventarioConstantes::CALIDADES_BATERIA;
         foreach ($rows as $idx => $row) {
             $rowNum = $idx + 2;
-            $marca = trim($row['marca'] ?? '');
-            $modelo = trim($row['modelo_bateria'] ?? '');
+            $marca   = trim($row['marca'] ?? '');
+            $modelo  = trim($row['modelo_bateria'] ?? '');
             $calidad = trim($row['calidad'] ?? '');
-            $tipo = trim($row['tipo'] ?? '');
-            $tiempo = trim($row['tiempo'] ?? '');
-            $precio = $row['precio'] ?? '';
+            $tipo    = trim($row['tipo'] ?? '');
+            $tiempo  = trim($row['tiempo'] ?? '');
+            $precio  = $row['precio'] ?? '';
 
             if ($marca === '') {
                 $columnErrors[] = "Fila {$rowNum} — Marca vacia (campo obligatorio)";
@@ -105,9 +129,14 @@ switch ($categoria) {
                 $columnErrors[] = "Fila {$rowNum} — Modelo bateria vacio (campo obligatorio)";
                 continue;
             }
-            if ($calidad !== '' && !in_array($calidad, $validCalidades, true)) {
-                $columnErrors[] = "Fila {$rowNum} — Calidad '{$calidad}' no valida. Opciones: " . implode(', ', $validCalidades);
-                continue;
+            // Validar cada valor CSV del campo calidad
+            if ($calidad !== '') {
+                $calidadItems = array_map('trim', explode(',', $calidad));
+                $invalidos = array_filter($calidadItems, fn($v) => $v !== '' && !in_array($v, $validCalidades, true));
+                if (!empty($invalidos)) {
+                    $columnErrors[] = "Fila {$rowNum} — Calidad(es) no valida(s): '" . implode("', '", $invalidos) . "'. Opciones: " . implode(', ', $validCalidades);
+                    continue;
+                }
             }
             if ($tipo === '') {
                 $columnErrors[] = "Fila {$rowNum} — Tipo vacio (campo obligatorio)";
@@ -122,25 +151,17 @@ switch ($categoria) {
                 continue;
             }
             try {
-                // findOrCreate marca
-                $mRes = $supabase->get('marcas', ['select' => 'id', 'tenant_id' => 'eq.' . $tenantId, 'nombre' => 'ilike.' . $marca, 'activo' => 'is.true', 'limit' => '1']);
-                $marcaId = !empty($mRes['data']) ? (int) $mRes['data'][0]['id'] : (int) ($supabase->post('marcas', ['tenant_id' => $tenantId, 'nombre' => $marca])['data'][0]['id'] ?? 0);
-
-                // findOrCreate modelo
-                $mdRes = $supabase->get('modelos', ['select' => 'id', 'tenant_id' => 'eq.' . $tenantId, 'nombre' => 'ilike.' . $modelo, 'activo' => 'is.true', 'limit' => '1']);
-                $modeloId = !empty($mdRes['data']) ? (int) $mdRes['data'][0]['id'] : (int) ($supabase->post('modelos', ['tenant_id' => $tenantId, 'nombre' => $modelo])['data'][0]['id'] ?? 0);
-
                 $supabase->post('inv_baterias', [
-                    'tenant_id' => $tenantId,
-                    'marca_id'  => $marcaId,
-                    'modelo_id' => $modeloId,
-                    'calidad'   => $calidad ?: 'Generico',
-                    'tipo'      => $tipo,
-                    'tiempo'    => $tiempo,
-                    'notas'     => trim($row['notas'] ?? '') ?: null,
-                    'precio'    => (float) $precio,
-                    'stock'     => (int) ($row['stock'] ?? 0),
-                    'codigo'    => trim($row['codigo'] ?? '') ?: null,
+                    'tenant_id'      => $tenantId,
+                    'marca'          => $marca,
+                    'modelo_bateria' => $modelo,
+                    'calidad'        => $calidad ?: $validCalidades[0],
+                    'tipo'           => $tipo,
+                    'tiempo'         => $tiempo,
+                    'notas'          => trim($row['notas'] ?? '') ?: null,
+                    'precio'         => (float) $precio,
+                    'stock'          => (int) ($row['stock'] ?? 0),
+                    'codigo'         => trim($row['codigo'] ?? '') ?: null,
                 ]);
                 $imported++;
             } catch (\Throwable $e) {
@@ -213,15 +234,18 @@ switch ($categoria) {
                     $modeloTecId = (int) ($create['data'][0]['id'] ?? 0);
                 }
 
-                $supabase->post('inv_pantallas', [
+                $createPantalla = $supabase->post('inv_pantallas', [
                     'tenant_id' => $tenantId,
                     'modelo_id' => $modeloId,
                     'modelo_tecnico_id' => $modeloTecId,
-                    'calidad' => $calidad,
+                    'calidad' => normalizarCalidadPantallaImportParaDb($calidad),
                     'precio' => (float) $precio,
-                    'tiempo' => $tiempo,
+                    'tiempo' => normalizarTiempoPantallaImportParaDb($tiempo),
                     'nota' => trim($row['nota'] ?? '') ?: null,
                 ]);
+                if (!$createPantalla['ok']) {
+                    throw new RuntimeException($createPantalla['error'] ?? 'Error de base de datos.');
+                }
                 $imported++;
             } catch (\Throwable $e) {
                 $columnErrors[] = "Fila {$rowNum} — Error al insertar: " . $e->getMessage();

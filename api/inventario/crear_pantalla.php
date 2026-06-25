@@ -40,6 +40,9 @@ try {
         throw new InvalidArgumentException('Tiempo de entrega no válido.');
     }
 
+    $calidadDb = normalizarCalidadPantallaParaDb($calidad);
+    $tiempoDb = normalizarTiempoPantallaParaDb($tiempo);
+
     $tenantId = TenantContext::requireTenant();
 
     // Verificar FKs (ambos apuntan a la tabla compartida modelos)
@@ -65,9 +68,9 @@ try {
         'tenant_id'         => $tenantId,
         'modelo_id'         => $modelo_id,
         'modelo_tecnico_id' => $modelo_tecnico_id,
-        'calidad'           => $calidad,
+        'calidad'           => $calidadDb,
         'precio'            => $precio,
-        'tiempo'            => $tiempo,
+        'tiempo'            => $tiempoDb,
         'nota'              => $nota,
     ]);
 
@@ -81,8 +84,8 @@ try {
     }
 
     indexarEmbeddingSiDisponible($tenantId, 'pantallas', $newId, [
-        'calidad' => $calidad,
-        'tiempo' => $tiempo,
+        'calidad' => $calidadDb,
+        'tiempo' => $tiempoDb,
     ]);
 
     echo json_encode([

@@ -48,6 +48,7 @@
             C1: 'Genérico',
             C2: 'Intermedio',
             C3: 'Original',
+            Generico: 'Genérico',
             'Genérico': 'Genérico',
             Intermedio: 'Intermedio',
             Original: 'Original'
@@ -66,6 +67,7 @@
 
         function getPantallaCalidadCode(valor) {
             var raw = String(valor || '').trim();
+            if (raw === 'Generico') return 'C1';
             if (raw === 'Genérico') return 'C1';
             if (raw === 'Intermedio') return 'C2';
             if (raw === 'Original') return 'C3';
@@ -80,6 +82,10 @@
             if (raw === '2-3 días full') return pantallaTiempoLabels['2'];
             if (raw === '3-5 días estándar') return pantallaTiempoLabels['3'];
             if (raw === 'Envío internacional 20-30 días') return pantallaTiempoLabels['4'];
+            if (raw === 'Instalacion inmediata 4hrs') return pantallaTiempoLabels['1'];
+            if (raw === '2-3 dias full') return pantallaTiempoLabels['2'];
+            if (raw === '3-5 dias estandar') return pantallaTiempoLabels['3'];
+            if (raw === 'Envio internacional 20-30 dias') return pantallaTiempoLabels['4'];
             return raw;
         }
 
@@ -110,6 +116,7 @@
                 '--inv-subcat-bg-strong:rgba(59, 130, 246, 0.2);' +
                 '--inv-subcat-solid:#0f172a;' +
                 '--inv-subcat-solid-strong:#0f172a;' +
+                '--inv-subcat-header-solid:#1d4ed8;' +
                 '--inv-subcat-solid-light:#eaf3ff;' +
                 '--inv-subcat-solid-light-strong:#cfe6ff;' +
                 '--inv-subcat-border:rgba(59, 130, 246, 0.36);' +

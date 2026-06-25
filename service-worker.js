@@ -1,4 +1,4 @@
-const CACHE_NAME = 'solucionescel-v10';
+const CACHE_NAME = 'solucionescel-v11';
 const urlsToCache = [
   '/offline.html',
   '/assets/logo.svg',
