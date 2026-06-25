@@ -71,7 +71,14 @@ try {
         'nota'              => $nota,
     ]);
 
+    if (!$result['ok']) {
+        throw new RuntimeException('No se pudo guardar la pantalla: ' . ($result['error'] ?? 'Error de base de datos.'));
+    }
+
     $newId = (int) ($result['data'][0]['id'] ?? 0);
+    if ($newId <= 0) {
+        throw new RuntimeException('No se pudo confirmar el registro creado.');
+    }
 
     indexarEmbeddingSiDisponible($tenantId, 'pantallas', $newId, [
         'calidad' => $calidad,
@@ -86,6 +93,9 @@ try {
 
 } catch (InvalidArgumentException $e) {
     http_response_code(422);
+    echo json_encode(['ok' => false, 'message' => $e->getMessage()]);
+} catch (RuntimeException $e) {
+    http_response_code(500);
     echo json_encode(['ok' => false, 'message' => $e->getMessage()]);
 } catch (Exception $e) {
     http_response_code(500);

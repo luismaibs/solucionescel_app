@@ -134,6 +134,12 @@ if ($displayName !== '') {
             <i class="bi bi-people-fill"></i>
             <span class="app-sidebar-link-label">Usuarios</span>
         </a>
+        <a href="<?= $base_path ?>modules/chatbot"
+            class="app-sidebar-link <?= activeClass('chatbot', $current_script) ?>"
+            title="Chat">
+            <i class="bi bi-robot"></i>
+            <span class="app-sidebar-link-label">Chat</span>
+        </a>
         <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
         <a href="<?= $base_path ?>modules/cloud"
@@ -336,6 +342,10 @@ if ($displayName !== '') {
         <a href="<?= $base_path ?>modules/usuarios" class="app-mobile-nav-link <?= activeClass('usuarios', $current_script) ?>">
             <i class="bi bi-people-fill"></i>
             <span>Usuarios</span>
+        </a>
+        <a href="<?= $base_path ?>modules/chatbot" class="app-mobile-nav-link <?= activeClass('chatbot', $current_script) ?>">
+            <i class="bi bi-robot"></i>
+            <span>Chat</span>
         </a>
         <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>

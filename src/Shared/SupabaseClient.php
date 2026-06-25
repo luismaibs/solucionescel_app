@@ -537,7 +537,9 @@ class SupabaseClient
     private function parseApiResponse(array $result): array
     {
         if (!$result['ok']) {
-            return ['ok' => false, 'data' => [], 'error' => $result['message'] ?? 'Error de API', 'status_code' => $result['status_code']];
+            $data = is_array($result['data'] ?? null) ? $result['data'] : [];
+            $error = $data['message'] ?? $data['msg'] ?? $data['hint'] ?? $data['details'] ?? ($result['message'] ?? 'Error de API');
+            return ['ok' => false, 'data' => [], 'error' => (string) $error, 'status_code' => $result['status_code']];
         }
         return ['ok' => true, 'data' => $result['data'] ?? [], 'error' => null, 'status_code' => $result['status_code']];
     }
