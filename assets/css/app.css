@@ -150,12 +150,31 @@ body.sidebar-pinned-collapsed .app-sidebar:hover {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    margin-top: auto;
+    margin-top: 0.25rem;
     margin-bottom: 0;
     width: 100%;
     padding: 0 0.35rem;
     flex: 1;
-    justify-content: center;
+    min-height: 0;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+.app-sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.app-sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.app-sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 999px;
 }
 
 .app-sidebar-link {
@@ -312,6 +331,52 @@ body.sidebar-pinned-collapsed .app-sidebar:hover .app-sidebar-footer {
     min-width: 34px;
     min-height: 34px;
     pointer-events: auto;
+}
+
+@media (max-height: 700px) and (min-width: 992px) {
+    .app-sidebar {
+        padding-top: 0.5rem;
+        padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .app-sidebar-header {
+        min-height: 42px;
+        margin-bottom: 0.15rem;
+    }
+
+    .app-sidebar-logo {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        font-size: 1.2rem;
+    }
+
+    .app-sidebar-nav {
+        gap: 0.35rem;
+    }
+
+    .app-sidebar-link {
+        min-height: 40px;
+        font-size: 1.15rem;
+    }
+
+    .app-sidebar-link i {
+        min-width: 40px;
+        line-height: 40px;
+    }
+
+    .app-sidebar-footer {
+        padding-top: 0.35rem;
+        gap: 0.25rem;
+    }
+
+    .app-sidebar-foot-btn,
+    .app-sidebar-arrow-btn.is-visible {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        min-height: 30px;
+    }
 }
 
 /* ===== TOPBAR ===== */
@@ -2521,4 +2586,3 @@ body.with-sidebar .main-content-push.with-subfooter {
 [hidden] * {
     animation-play-state: paused !important;
 }
-

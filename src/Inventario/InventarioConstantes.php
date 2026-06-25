@@ -33,7 +33,7 @@ class InventarioConstantes
 
     // Pantallas
     public const CALIDADES_PANTALLA = [
-        'Original', 'Intermedio', 'Genérico',
+        'Genérico', 'Intermedio', 'Original',
     ];
 
     // Compartido: tiempos de entrega

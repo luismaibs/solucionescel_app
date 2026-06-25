@@ -727,7 +727,7 @@
             pantallas: [
                 { title: 'Modelo', field: 'modelo_nombre', width: 150, headerFilter: 'input' },
                 { title: 'Modelo Técnico', field: 'modelo_tecnico_nombre', width: 150, headerFilter: 'input' },
-                { title: 'Calidad', field: 'calidad', width: 130, editor: 'list', editorParams: { values: ['Original', 'Intermedio', 'Genérico'] }, cssClass: 'excel-editable' },
+                { title: 'Calidad', field: 'calidad', width: 130, editor: 'list', editorParams: { values: ['Genérico', 'Intermedio', 'Original'] }, cssClass: 'excel-editable' },
                 { title: 'Precio', field: 'precio', width: 120, hozAlign: 'right', editor: 'number', editorParams: { min: 0, step: 0.01 }, formatter: 'money', formatterParams: moneyFmt, cssClass: 'excel-editable' },
                 { title: 'Tiempo', field: 'tiempo', width: 170, editor: 'input', cssClass: 'excel-editable' },
                 { title: 'Nota', field: 'nota', minWidth: 180, editor: 'textarea', cssClass: 'excel-editable' }
@@ -1047,9 +1047,9 @@
         });
 
         // --- Selector de Gama ---
-        document.querySelectorAll('.gama-option').forEach(function (btn) {
+        document.querySelectorAll('#offcanvasServicioGeneral .gama-option').forEach(function (btn) {
             btn.addEventListener('click', function () {
-                document.querySelectorAll('.gama-option').forEach(function (el) { el.classList.remove('active'); });
+                document.querySelectorAll('#offcanvasServicioGeneral .gama-option').forEach(function (el) { el.classList.remove('active'); });
                 btn.classList.add('active');
                 document.getElementById('gamaHidden').value = btn.getAttribute('data-value');
             });
@@ -1322,11 +1322,15 @@
             document.getElementById('formPantalla').reset();
             document.getElementById('panCalidadHidden').value = '';
             document.getElementById('panTiempoHidden').value = '';
+            document.getElementById('panPlataformaTiempoHidden').value = '';
             document.querySelectorAll('.pan-calidad-opt').forEach(function (el) { el.classList.remove('active'); });
+            document.querySelectorAll('.pan-plataforma-opt').forEach(function (el) { el.classList.remove('active'); });
             document.querySelectorAll('.pan-tiempo-opt').forEach(function (el) { el.classList.remove('active'); });
+            document.getElementById('panTiempoSection').classList.add('d-none');
+            actualizarEtiquetasTiempo('');
             hideFeedback('panFeedback');
             cargarCatalogo(apiUrl('catalogos?tipo=modelos&action=listar'), 'panModelo');
-            cargarCatalogo(apiUrl('catalogos?tipo=modelos_tecnicos&action=listar'), 'panModeloTecnico');
+            cargarCatalogo(apiUrl('catalogos?tipo=modelos&action=listar'), 'panModeloTecnico');
             offcanvasPantalla.show();
         }
 
@@ -1336,6 +1340,26 @@
                 document.querySelectorAll('.pan-calidad-opt').forEach(function (el) { el.classList.remove('active'); });
                 btn.classList.add('active');
                 document.getElementById('panCalidadHidden').value = btn.getAttribute('data-value');
+            });
+        });
+
+        function actualizarEtiquetasTiempo(prefix) {
+            document.querySelectorAll('.tiempo-code').forEach(function (el) {
+                var idx = el.getAttribute('data-code-index');
+                el.textContent = prefix ? prefix + ' ' + idx : '';
+            });
+        }
+
+        // Plataforma — muestra tiempos y etiqueta los códigos
+        document.querySelectorAll('.pan-plataforma-opt').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.pan-plataforma-opt').forEach(function (el) { el.classList.remove('active'); });
+                btn.classList.add('active');
+                document.getElementById('panPlataformaTiempoHidden').value = btn.getAttribute('data-value');
+                document.getElementById('panTiempoHidden').value = '';
+                document.querySelectorAll('.pan-tiempo-opt').forEach(function (el) { el.classList.remove('active'); });
+                actualizarEtiquetasTiempo(btn.getAttribute('data-prefix'));
+                document.getElementById('panTiempoSection').classList.remove('d-none');
             });
         });
 
@@ -1356,12 +1380,14 @@
             var mtecnicoId = document.getElementById('panModeloTecnico').value;
             var calidad = document.getElementById('panCalidadHidden').value;
             var precio = document.getElementById('panPrecio').value;
+            var plataformaTiempo = document.getElementById('panPlataformaTiempoHidden').value;
             var tiempo = document.getElementById('panTiempoHidden').value;
 
             if (!modeloId) { showFeedback('panFeedback', 'error', 'Selecciona un modelo.'); return; }
             if (!mtecnicoId) { showFeedback('panFeedback', 'error', 'Selecciona un modelo técnico.'); return; }
             if (!calidad) { showFeedback('panFeedback', 'error', 'Selecciona una calidad.'); return; }
             if (!precio || parseFloat(precio) <= 0) { showFeedback('panFeedback', 'error', 'El precio debe ser mayor a 0.'); return; }
+            if (!plataformaTiempo) { showFeedback('panFeedback', 'error', 'Selecciona Android, Apple u Otro.'); return; }
             if (!tiempo) { showFeedback('panFeedback', 'error', 'Selecciona un tiempo de entrega.'); return; }
 
             var fd = new FormData();
@@ -1387,7 +1413,7 @@
             'acc_marca':           { listUrl: apiUrl('catalogos?tipo=marcas&action=listar'),           addTipo: 'marcas',           selectId: 'accMarca' },
             'acc_color':           { listUrl: apiUrl('catalogos?tipo=colores&action=listar'),          addTipo: 'colores',          selectId: 'accColor' },
             'pan_modelo':          { listUrl: apiUrl('catalogos?tipo=modelos&action=listar'),          addTipo: 'modelos',          selectId: 'panModelo' },
-            'pan_modelo_tecnico':  { listUrl: apiUrl('catalogos?tipo=modelos_tecnicos&action=listar'), addTipo: 'modelos_tecnicos', selectId: 'panModeloTecnico' },
+            'pan_modelo_tecnico':  { listUrl: apiUrl('catalogos?tipo=modelos&action=listar'),          addTipo: 'modelos',          selectId: 'panModeloTecnico' },
         };
 
         var catalogoActual = null;

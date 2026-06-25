@@ -16,6 +16,7 @@ $TIPOS_VALIDOS = [
     'marcas'        => ['table' => 'marcas',         'label' => 'Marca'],
     'subcategorias' => ['table' => 'subcategorias',  'label' => 'Subcategoría'],
     'modelos'       => ['table' => 'modelos',         'label' => 'Modelo'],
+    'modelos_tecnicos' => ['table' => 'modelos',      'label' => 'Modelo técnico'],
 ];
 
 $tipo = trim($_GET['tipo'] ?? $_POST['tipo'] ?? '');
