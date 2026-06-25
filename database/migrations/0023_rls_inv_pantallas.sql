@@ -9,12 +9,14 @@ begin;
 alter table public.inv_pantallas enable row level security;
 
 -- Usuarios autenticados solo acceden a su propio tenant
+-- tenant_id vive en app_metadata del JWT, no en la raiz
 drop policy if exists inv_pantallas_tenant on public.inv_pantallas;
+drop policy if exists p_inv_pantallas_tenant on public.inv_pantallas;
 create policy inv_pantallas_tenant on public.inv_pantallas
 for all
 to authenticated
-using  (tenant_id::text = coalesce(auth.jwt() ->> 'tenant_id', ''))
-with check (tenant_id::text = coalesce(auth.jwt() ->> 'tenant_id', ''));
+using  (tenant_id::text = coalesce(auth.jwt() -> 'app_metadata' ->> 'tenant_id', ''))
+with check (tenant_id::text = coalesce(auth.jwt() -> 'app_metadata' ->> 'tenant_id', ''));
 
 -- Service role bypasa RLS (usado por cron/webhooks/PHP sin JWT)
 drop policy if exists inv_pantallas_service on public.inv_pantallas;
