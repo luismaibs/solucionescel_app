@@ -97,14 +97,6 @@ if ($displayName !== '') {
             <span class="app-sidebar-link-label">Inventario</span>
         </a>
         <?php endif; ?>
-        <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
-        <a href="<?= $base_path ?>modules/cloud"
-            class="app-sidebar-link <?= activeClass('cloud', $current_script) ?>"
-            title="Cloud">
-            <i class="bi bi-cloud-arrow-up-fill"></i>
-            <span class="app-sidebar-link-label">Cloud</span>
-        </a>
-        <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('soporte')): ?>
         <a href="<?= $base_path ?>modules/soporte"
             class="app-sidebar-link <?= activeClass('soporte', $current_script) ?>"
@@ -141,6 +133,14 @@ if ($displayName !== '') {
             title="Usuarios">
             <i class="bi bi-people-fill"></i>
             <span class="app-sidebar-link-label">Usuarios</span>
+        </a>
+        <?php endif; ?>
+        <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
+        <a href="<?= $base_path ?>modules/cloud"
+            class="app-sidebar-link <?= activeClass('cloud', $current_script) ?>"
+            title="Cloud">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span class="app-sidebar-link-label">Cloud</span>
         </a>
         <?php endif; ?>
     </nav>
@@ -310,12 +310,6 @@ if ($displayName !== '') {
             <span>Inventario</span>
         </a>
         <?php endif; ?>
-        <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
-        <a href="<?= $base_path ?>modules/cloud" class="app-mobile-nav-link <?= activeClass('cloud', $current_script) ?>">
-            <i class="bi bi-cloud-arrow-up-fill"></i>
-            <span>Cloud</span>
-        </a>
-        <?php endif; ?>
         <?php if (function_exists('puedeVerModulo') && puedeVerModulo('soporte')): ?>
         <a href="<?= $base_path ?>modules/soporte" class="app-mobile-nav-link <?= activeClass('soporte', $current_script) ?>">
             <i class="bi bi-headset"></i>
@@ -342,6 +336,12 @@ if ($displayName !== '') {
         <a href="<?= $base_path ?>modules/usuarios" class="app-mobile-nav-link <?= activeClass('usuarios', $current_script) ?>">
             <i class="bi bi-people-fill"></i>
             <span>Usuarios</span>
+        </a>
+        <?php endif; ?>
+        <?php if (function_exists('puedeVerModulo') && puedeVerModulo('opencloud')): ?>
+        <a href="<?= $base_path ?>modules/cloud" class="app-mobile-nav-link <?= activeClass('cloud', $current_script) ?>">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span>Cloud</span>
         </a>
         <?php endif; ?>
     </div>

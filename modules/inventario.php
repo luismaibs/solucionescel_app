@@ -748,13 +748,13 @@ include_once '../includes/fragment_helper.php';
                 <div class="form-section">
                     <label class="form-label">Calidad</label>
                     <div class="gama-grid" style="grid-template-columns: repeat(3, 1fr);">
-                        <button type="button" class="gama-option pan-calidad-opt" data-value="Genérico">
+                        <button type="button" class="gama-option pan-calidad-opt" data-value="C1">
                             <span>Genérico</span><span class="calidad-code">C1</span>
                         </button>
-                        <button type="button" class="gama-option pan-calidad-opt" data-value="Intermedio">
+                        <button type="button" class="gama-option pan-calidad-opt" data-value="C2">
                             <span>Intermedio</span><span class="calidad-code">C2</span>
                         </button>
-                        <button type="button" class="gama-option pan-calidad-opt" data-value="Original">
+                        <button type="button" class="gama-option pan-calidad-opt" data-value="C3">
                             <span>Original</span><span class="calidad-code">C3</span>
                         </button>
                     </div>
@@ -782,16 +782,16 @@ include_once '../includes/fragment_helper.php';
                 <div class="form-section d-none" id="panTiempoSection">
                     <label class="form-label">Tiempo de Entrega</label>
                     <div class="gama-grid" style="grid-template-columns: 1fr;">
-                        <button type="button" class="gama-option pan-tiempo-opt" data-value="Instalación inmediata 4hrs">
+                        <button type="button" class="gama-option pan-tiempo-opt" data-time-index="1">
                             <span><i class="bi bi-lightning-charge me-1"></i>Instalación inmediata (4 horas)</span><span class="tiempo-code" data-code-index="1"></span>
                         </button>
-                        <button type="button" class="gama-option pan-tiempo-opt" data-value="2-3 días full">
+                        <button type="button" class="gama-option pan-tiempo-opt" data-time-index="2">
                             <span><i class="bi bi-clock me-1"></i>2-3 días (Full)</span><span class="tiempo-code" data-code-index="2"></span>
                         </button>
-                        <button type="button" class="gama-option pan-tiempo-opt" data-value="3-5 días estándar">
+                        <button type="button" class="gama-option pan-tiempo-opt" data-time-index="3">
                             <span><i class="bi bi-calendar3 me-1"></i>3-5 días (Estándar)</span><span class="tiempo-code" data-code-index="3"></span>
                         </button>
-                        <button type="button" class="gama-option pan-tiempo-opt" data-value="Envío internacional 20-30 días">
+                        <button type="button" class="gama-option pan-tiempo-opt" data-time-index="4">
                             <span><i class="bi bi-globe me-1"></i>Envío internacional (20-30 días)</span><span class="tiempo-code" data-code-index="4"></span>
                         </button>
                     </div>

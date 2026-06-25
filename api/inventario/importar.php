@@ -151,6 +151,7 @@ switch ($categoria) {
 
     case 'pantallas':
         $validCalidades = InventarioConstantes::CALIDADES_PANTALLA;
+        $validTiempos = InventarioConstantes::TIEMPOS_PANTALLA;
         foreach ($rows as $idx => $row) {
             $rowNum = $idx + 2;
             $modeloNombre = trim($row['modelo'] ?? '');
@@ -177,6 +178,10 @@ switch ($categoria) {
             }
             if ($tiempo === '') {
                 $columnErrors[] = "Fila {$rowNum} — Tiempo vacio (campo obligatorio)";
+                continue;
+            }
+            if (!in_array($tiempo, $validTiempos, true)) {
+                $columnErrors[] = "Fila {$rowNum} — Tiempo '{$tiempo}' no valido. Opciones: " . implode(', ', $validTiempos);
                 continue;
             }
             if ($precio === '' || !is_numeric($precio) || (float) $precio < 0) {

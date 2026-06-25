@@ -252,6 +252,11 @@ if (!empty($rows)) {
 }
 
 // ═══════════════ PANTALLAS ═══════════════
+$pantallaCalidadLabels = [
+    'C1' => 'Genérico',
+    'C2' => 'Intermedio',
+    'C3' => 'Original',
+];
 $rows = searchSupabase($supabase, 'inv_pantallas', [
     'select' => 'id,calidad,precio,tiempo,modelo_id,modelo_tecnico_id',
     'tenant_id' => 'eq.' . $tenantId,
@@ -278,12 +283,13 @@ if (!empty($rows)) {
         'icon'   => 'bi-phone',
         'count'  => count($rows),
         'url'    => $base_path . 'modules/inventario',
-        'items'  => array_map(function ($r) use ($base_path, $modMap, $tecMap) {
+        'items'  => array_map(function ($r) use ($base_path, $modMap, $tecMap, $pantallaCalidadLabels) {
             $modelo = $modMap[$r['modelo_id']] ?? '';
             $tecnico = $tecMap[$r['modelo_tecnico_id']] ?? '';
+            $calidad = $pantallaCalidadLabels[$r['calidad'] ?? ''] ?? ($r['calidad'] ?? '');
             return [
                 'titulo'    => $modelo . ' – $' . number_format((float) $r['precio'], 2),
-                'subtitulo' => 'Calidad: ' . ($r['calidad'] ?? '') . ' · ' . $tecnico,
+                'subtitulo' => 'Calidad: ' . $calidad . ' · ' . $tecnico,
                 'badge'     => 'Pantalla',
                 'url'       => $base_path . 'modules/inventario',
             ];

@@ -70,8 +70,80 @@ class InventarioCategoriaRepository
             $rows = $row['rows'] ?? [];
             return is_string($rows) ? json_decode($rows, true) ?? [] : (is_array($rows) ? $rows : []);
         }
-        $total = 0;
-        return [];
+
+        return $this->findPantallasPaginadoFallback($tid, $offset, $limit, $total);
+    }
+
+    private function findPantallasPaginadoFallback(int $tid, int $offset, int $limit, ?int &$total = null): array
+    {
+        $result = $this->api->get('inv_pantallas', [
+            'select' => 'id,tenant_id,modelo_id,modelo_tecnico_id,calidad,precio,tiempo,nota,created_at,updated_at,deleted_at',
+            'tenant_id' => 'eq.' . $tid,
+            'deleted_at' => 'is.null',
+            'order' => 'created_at.desc',
+            'limit' => (string) $limit,
+            'offset' => (string) $offset,
+        ], $this->userToken());
+
+        if (!$result['ok'] || !is_array($result['data'])) {
+            $total = 0;
+            return [];
+        }
+
+        $rows = $result['data'];
+        $countResult = $this->api->get('inv_pantallas', [
+            'select' => 'id',
+            'tenant_id' => 'eq.' . $tid,
+            'deleted_at' => 'is.null',
+        ], $this->userToken());
+        $total = ($countResult['ok'] && is_array($countResult['data'])) ? count($countResult['data']) : count($rows);
+        if (empty($rows)) {
+            return [];
+        }
+
+        $modeloIds = [];
+        foreach ($rows as $row) {
+            foreach (['modelo_id', 'modelo_tecnico_id'] as $campo) {
+                $id = (int) ($row[$campo] ?? 0);
+                if ($id > 0) {
+                    $modeloIds[$id] = true;
+                }
+            }
+        }
+
+        $modelosPorId = [];
+        if (!empty($modeloIds)) {
+            $ids = implode(',', array_keys($modeloIds));
+            $modelos = $this->api->get('modelos', [
+                'select' => 'id,nombre',
+                'tenant_id' => 'eq.' . $tid,
+                'id' => 'in.(' . $ids . ')',
+            ], $this->userToken());
+
+            if ($modelos['ok'] && is_array($modelos['data'])) {
+                foreach ($modelos['data'] as $modelo) {
+                    $modelosPorId[(int) ($modelo['id'] ?? 0)] = $modelo['nombre'] ?? null;
+                }
+            }
+        }
+
+        foreach ($rows as &$row) {
+            $modeloId = (int) ($row['modelo_id'] ?? 0);
+            $modeloTecnicoId = (int) ($row['modelo_tecnico_id'] ?? 0);
+            $row['modelo_nombre'] = $modelosPorId[$modeloId] ?? null;
+            $row['modelo_tecnico_nombre'] = $modelosPorId[$modeloTecnicoId] ?? null;
+        }
+        unset($row);
+
+        usort($rows, function ($a, $b) {
+            $modeloCmp = strcasecmp((string) ($a['modelo_nombre'] ?? ''), (string) ($b['modelo_nombre'] ?? ''));
+            if ($modeloCmp !== 0) return $modeloCmp;
+            $calidadCmp = strcasecmp((string) ($a['calidad'] ?? ''), (string) ($b['calidad'] ?? ''));
+            if ($calidadCmp !== 0) return $calidadCmp;
+            return strcmp((string) ($b['created_at'] ?? ''), (string) ($a['created_at'] ?? ''));
+        });
+
+        return $rows;
     }
 
     public function findAccesoriosPaginado(int $offset, int $limit, ?int &$total = null): array

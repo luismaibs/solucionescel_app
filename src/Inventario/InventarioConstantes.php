@@ -33,7 +33,26 @@ class InventarioConstantes
 
     // Pantallas
     public const CALIDADES_PANTALLA = [
-        'Genérico', 'Intermedio', 'Original',
+        'C1', 'C2', 'C3',
+    ];
+
+    public const CALIDADES_PANTALLA_LABELS = [
+        'C1' => 'Genérico',
+        'C2' => 'Intermedio',
+        'C3' => 'Original',
+    ];
+
+    public const TIEMPOS_PANTALLA = [
+        'TAD 1', 'TAD 2', 'TAD 3', 'TAD 4',
+        'TAP 1', 'TAP 2', 'TAP 3', 'TAP 4',
+        'OTR 1', 'OTR 2', 'OTR 3', 'OTR 4',
+    ];
+
+    public const TIEMPOS_PANTALLA_LABELS = [
+        '1' => 'Instalación inmediata 4hrs',
+        '2' => '2-3 días full',
+        '3' => '3-5 días estándar',
+        '4' => 'Envío internacional 20-30 días',
     ];
 
     // Compartido: tiempos de entrega

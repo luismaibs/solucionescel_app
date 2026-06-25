@@ -44,6 +44,50 @@
             return nombre || 'Sin subcategoría';
         }
 
+        var pantallaCalidadLabels = {
+            C1: 'Genérico',
+            C2: 'Intermedio',
+            C3: 'Original',
+            'Genérico': 'Genérico',
+            Intermedio: 'Intermedio',
+            Original: 'Original'
+        };
+
+        var pantallaTiempoLabels = {
+            '1': 'Instalación inmediata (4 horas)',
+            '2': '2-3 días (Full)',
+            '3': '3-5 días (Estándar)',
+            '4': 'Envío internacional (20-30 días)'
+        };
+
+        function getPantallaCalidadLabel(valor) {
+            return pantallaCalidadLabels[String(valor || '').trim()] || valor || '';
+        }
+
+        function getPantallaCalidadCode(valor) {
+            var raw = String(valor || '').trim();
+            if (raw === 'Genérico') return 'C1';
+            if (raw === 'Intermedio') return 'C2';
+            if (raw === 'Original') return 'C3';
+            return raw;
+        }
+
+        function getPantallaTiempoLabel(valor) {
+            var raw = String(valor || '').trim();
+            var match = raw.match(/^(TAD|TAP|OTR)\s*([1-4])$/i);
+            if (match) return pantallaTiempoLabels[match[2]] || raw;
+            if (raw === 'Instalación inmediata 4hrs') return pantallaTiempoLabels['1'];
+            if (raw === '2-3 días full') return pantallaTiempoLabels['2'];
+            if (raw === '3-5 días estándar') return pantallaTiempoLabels['3'];
+            if (raw === 'Envío internacional 20-30 días') return pantallaTiempoLabels['4'];
+            return raw;
+        }
+
+        function getPantallaCalidadClass(valor) {
+            var label = getPantallaCalidadLabel(valor);
+            return label === 'Original' ? 'text-success' : (label === 'Intermedio' ? 'text-info' : 'text-warning');
+        }
+
         function compareInvText(a, b) {
             return String(a || '').localeCompare(String(b || ''), 'es', {
                 sensitivity: 'base',
@@ -180,18 +224,20 @@
             pantallas: {
                 thead: ['Modelo', 'Modelo Técnico', 'Calidad', 'Precio', 'Tiempo Entrega', 'Nota', ''],
                 row: function (p) {
-                    var calidadClass = p.calidad === 'Original' ? 'text-success' : (p.calidad === 'Intermedio' ? 'text-info' : 'text-warning');
+                    var calidadLabel = getPantallaCalidadLabel(p.calidad);
+                    var tiempoLabel = getPantallaTiempoLabel(p.tiempo);
+                    var calidadClass = getPantallaCalidadClass(p.calidad);
                     return '<td class="ps-4 fw-semibold text-white">' + escapeHtml(p.modelo_nombre || '—') + '</td>' +
                         '<td class="text-info">' + escapeHtml(p.modelo_tecnico_nombre || '—') + '</td>' +
-                        '<td><span class="' + calidadClass + ' fw-semibold">' + escapeHtml(p.calidad) + '</span></td>' +
+                        '<td><span class="' + calidadClass + ' fw-semibold">' + escapeHtml(calidadLabel) + '</span></td>' +
                         '<td><span class="price-tag">$' + parseFloat(p.precio || 0).toFixed(2) + '</span></td>' +
-                        '<td class="text-muted small">' + escapeHtml(p.tiempo || '—') + '</td>' +
+                        '<td class="text-muted small">' + escapeHtml(tiempoLabel || '—') + '</td>' +
                         '<td class="text-muted small" style="max-width:150px">' + escapeHtml(p.nota || '—') + '</td>';
                 },
                 card: function (p) {
-                    return '<div class="app-mobile-card-meta mb-1"><span class="badge-cat cat-pantallas">' + escapeHtml(p.calidad) + '</span></div>' +
+                    return '<div class="app-mobile-card-meta mb-1"><span class="badge-cat cat-pantallas">' + escapeHtml(getPantallaCalidadLabel(p.calidad)) + '</span></div>' +
                         '<div class="app-mobile-card-title">' + escapeHtml(p.modelo_nombre || '—') + '</div>' +
-                        '<div class="app-mobile-card-subtitle">' + escapeHtml(p.modelo_tecnico_nombre || '') + ' · $' + parseFloat(p.precio || 0).toFixed(2) + '</div>';
+                        '<div class="app-mobile-card-subtitle">' + escapeHtml(p.modelo_tecnico_nombre || '') + ' · ' + escapeHtml(getPantallaTiempoLabel(p.tiempo)) + ' · $' + parseFloat(p.precio || 0).toFixed(2) + '</div>';
                 }
             },
             accesorios: {
@@ -463,7 +509,7 @@
                 // Subcategoría / calidad
                 if (f.subcategorias.length) {
                     var sub = cat === 'accesorios' ? p.subcategoria_nombre
-                            : cat === 'pantallas'  ? p.calidad
+                            : cat === 'pantallas'  ? getPantallaCalidadLabel(p.calidad)
                             : cat === 'servicios'  ? p.subcategoria
                             : p.calidad;
                     if (f.subcategorias.indexOf(sub) === -1) return false;
@@ -530,7 +576,7 @@
                     fields = [p.marca, p.modelo_bateria, p.calidad, p.tipo];
                     break;
                 case 'pantallas':
-                    fields = [p.modelo_nombre, p.modelo_tecnico_nombre, p.calidad];
+                    fields = [p.modelo_nombre, p.modelo_tecnico_nombre, p.calidad, getPantallaCalidadLabel(p.calidad), p.tiempo, getPantallaTiempoLabel(p.tiempo)];
                     break;
                 case 'servicios':
                     fields = [p.subcategoria, p.gama, p.sistemas_operativos || '', (p.acciones_lista || '').replace(/\|\|/g, ' ')];
@@ -591,7 +637,7 @@
                 var calidades = uniqueSorted(invAllItems.map(function(p) { return p.calidad; }));
                 if (calidades.length) html += renderFiltroSeccion('Calidad', 'subcategoria', calidades, filtrosActivos.subcategorias);
             } else if (cat === 'pantallas') {
-                var calidades = uniqueSorted(invAllItems.map(function(p) { return p.calidad; }));
+                var calidades = uniqueSorted(invAllItems.map(function(p) { return getPantallaCalidadLabel(p.calidad); }));
                 if (calidades.length) html += renderFiltroSeccion('Calidad', 'subcategoria', calidades, filtrosActivos.subcategorias);
             } else if (cat === 'servicios') {
                 var subcats = uniqueSorted(invAllItems.map(function(p) { return p.subcategoria; }));
@@ -630,10 +676,11 @@
             return arr.filter(Boolean).filter(function(v, i, a) { return a.indexOf(v) === i; }).sort();
         }
 
-        function renderFiltroSeccion(label, tipo, opciones, activas) {
+        function renderFiltroSeccion(label, tipo, opciones, activas, labelFn) {
             var chips = opciones.map(function(op) {
                 var sel = activas.indexOf(op) !== -1 ? ' selected' : '';
-                return '<span class="inv-filter-chip' + sel + '" data-tipo="' + tipo + '" data-val="' + escapeHtml(op) + '" onclick="toggleFiltroChip(this)">' + escapeHtml(op) + '</span>';
+                var display = labelFn ? labelFn(op) : op;
+                return '<span class="inv-filter-chip' + sel + '" data-tipo="' + tipo + '" data-val="' + escapeHtml(op) + '" onclick="toggleFiltroChip(this)">' + escapeHtml(display) + '</span>';
             }).join('');
             return '<div class="inv-filter-seccion"><div class="inv-filter-seccion-titulo">' + label + '</div><div class="inv-filter-chips">' + chips + '</div></div>';
         }
@@ -702,6 +749,7 @@
         // VISTA TABLA (hoja de cálculo tipo Excel — Tabulator)
         // ================================================================
         var moneyFmt = { symbol: '$', precision: 2, thousand: ',' };
+        var pantallaCalidadEditorValues = { C1: 'Genérico', C2: 'Intermedio', C3: 'Original' };
 
         var excelColumnDefs = {
             accesorios: [
@@ -727,9 +775,9 @@
             pantallas: [
                 { title: 'Modelo', field: 'modelo_nombre', width: 150, headerFilter: 'input' },
                 { title: 'Modelo Técnico', field: 'modelo_tecnico_nombre', width: 150, headerFilter: 'input' },
-                { title: 'Calidad', field: 'calidad', width: 130, editor: 'list', editorParams: { values: ['Genérico', 'Intermedio', 'Original'] }, cssClass: 'excel-editable' },
+                { title: 'Calidad', field: 'calidad', width: 130, editor: 'list', editorParams: { values: pantallaCalidadEditorValues }, formatter: function (cell) { return escapeHtml(getPantallaCalidadLabel(cell.getValue())); }, cssClass: 'excel-editable' },
                 { title: 'Precio', field: 'precio', width: 120, hozAlign: 'right', editor: 'number', editorParams: { min: 0, step: 0.01 }, formatter: 'money', formatterParams: moneyFmt, cssClass: 'excel-editable' },
-                { title: 'Tiempo', field: 'tiempo', width: 170, editor: 'input', cssClass: 'excel-editable' },
+                { title: 'Tiempo', field: 'tiempo', width: 170, editor: 'input', formatter: function (cell) { return escapeHtml(getPantallaTiempoLabel(cell.getValue())); }, cssClass: 'excel-editable' },
                 { title: 'Nota', field: 'nota', minWidth: 180, editor: 'textarea', cssClass: 'excel-editable' }
             ],
             servicios: [
@@ -821,6 +869,10 @@
             var valor = cell.getValue();
             var id = rowData.id;
 
+            if (categoriaActiva === 'pantallas' && campo === 'calidad') {
+                valor = getPantallaCalidadCode(valor);
+            }
+
             fetch(apiUrl('inventario/actualizar'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -830,12 +882,13 @@
                 .then(function (data) {
                     if (data.ok) {
                         // Reflejar valor normalizado del servidor sin re-disparar edición
-                        if (data.valor !== undefined && data.valor !== null && String(data.valor) !== String(valor)) {
+                        var valorGuardado = data.valor !== undefined ? data.valor : valor;
+                        if (valorGuardado !== undefined && valorGuardado !== null && String(valorGuardado) !== String(cell.getValue())) {
                             suppressCellEdited = true;
-                            cell.setValue(data.valor, true);
+                            cell.setValue(valorGuardado, true);
                             suppressCellEdited = false;
                         }
-                        syncItemLocal(id, campo, data.valor !== undefined ? data.valor : valor);
+                        syncItemLocal(id, campo, valorGuardado);
                         cell.getElement().classList.add('excel-saved');
                         setTimeout(function () { cell.getElement().classList.remove('excel-saved'); }, 900);
                     } else {
@@ -1355,7 +1408,7 @@
             btn.addEventListener('click', function () {
                 document.querySelectorAll('.pan-plataforma-opt').forEach(function (el) { el.classList.remove('active'); });
                 btn.classList.add('active');
-                document.getElementById('panPlataformaTiempoHidden').value = btn.getAttribute('data-value');
+                document.getElementById('panPlataformaTiempoHidden').value = btn.getAttribute('data-prefix');
                 document.getElementById('panTiempoHidden').value = '';
                 document.querySelectorAll('.pan-tiempo-opt').forEach(function (el) { el.classList.remove('active'); });
                 actualizarEtiquetasTiempo(btn.getAttribute('data-prefix'));
@@ -1368,7 +1421,9 @@
             btn.addEventListener('click', function () {
                 document.querySelectorAll('.pan-tiempo-opt').forEach(function (el) { el.classList.remove('active'); });
                 btn.classList.add('active');
-                document.getElementById('panTiempoHidden').value = btn.getAttribute('data-value');
+                var prefix = document.getElementById('panPlataformaTiempoHidden').value;
+                var idx = btn.getAttribute('data-time-index');
+                document.getElementById('panTiempoHidden').value = prefix && idx ? prefix + ' ' + idx : '';
             });
         });
 
@@ -1546,7 +1601,7 @@
                 headers: ['Modelo', 'Modelo técnico', 'Calidad', 'Precio', 'Tiempo', 'Nota'],
                 keys: ['modelo', 'modelo_tecnico', 'calidad', 'precio', 'tiempo', 'nota'],
                 required: ['modelo', 'modelo_tecnico', 'calidad', 'precio', 'tiempo'],
-                sample: ['iPhone 12', 'DNP', 'Original', '1200.00', 'Instalación inmediata 4hrs', 'En stock']
+                sample: ['iPhone 12', 'DNP', 'C3', '1200.00', 'TAP 1', 'En stock']
             },
             accesorios: {
                 headers: ['Subcategoría', 'Marca', 'Color', 'Código', 'Nombre producto', 'Stock', 'Precio'],

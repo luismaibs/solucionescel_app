@@ -35,7 +35,7 @@ try {
 
     if ($precio <= 0) throw new InvalidArgumentException('El precio debe ser mayor a 0.');
 
-    $tiemposValidos = InventarioConstantes::TIEMPOS_ENTREGA;
+    $tiemposValidos = InventarioConstantes::TIEMPOS_PANTALLA;
     if (!in_array($tiempo, $tiemposValidos, true)) {
         throw new InvalidArgumentException('Tiempo de entrega no válido.');
     }
